@@ -534,8 +534,7 @@ class Mail
         }
 
         $messageBody = $this->message->getMessage();
-
-        $headers = $this->buildHeaders();
+        $headers     = $this->buildHeaders();
 
         // Send as group message
         if ($this->group) {
