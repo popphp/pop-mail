@@ -75,24 +75,22 @@ class Queue extends \SplQueue
      */
     public function addRecipients($rcpts)
     {
-        $regEx = '/[a-zA-Z0-9\.\-\_+%]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z]{2,4}/';
-
         // If single, but not valid
-        if (!is_array($rcpts) && !preg_match($regEx, $rcpts)) {
+        if (!is_array($rcpts) && !$this->isValid($rcpts)) {
             throw new Exception("Error: You must pass at least one valid email address.");
         // Else, if single and valid
         } else if (!is_array($rcpts)) {
             $this[] = ['email' => $rcpts];
         // Else if an associative array of scalar values
         } else if (is_array($rcpts) && isset($rcpts['email'])) {
-            if (!preg_match($regEx, $rcpts['email'])) {
+            if (!$this->isValid($rcpts['email'])) {
                 throw new Exception("Error: The email address '" . $rcpts['email'] . "' is not valid.");
             }
             $this[] = $rcpts;
         // Else if a numeric array of scalar values
         } else if (is_array($rcpts) && isset($rcpts[0]) && !is_array($rcpts[0])) {
             foreach ($rcpts as $email) {
-                if (!preg_match($regEx, $email)) {
+                if (!$this->isValid($email)) {
                     throw new Exception("Error: The email address '" . $email . "' is not valid.");
                 }
                 $this[] = ['email' => $email];
@@ -102,7 +100,7 @@ class Queue extends \SplQueue
             foreach ($rcpts as $rcpt) {
                 if (!isset($rcpt['email'])) {
                     throw new Exception("Error: At least one of the array keys must be 'email'.");
-                } else if (!preg_match($regEx, $rcpt['email'])) {
+                } else if (!$this->isValid($rcpt['email'])) {
                     throw new Exception("Error: The email address '" . $rcpt['email'] . "' is not valid.");
                 }
                 $this[] = $rcpt;
@@ -112,6 +110,18 @@ class Queue extends \SplQueue
         }
 
         return $this;
+    }
+
+    /**
+     * Validate the email
+     *
+     * @param  string $email
+     * @return boolean
+     */
+    public function isValid($email)
+    {
+        return (preg_match('/[a-zA-Z0-9\.\-\_+%]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z]{2,4}/', $email) ||
+            preg_match('/[a-zA-Z0-9\.\-\_+%]+@localhost/', $email));
     }
 
     /**
