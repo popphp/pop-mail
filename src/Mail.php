@@ -87,19 +87,21 @@ class Mail
      *
      * Instantiate the mail object
      *
-     * @param  string $subj
+     * @param  string $subject
      * @param  mixed  $rcpts
      * @return Mail
      */
-    public function __construct($subj = null, $rcpts = null)
+    public function __construct($subject = null, $rcpts = null)
     {
-        $this->subject = $subj;
+        $this->setSubject($subject);
+
         $this->queue   = new Queue();
         $this->message = new Message($this);
 
         if (null !== $rcpts) {
             $this->addRecipients($rcpts);
         }
+
     }
 
     /**
@@ -542,10 +544,10 @@ class Mail
                 'Subject: ' . $this->subject . $this->message->getEol() .
                 $headers . $this->message->getEol() . $this->message->getEol() . $messageBody;
 
-            $emailFileName = (null !== $format) ? $format : $emailFileName = '0000000001-' . time() . '-popphpmail';
+            $emailFileName = (null !== $format) ? $format : $emailFileName = '000000001-' . time() . '-popphpmail';
 
             // Save the email message.
-            file_put_contents($dir . DIRECTORY_SEPARATOR . $emailFileName, [], $email);
+            file_put_contents($dir . DIRECTORY_SEPARATOR . $emailFileName, $email);
         } else {
             // Iterate through the queue and send the mail messages.
             $i = 1;
@@ -606,7 +608,7 @@ class Mail
 
         if (isset($emailFiles[0])) {
             foreach ($emailFiles as $email) {
-                if (file_exists($dir . DIRECTORY_SEPARATOR . $email)) {
+                if (($email !== '.') && ($email !== '..') && file_exists($dir . DIRECTORY_SEPARATOR . $email)) {
                     // Get the email data from the contents
                     $emailData = $this->getEmailFromFile($dir . DIRECTORY_SEPARATOR . $email);
 
@@ -615,7 +617,7 @@ class Mail
 
                     // Delete the email file is the flag is passed
                     if ($delete) {
-                        unlink($email);
+                        unlink($dir . DIRECTORY_SEPARATOR . $email);
                     }
                 }
             }
@@ -678,12 +680,23 @@ class Mail
         $to = substr($to, 0, strpos($to, $this->message->getEol()));
         $email['headers'] = str_replace($to . $this->message->getEol(), '', $email['headers']);
 
-        preg_match('/[a-zA-Z0-9\.\-\_+%]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z]{2,4}/', $to, $result);
+        $regEx1   = '/[a-zA-Z0-9\.\-\_+%]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z]{2,4}/';
+        $regEx2   = '/[a-zA-Z0-9\.\-\_+%]+@localhost/';
+        $matches1 = [];
+        $matches2 = [];
+        preg_match_all($regEx1, $to, $matches1);
+        preg_match_all($regEx2, $to, $matches2);
 
-        if (!isset($result[0])) {
-            throw new Exception("Error: An valid email could not be parsed from the email file '" . $filename . "'.");
+        if (isset($matches1[0]) && isset($matches1[0][0]) && isset($matches2[0]) && isset($matches2[0][0])) {
+            $email['to'] = implode(', ', array_merge($matches1[0], $matches2[0]));
+        } else if (isset($matches2[0]) && isset($matches2[0][0])) {
+            $email['to'] = implode(', ', $matches2[0]);
         } else {
-            $email['to'] = $result[0];
+            $email['to'] = implode(', ', $matches1[0]);
+        }
+
+        if (!isset($matches1[0]) && !isset($matches1[0][0]) && !isset($matches2[0]) && !isset($matches2[0][0])) {
+            throw new Exception("Error: An valid email could not be parsed from the email file '" . $filename . "'.");
         }
 
         return $email;
