@@ -10,9 +10,10 @@ OVERVIEW
 
 * Send to multiple emails
 * Send as group
+* Manage headers
 * Attach files
-* Multiple mime-types (i.e., text, HTML, etc.)
-* Saving emails to be sent later
+* Send multiple mime-types (i.e., text, HTML, etc.)
+* Save emails to be sent later
 
 `pop-mail` is a component of the [Pop PHP Framework](http://www.popphp.org/).
 
@@ -123,7 +124,9 @@ $html = <<<HTML
 HTML;
 
 $mail->setHtml($html);
-$mail->setText('This is the text message in case your email client cannot display HTML.');
+$mail->setText(
+    'This is the text message in case your email client cannot display HTML.'
+);
 
 $mail->send();
 ```
@@ -175,7 +178,7 @@ $mail->setText('Hello World! This is a test email.');
 $mail->saveTo(__DIR__ . '/email-queue');
 ```
 
-That will write the email or emails to a file in the folder 'email-queue' folder.
+That will write the email or emails to a file in the folder.
 Then, when you're ready to send them, you can simply do this:
 
 ```php
