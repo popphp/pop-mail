@@ -2,7 +2,7 @@ pop-mail
 ========
 
 [![Build Status](https://travis-ci.org/popphp/pop-mail.svg?branch=master)](https://travis-ci.org/popphp/pop-mail)
-[![Coverage Status](http://www.popphp.org/cc/coverage.php?comp=pop-mail)](http://www.popphp.org/cc/pop-mail/)
+[![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-mail)](http://cc.popphp.org/pop-mail/)
 
 OVERVIEW
 --------
@@ -189,4 +189,3 @@ $mail->sendFrom(__DIR__ . '/email-queue', true);
 ```
 
 The `true` parameter is the flag to delete the email from the folder once it's sent.
- 
