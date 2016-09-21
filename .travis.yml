@@ -3,6 +3,8 @@ before_script:
     - composer install
 language: php
 branches:
+  except:
+  - refactor/v3
   only:
   - master
 php:
