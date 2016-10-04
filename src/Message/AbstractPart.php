@@ -11,10 +11,10 @@
 /**
  * @namespace
  */
-namespace Pop\Mail;
+namespace Pop\Mail\Message;
 
 /**
- * Mail exception class
+ * Abstract mail message part class
  *
  * @category   Pop
  * @package    Pop_Mail
@@ -23,4 +23,23 @@ namespace Pop\Mail;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-class Exception extends \Exception {}
+abstract class AbstractPart
+{
+
+    /**
+     * Message part content
+     * @var string
+     */
+    protected $content = null;
+
+    /**
+     * Get message part content
+     *
+     * @return string
+     */
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+}

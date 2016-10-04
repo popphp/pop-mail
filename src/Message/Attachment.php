@@ -11,19 +11,19 @@
 /**
  * @namespace
  */
-namespace Pop\Mail;
+namespace Pop\Mail\Message;
 
 /**
- * Mail attachment class
+ * Mail fill attachment message class
  *
  * @category   Pop
  * @package    Pop_Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.1.0
+ * @version    3.0.0
  */
-class Attachment
+class Attachment extends AbstractPart
 {
 
     /**
@@ -57,25 +57,31 @@ class Attachment
         // Encode the file contents and set the file into the attachments array property.
         $this->basename = basename($file);
         $this->encoded  = chunk_split(base64_encode(file_get_contents($file)));
+        $this->content  = 'Content-Type: file; name="' . $this->basename .
+            '"' . "\r\n" . 'Content-Transfer-Encoding: base64' . "\r\n" .
+            'Content-Description: ' . $this->basename . "\r\n" .
+            'Content-Disposition: attachment; filename="' . $this->basename .
+            '"' . "\r\n" . "\r\n" . $this->encoded . "\r\n" . "\r\n";
     }
 
     /**
-     * Build attachment
+     * Get attachment basename
      *
-     * @param  string $boundary
-     * @param  string $eol
      * @return string
      */
-    public function build($boundary, $eol = "\r\n")
+    public function getBasename()
     {
-        $attachment = $eol . '--' . $boundary.
-            $eol . 'Content-Type: file; name="' . $this->basename .
-            '"' . $eol . 'Content-Transfer-Encoding: base64' . $eol .
-            'Content-Description: ' . $this->basename . $eol .
-            'Content-Disposition: attachment; filename="' . $this->basename .
-            '"' . $eol . $eol . $this->encoded . $eol . $eol;
+        return $this->basename;
+    }
 
-        return $attachment;
+    /**
+     * Get attachment encoded content
+     *
+     * @return string
+     */
+    public function getEncoded()
+    {
+        return $this->encoded;
     }
 
 }

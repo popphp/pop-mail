@@ -11,10 +11,10 @@
 /**
  * @namespace
  */
-namespace Pop\Mail;
+namespace Pop\Mail\Message;
 
 /**
- * Mail exception class
+ * Mail text message class
  *
  * @category   Pop
  * @package    Pop_Mail
@@ -23,4 +23,20 @@ namespace Pop\Mail;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-class Exception extends \Exception {}
+class Text extends AbstractPart
+{
+
+    /**
+     * Constructor
+     *
+     * Instantiate the mail Text object
+     *
+     * @param  string $text
+     * @return Text
+     */
+    public function __construct($text)
+    {
+        $this->content = $text;
+    }
+
+}

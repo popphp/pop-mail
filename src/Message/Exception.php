@@ -11,10 +11,10 @@
 /**
  * @namespace
  */
-namespace Pop\Mail;
+namespace Pop\Mail\Message;
 
 /**
- * Mail exception class
+ * Mail message exception class
  *
  * @category   Pop
  * @package    Pop_Mail

@@ -21,28 +21,10 @@ namespace Pop\Mail;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.1.0
+ * @version    3.0.0
  */
 class Mail
 {
-
-    /**
-     * CRLF EOL constant
-     * @var string
-     */
-    const CRLF = "\r\n";
-
-    /**
-     * LF EOL constant
-     * @var string
-     */
-    const LF = "\n";
-
-    /**
-     * Sending queue
-     * @var Queue
-     */
-    protected $queue = null;
 
     /**
      * Mail headers
@@ -51,28 +33,40 @@ class Mail
     protected $headers = [];
 
     /**
-     * Subject
-     * @var string
+     * TO: queue
+     * @var Queue
      */
-    protected $subject = null;
+    protected $to = null;
 
     /**
-     * Message body
+     * CC: queue
+     * @var Queue
+     */
+    protected $cc = null;
+
+    /**
+     * BCC: queue
+     * @var Queue
+     */
+    protected $bcc = null;
+
+    /**
+     * Message object
      * @var Message
      */
     protected $message = null;
 
     /**
-     * Mail parameters
-     * @var string
+     * Message transport
+     * @var Transport\AbstractTransport
      */
-    protected $params = null;
+    protected $transport = null;
 
     /**
-     * File attachments
-     * @var array
+     * Mail header string
+     * @var string
      */
-    protected $attachments = [];
+    protected $headerString = null;
 
     /**
      * Send as group flag
@@ -85,136 +79,15 @@ class Mail
      *
      * Instantiate the mail object
      *
-     * @param  string $subject
-     * @param  mixed  $rcpts
      * @return Mail
      */
-    public function __construct($subject = null, $rcpts = null)
+    public function __construct()
     {
-        $this->setSubject($subject);
-
-        $this->queue   = new Queue();
-        $this->message = new Message($this);
-
-        if (null !== $rcpts) {
-            $this->addRecipients($rcpts);
-        }
 
     }
 
     /**
-     * Get the mail queue
-     *
-     * @return Queue
-     */
-    public function getQueue()
-    {
-        return $this->queue;
-    }
-
-    /**
-     * Get the mail message
-     *
-     * @return Message
-     */
-    public function getMessage()
-    {
-        return $this->message;
-    }
-
-    /**
-     * Get the mail header
-     *
-     * @return array
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
-    /**
-     * Get the mail header
-     *
-     * @param  string $name
-     * @return string
-     */
-    public function getHeader($name)
-    {
-        return (isset($this->headers[$name])) ? $this->headers[$name] : null;
-    }
-
-    /**
-     * Get the subject
-     *
-     * @return string
-     */
-    public function getSubject()
-    {
-        return $this->subject;
-    }
-
-    /**
-     * Get MIME boundary
-     *
-     * @return string
-     */
-    public function getBoundary()
-    {
-        return $this->message->getBoundary();
-    }
-
-    /**
-     * Get EOL
-     *
-     * @return string
-     */
-    public function getEol()
-    {
-        return $this->message->getEol();
-    }
-
-    /**
-     * Get character set
-     *
-     * @return string
-     */
-    public function getCharset()
-    {
-        return $this->message->getCharset();
-    }
-
-    /**
-     * Get text part of the message
-     *
-     * @return string
-     */
-    public function getText()
-    {
-        return $this->message->getText();
-    }
-
-    /**
-     * Get HTML part of the message
-     *
-     * @return string
-     */
-    public function getHtml()
-    {
-        return $this->message->getHtml();
-    }
-
-    /**
-     * Get attachments
-     *
-     * @return array
-     */
-    public function getAttachments()
-    {
-        return $this->attachments;
-    }
-
-    /**
-     * Alias to add a recipient to the queue
+     * Add a To address
      *
      * @param  string $email
      * @param  string $name
@@ -222,38 +95,50 @@ class Mail
      */
     public function to($email, $name = null)
     {
-        $this->add($email, $name);
+        if (null === $this->to) {
+            $this->to = new Queue($email, $name);
+        } else {
+            $this->to->addRecipient($email, $name);
+        }
         return $this;
     }
 
     /**
-     * Add a recipient to the queue
+     * Add a CC address
      *
      * @param  string $email
      * @param  string $name
      * @return Mail
      */
-    public function add($email, $name = null)
+    public function cc($email, $name = null)
     {
-        $this->queue->add($email, $name);
+        if (null === $this->cc) {
+            $this->cc = new Queue($email, $name);
+        } else {
+            $this->cc->addRecipient($email, $name);
+        }
         return $this;
     }
 
     /**
-     * Add recipients to the queue
+     * Add a BCC address
      *
-     * @param  mixed $rcpts
-     * @throws Exception
+     * @param  string $email
+     * @param  string $name
      * @return Mail
      */
-    public function addRecipients($rcpts)
+    public function bcc($email, $name = null)
     {
-        $this->queue->addRecipients($rcpts);
+        if (null === $this->bcc) {
+            $this->bcc = new Queue($email, $name);
+        } else {
+            $this->bcc->addRecipient($email, $name);
+        }
         return $this;
     }
 
     /**
-     * Alias to set the from and reply-to headers
+     * Add a From address
      *
      * @param  string  $email
      * @param  string  $name
@@ -262,17 +147,16 @@ class Mail
      */
     public function from($email, $name = null, $replyTo = true)
     {
-        $header = (null !== $name) ? $name . ' <' . $email . '>' : $email;
-        $this->setHeader('From', $header);
+        $from = (null !== $name) ? $name . ' <' . $email . '>' : $email;
+        $this->setHeader('From', $from);
         if ($replyTo) {
-            $this->setHeader('Reply-To', $header);
+            $this->setHeader('Reply-To', $from);
         }
-
         return $this;
     }
 
     /**
-     * Alias to set the reply-to and from headers
+     * Add a Reply-To address
      *
      * @param  string  $email
      * @param  string  $name
@@ -281,52 +165,11 @@ class Mail
      */
     public function replyTo($email, $name = null, $from = true)
     {
-        $header = (null !== $name) ? $name . ' <' . $email . '>' : $email;
-        $this->setHeader('Reply-To', $header);
+        $replyTo = (null !== $name) ? $name . ' <' . $email . '>' : $email;
+        $this->setHeader('Reply-To', $replyTo);
         if ($from) {
-            $this->setHeader('From', $header);
+            $this->setHeader('From', $replyTo);
         }
-
-        return $this;
-    }
-
-    /**
-     * Alias to set the cc headers
-     *
-     * @param  string  $email
-     * @param  string  $name
-     * @return Mail
-     */
-    public function cc($email, $name = null)
-    {
-        if (is_array($email)) {
-            $ccQueue = new Queue($email);
-            $header = (string)$ccQueue;
-        } else {
-            $header = (null !== $name) ? $name . ' <' . $email . '>' : $email;
-        }
-        $this->setHeader('Cc', $header);
-
-        return $this;
-    }
-
-    /**
-     * Alias to set the bcc headers
-     *
-     * @param  string  $email
-     * @param  string  $name
-     * @return Mail
-     */
-    public function bcc($email, $name = null)
-    {
-        if (is_array($email)) {
-            $bccQueue = new Queue($email);
-            $header = (string)$bccQueue;
-        } else {
-            $header = (null !== $name) ? $name . ' <' . $email . '>' : $email;
-        }
-        $this->setHeader('Bcc', $header);
-
         return $this;
     }
 
@@ -359,74 +202,26 @@ class Mail
     }
 
     /**
-     * Set the subject
+     * Set the mail message object
      *
-     * @param  string $subj
+     * @param  Message $message
      * @return Mail
      */
-    public function setSubject($subj)
+    public function setMessage(Message $message)
     {
-        $this->subject = $subj;
+        $this->message = $message;
         return $this;
     }
 
     /**
-     * Set MIME boundary
+     * Set the mail transport object
      *
-     * @param  string $bnd
+     * @param  Transport\AbstractTransport $transport
      * @return Mail
      */
-    public function setBoundary($bnd = null)
+    public function setTransport(Transport\AbstractTransport $transport)
     {
-        $this->message->setBoundary($bnd);
-        return $this;
-    }
-
-    /**
-     * Set EOL
-     *
-     * @param  string $eol
-     * @return Mail
-     */
-    public function setEol($eol = Mail::CRLF)
-    {
-        $this->message->setEol($eol);
-        return $this;
-    }
-
-    /**
-     * Set character set
-     *
-     * @param  string $chr
-     * @return Mail
-     */
-    public function setCharset($chr)
-    {
-        $this->message->setCharset($chr);
-        return $this;
-    }
-
-    /**
-     * Set text part of the message.
-     *
-     * @param  string $text
-     * @return Mail
-     */
-    public function setText($text)
-    {
-        $this->message->setText($text);
-        return $this;
-    }
-
-    /**
-     * Set HTML part of the message.
-     *
-     * @param  string $html
-     * @return Mail
-     */
-    public function setHtml($html)
-    {
-        $this->message->setHtml($html);
+        $this->transport = $transport;
         return $this;
     }
 
@@ -443,261 +238,183 @@ class Mail
     }
 
     /**
-     * Attach a file to the mail object.
+     * Determine if a mail header has been set
      *
-     * @param  string $file
-     * @throws Exception
-     * @return Mail
+     * @param  string $name
+     * @return boolean
      */
-    public function attachFile($file)
+    public function hasHeader($name)
     {
-        $this->attachments[] = new Attachment($file);
-        return $this;
+        return (isset($this->headers[$name]));
     }
 
     /**
-     * Set parameters
+     * Determine if a mail object has a message object
      *
-     * @param mixed $params
-     * @return Mail
+     * @return boolean
      */
-    public function setParams($params = null)
+    public function hasMessage()
     {
-        if (null === $params) {
-            $this->params = null;
-        } else if (is_array($params)) {
-            foreach ($params as $value) {
-                $this->params .= $value;
-            }
-        } else {
-            $this->params .= $params;
-        }
-
-        return $this;
+        return (null !== $this->message);
     }
 
     /**
-     * Send mail message or messages.
+     * Determine if a mail object has a transport object
      *
-     * This method depends on the server being set up correctly as an SMTP server
-     * and sendmail being correctly defined in the php.ini file.
-     *
-     * @return void
+     * @return boolean
      */
-    public function send()
+    public function hasTransport()
     {
-        if (null === $this->message->getMessage()) {
-            $this->message->init();
-        }
-
-        $messageBody = $this->message->getMessage();
-
-        $headers = $this->buildHeaders() . $this->message->getEol() . $this->message->getEol();
-
-        // Send as group message
-        if ($this->group) {
-            mail((string)$this->queue, $this->subject, $messageBody, $headers, $this->params);
-        // Else, Iterate through the queue and send the mail messages.
-        } else {
-            foreach ($this->queue as $rcpt) {
-                $subject = $this->subject;
-                $message = $messageBody;
-
-                // Set the recipient parameter.
-                $to = (isset($rcpt['name'])) ? $rcpt['name'] . " <" . $rcpt['email'] . ">" : $rcpt['email'];
-
-                // Replace any set placeholder content within the subject or message.
-                foreach ($rcpt as $key => $value) {
-                    $subject = str_replace('[{' . $key . '}]', $value, $subject);
-                    $message = str_replace('[{' . $key . '}]', $value, $message);
-                }
-
-                // Send the email message.
-                mail($to, $subject, $message, $headers, $this->params);
-            }
-        }
+        return (null !== $this->transport);
     }
 
     /**
-     * Save mail message or messages in a folder to be sent at a later date
+     * Determine if it's set to send as group
      *
-     * @param string $to
-     * @param string $format
-     * @return Mail
+     * @return boolean
      */
-    public function saveTo($to = null, $format = null)
+    public function isSendAsGroup()
     {
-        $dir = (null !== $to) ? $to : getcwd();
-
-        if (null === $this->message->getMessage()) {
-            $this->message->init();
-        }
-
-        $messageBody = $this->message->getMessage();
-        $headers     = $this->buildHeaders();
-
-        // Send as group message
-        if ($this->group) {
-            $email = 'To: ' . (string)$this->queue . $this->message->getEol() .
-                'Subject: ' . $this->subject . $this->message->getEol() .
-                $headers . $this->message->getEol() . $this->message->getEol() . $messageBody;
-
-            $emailFileName = (null !== $format) ? $format : $emailFileName = '000000001-' . time() . '-popphpmail';
-
-            // Save the email message.
-            file_put_contents($dir . DIRECTORY_SEPARATOR . $emailFileName, $email);
-        } else {
-            // Iterate through the queue and send the mail messages.
-            $i = 1;
-            foreach ($this->queue as $rcpt) {
-                $fileFormat = null;
-                $subject    = $this->subject;
-                $message    = $messageBody;
-
-                // Set the recipient parameter.
-                $to = (isset($rcpt['name'])) ? $rcpt['name'] . " <" . $rcpt['email'] . ">" : $rcpt['email'];
-
-                // Replace any set placeholder content within the subject or message.
-                foreach ($rcpt as $key => $value) {
-                    $subject =  str_replace('[{' . $key . '}]', $value, $subject);
-                    $message =  str_replace('[{' . $key . '}]', $value, $message);
-                    if (null !== $format) {
-                        if (null !== $fileFormat) {
-                            $fileFormat = str_replace('[{' . $key . '}]', $value, $fileFormat);
-                        } else {
-                            $fileFormat = str_replace('[{' . $key . '}]', $value, $format);
-                        }
-                    }
-                }
-
-                $email = 'To: ' . $to . $this->message->getEol() .
-                         'Subject: ' . $subject . $this->message->getEol() .
-                         $headers . $this->message->getEol() . $this->message->getEol() . $message;
-
-                if (null !== $fileFormat) {
-                    $emailFileName = sprintf('%09d', $i) . '-' . time() . '-' . $fileFormat;
-                } else {
-                    $emailFileName = sprintf('%09d', $i) . '-' . time() . '-popphpmail';
-                }
-
-                // Save the email message.
-                file_put_contents($dir . DIRECTORY_SEPARATOR . $emailFileName, $email);
-                $i++;
-            }
-        }
-
-        return $this;
+        return $this->group;
     }
 
     /**
-     * Send mail message or messages that are saved in a folder.
+     * Get a mail header
      *
-     * This method depends on the server being set up correctly as an SMTP server
-     * and sendmail being correctly defined in the php.ini file.
-     *
-     * @param string  $from
-     * @param boolean $delete
-     * @return Mail
-     */
-    public function sendFrom($from = null, $delete = false)
-    {
-        $dir        = (null !== $from) ? $from : getcwd();
-        $emailFiles = scandir($dir);
-
-        if (isset($emailFiles[0])) {
-            foreach ($emailFiles as $email) {
-                if (($email !== '.') && ($email !== '..') && file_exists($dir . DIRECTORY_SEPARATOR . $email)) {
-                    // Get the email data from the contents
-                    $emailData = $this->getEmailFromFile($dir . DIRECTORY_SEPARATOR . $email);
-
-                    // Send the email message.
-                    mail($emailData['to'], $emailData['subject'], $emailData['message'], $emailData['headers'], $this->params);
-
-                    // Delete the email file is the flag is passed
-                    if ($delete) {
-                        unlink($dir . DIRECTORY_SEPARATOR . $email);
-                    }
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Build headers
-     *
+     * @param  string $name
      * @return string
      */
-    protected function buildHeaders()
+    public function getHeader($name)
     {
-        $headers = null;
-        foreach ($this->headers as $key => $value) {
-            $headers .= (is_array($value)) ? $key . ": " . $value[0] . " <" . $value[1] . ">" .
-                $this->message->getEol() : $key . ": " . $value . $this->message->getEol();
-        }
-
-        return $headers;
+        return (isset($this->headers[$name])) ? $this->headers[$name] : null;
     }
 
     /**
-     * Get email data from file
+     * Get mail headers
      *
-     * @param  string $filename
+     * @return array
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * Get the mail message object
+     *
+     * @return Message
+     */
+    public function getMessage()
+    {
+        return $this->message;
+    }
+
+    /**
+     * Get the mail transport object
+     *
+     * @return Transport\AbstractTransport
+     */
+    public function getTransport()
+    {
+        return $this->transport;
+    }
+
+    /**
+     * Send the mail
+     *
      * @throws Exception
      * @return array
      */
-    protected function getEmailFromFile($filename)
+    public function send()
     {
-        $contents = file_get_contents($filename);
-        $email = [
-            'to'      => null,
-            'subject' => null,
-            'headers' => null,
-            'message' => null
-        ];
-
-        $headers = substr($contents, 0, strpos($contents, $this->message->getEol() . $this->message->getEol()));
-        $email['message'] = trim(str_replace($headers, '', $contents));
-        $email['headers'] = trim($headers) . $this->message->getEol() . $this->message->getEol();
-
-        if (strpos($email['headers'], 'Subject:') === false) {
-            throw new Exception("Error: There is no subject in the email file '" . $filename . "'.");
+        if (null === $this->to) {
+            throw new Exception('Error: No recipients have been set.');
         }
 
-        if (strpos($email['headers'], 'To:') === false) {
-            throw new Exception("Error: There is no recipient in the email file '" . $filename . "'.");
+        if (null === $this->message) {
+            throw new Exception('Error: No message has been set.');
         }
 
-        $subject = substr($contents, strpos($contents, 'Subject:'));
-        $subject = substr($subject, 0, strpos($subject, $this->message->getEol()));
-        $email['headers'] = str_replace($subject . $this->message->getEol(), '', $email['headers']);
-        $email['subject'] = trim(substr($subject . $this->message->getEol(), (strpos($subject, ':') + 1)));
+        if (null === $this->transport) {
+            throw new Exception('Error: No mail transport has been set.');
+        }
 
-        $to = substr($contents, strpos($contents, 'To:'));
-        $to = substr($to, 0, strpos($to, $this->message->getEol()));
-        $email['headers'] = str_replace($to . $this->message->getEol(), '', $email['headers']);
+        $this->message->initialize();
 
-        $regEx1   = '/[a-zA-Z0-9\.\-\_+%]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z]{2,4}/';
-        $regEx2   = '/[a-zA-Z0-9\.\-\_+%]+@localhost/';
-        $matches1 = [];
-        $matches2 = [];
-        preg_match_all($regEx1, $to, $matches1);
-        preg_match_all($regEx2, $to, $matches2);
-
-        if (isset($matches1[0]) && isset($matches1[0][0]) && isset($matches2[0]) && isset($matches2[0][0])) {
-            $email['to'] = implode(', ', array_merge($matches1[0], $matches2[0]));
-        } else if (isset($matches2[0]) && isset($matches2[0][0])) {
-            $email['to'] = implode(', ', $matches2[0]);
+        if ($this->message->hasAttachments()) {
+            $this->setHeaders([
+                'MIME-Version' => $this->message->getMimeVersion(),
+                'Content-Type' => $this->message->getMimeType() . '; boundary="' . $this->message->getBoundary() . '"' . "\r\n" .
+                    "This is a multi-part message in MIME format.",
+            ]);
+        } else if ($this->message->hasHtml()) {
+            $this->setHeaders([
+                'MIME-Version' => $this->message->getMimeVersion(),
+                'Content-Type' => $this->message->getMimeType() . '; boundary="' . $this->message->getBoundary() . '"' . "\r\n" .
+                    "This is a multi-part message in MIME format.",
+            ]);
         } else {
-            $email['to'] = implode(', ', $matches1[0]);
+            $this->setHeaders([
+                'Content-Type' => 'text/plain; charset=' . $this->message->getCharset()
+            ]);
         }
 
-        if (!isset($matches1[0]) && !isset($matches1[0][0]) && !isset($matches2[0]) && !isset($matches2[0][0])) {
-            throw new Exception("Error: An valid email could not be parsed from the email file '" . $filename . "'.");
+        $subject = $this->message->getSubject();
+        $message = $this->message->getBody();
+        $results = [];
+
+        $this->transport->setHeaders($this->buildHeaderString());
+
+        if ($this->group) {
+            $to           = (string)$this->to;
+            $results[$to] = $this->transport->send($to, $subject, $message);
+        } else {
+            foreach ($this->to as $recipient) {
+                $to           = (isset($recipient['name'])) ? $recipient['name'] . ' <' . $recipient['email'] . '>' : $recipient['email'];
+                $results[$to] = $this->transport->send($to, $subject, $message);
+            }
         }
 
-        return $email;
+        return $results;
+    }
+
+    /**
+     * Build header string
+     *
+     * @param  boolean $to
+     * @return string
+     */
+    public function buildHeaderString($to = false)
+    {
+        $this->headerString = null;
+
+        if ((null !== $this->to) && ($to)) {
+            $this->headerString .= 'To: ' . $this->to . "\r\n";
+        }
+
+        if (null !== $this->cc) {
+            $this->headerString .= 'Cc: ' . $this->cc . "\r\n";
+        }
+
+        if (null !== $this->bcc) {
+            $this->headerString .= 'Bcc: ' . $this->bcc . "\r\n";
+        }
+
+        foreach ($this->headers as $key => $value) {
+            $this->headerString .= $key . ": " . $value . "\r\n";
+        }
+
+        return $this->headerString;
+    }
+
+    /**
+     * Get header string
+     *
+     * @return string
+     */
+    public function getHeaderString()
+    {
+        return $this->headerString;
     }
 
 }

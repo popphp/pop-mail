@@ -21,51 +21,34 @@ namespace Pop\Mail;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    2.1.0
+ * @version    3.0.0
  */
 class Message
 {
 
     /**
-     * Constants for message body types
-     * @var int
-     */
-    const TEXT           = 1;
-    const HTML           = 2;
-    const TEXT_HTML      = 3;
-    const TEXT_FILE      = 4;
-    const HTML_FILE      = 5;
-    const TEXT_HTML_FILE = 6;
-
-    /**
-     * Mail object
-     * @var Message
-     */
-    protected $mail = null;
-
-    /**
-     * Message body
+     * Subject
      * @var string
      */
-    protected $message = null;
+    protected $subject = null;
 
     /**
-     * MIME boundary
-     * @var string
-     */
-    protected $mimeBoundary = null;
-
-    /**
-     * Text part of the message body
-     * @var string
+     * Message text body
+     * @var Message\Text
      */
     protected $text = null;
 
     /**
-     * HTML part of the message body
-     * @var string
+     * Message HTML body
+     * @var Message\Html
      */
     protected $html = null;
+
+    /**
+     * Message attachments
+     * @var array
+     */
+    protected $attachments = [];
 
     /**
      * Character set
@@ -74,46 +57,226 @@ class Message
     protected $charset = 'utf-8';
 
     /**
-     * EOL property
+     * MIME version
      * @var string
      */
-    protected $eol = Mail::CRLF;
+    protected $mimeVersion = '1.0';
+
+    /**
+     * MIME type
+     * @var string
+     */
+    protected $mimeType = 'multipart/mixed';
+
+    /**
+     * Boundary
+     * @var string
+     */
+    protected $boundary = null;
+
+    /**
+     * Message
+     * @var string
+     */
+    protected $body = null;
 
     /**
      * Constructor
      *
-     * Instantiate the message object.
+     * Instantiate the mail message object
      *
-     * @param  Mail $mail
+     * @param  string $subject
      * @return Message
      */
-    public function __construct(Mail $mail)
+    public function __construct($subject = null)
     {
-        $this->mail = $mail;
+        if (null !== $subject) {
+            $this->setSubject($subject);
+        }
     }
 
     /**
-     * Get MIME boundary
+     * Set the subject
+     *
+     * @param  string $subject
+     * @return Message
+     */
+    public function setSubject($subject)
+    {
+        $this->subject = $subject;
+        return $this;
+    }
+
+    /**
+     * Set the text body
+     *
+     * @param  Message\Text $text
+     * @return Message
+     */
+    public function setText(Message\Text $text)
+    {
+        $this->text = $text;
+        return $this;
+    }
+
+    /**
+     * Set the HTML body
+     *
+     * @param  Message\Html $html
+     * @return Message
+     */
+    public function setHtml(Message\Html $html)
+    {
+        $this->html = $html;
+        return $this;
+    }
+
+    /**
+     * Set the charset
+     *
+     * @param  string $charset
+     * @return Message
+     */
+    public function setCharset($charset)
+    {
+        $this->charset = $charset;
+        return $this;
+    }
+
+    /**
+     * Set the MIME version
+     *
+     * @param  string $version
+     * @return Message
+     */
+    public function setMimeVersion($version)
+    {
+        $this->mimeVersion = $version;
+        return $this;
+    }
+
+    /**
+     * Set the MIME type
+     *
+     * @param  string $type
+     * @return Message
+     */
+    public function setMimeType($type)
+    {
+        $this->mimeType = $type;
+        return $this;
+    }
+
+    /**
+     * Set the boundary
+     *
+     * @param  string $boundary
+     * @return Message
+     */
+    public function setBoundary($boundary = null)
+    {
+        $this->boundary = (null !== $boundary) ? $boundary : sha1(time());
+        return $this;
+    }
+
+    /**
+     * Add an attachment
+     *
+     * @param  Message\Attachment $attachment
+     * @return Message
+     */
+    public function addAttachment(Message\Attachment $attachment)
+    {
+        $this->attachments[] = $attachment;
+        return $this;
+    }
+
+    /**
+     * Add attachments
+     *
+     * @param  array $attachments
+     * @return Message
+     */
+    public function addAttachments(array $attachments)
+    {
+        foreach ($attachments as $attachment) {
+            $this->addAttachment($attachment);
+        }
+        return $this;
+    }
+
+    /**
+     * Determine if the message object has a subject
+     *
+     * @return boolean
+     */
+    public function hasSubject()
+    {
+        return (null !== $this->subject);
+    }
+
+    /**
+     * Determine if the message object has text content
+     *
+     * @return boolean
+     */
+    public function hasText()
+    {
+        return (null !== $this->text);
+    }
+
+    /**
+     * Determine if the message object has HTML content
+     *
+     * @return boolean
+     */
+    public function hasHtml()
+    {
+        return (null !== $this->html);
+    }
+
+    /**
+     * Determine if the message object has attachments
+     *
+     * @return boolean
+     */
+    public function hasAttachments()
+    {
+        return (count($this->attachments) > 0);
+    }
+
+    /**
+     * Get the subject
      *
      * @return string
      */
-    public function getBoundary()
+    public function getSubject()
     {
-        return $this->mimeBoundary;
+        return $this->subject;
     }
 
     /**
-     * Get EOL
+     * Get the text body
      *
-     * @return string
+     * @return Message\Text
      */
-    public function getEol()
+    public function getText()
     {
-        return $this->eol;
+        return $this->text;
     }
 
     /**
-     * Get character set
+     * Get the HTML body
+     *
+     * @return Message\Html
+     */
+    public function getHtml()
+    {
+        return $this->html;
+    }
+
+    /**
+     * Get the charset
      *
      * @return string
      */
@@ -123,254 +286,105 @@ class Message
     }
 
     /**
-     * Get text part of the message.
+     * Get the MIME version
      *
      * @return string
      */
-    public function getText()
+    public function getMimeVersion()
     {
-        return $this->text;
+        return $this->mimeVersion;
     }
 
     /**
-     * Get HTML part of the message.
+     * Get the MIME type
      *
      * @return string
      */
-    public function getHtml()
+    public function getMimeType()
     {
-        return $this->html;
+        return $this->mimeType;
     }
 
     /**
-     * Get the message.
+     * Get the boundary
      *
      * @return string
      */
-    public function getMessage()
+    public function getBoundary()
     {
-        return $this->message;
+        return $this->boundary;
     }
 
     /**
-     * Set MIME boundary
+     * Get the attachments
      *
-     * @param  string $bnd
-     * @return Message
+     * @return array
      */
-    public function setBoundary($bnd = null)
+    public function getAttachments()
     {
-        $this->mimeBoundary = (null !== $bnd) ? $bnd : sha1(time());
-        return $this;
+        return $this->attachments;
     }
 
     /**
-     * Set EOL
+     * Get the message body
      *
-     * @param  string $eol
-     * @return Mail
+     * @return string
      */
-    public function setEol($eol = Mail::CRLF)
+    public function getBody()
     {
-        $this->eol = $eol;
-        return $this;
+        return $this->body;
     }
 
     /**
-     * Set character set
-     *
-     * @param  string $chr
-     * @return Message
-     */
-    public function setCharset($chr)
-    {
-        $this->charset = $chr;
-        return $this;
-    }
-
-    /**
-     * Set text part of the message.
-     *
-     * @param  string $text
-     * @return Message
-     */
-    public function setText($text)
-    {
-        $this->text = $text;
-        return $this;
-    }
-
-    /**
-     * Set HTML part of the message.
-     *
-     * @param  string $html
-     * @return Message
-     */
-    public function setHtml($html)
-    {
-        $this->html = $html;
-        return $this;
-    }
-
-    /**
-     * Initialize the email message.
+     * Initialize message contain
      *
      * @throws Exception
-     * @return Message
+     * @return void
      */
-    public function init()
+    public function initialize()
     {
-        $msgType = $this->getMessageType();
-
-        if (null === $msgType) {
-            throw new Exception('Error: The message body elements are not set.');
+        if ((null === $this->text) && (null === $this->html) && (count($this->attachments) == 0)) {
+            throw new Exception('Error: There is no message body content.');
+        }
+        
+        if (null === $this->boundary) {
+            $this->setBoundary();
         }
 
-        if (count($this->mail->getQueue()) == 0) {
-            throw new Exception('Error: There are no recipients for this email.');
+        $closeBoundary = false;
+
+        if (count($this->attachments) > 0) {
+            foreach ($this->attachments as $attachment) {
+                $this->body .= "\r\n--" . $this->boundary . "\r\n" . $attachment->getContent();
+            }
+            $this->mimeType = 'multipart/mixed';
+            $closeBoundary  = true;
         }
 
-        $this->message = null;
-        $this->setBoundary();
+        if (null !== $this->html) {
+            $this->body .= '--' . $this->boundary . "\r\n" .
+                'Content-type: text/html; charset=' . $this->getCharset() .
+                "\r\n" . "\r\n" . $this->html->getContent() . "\r\n" . "\r\n";
 
-        switch ($msgType) {
-            // If the message contains files, HTML and text.
-            case self::TEXT_HTML_FILE:
-                $this->mail->setHeaders([
-                    'MIME-Version' => '1.0',
-                    'Content-Type' => 'multipart/mixed; boundary="' . $this->getBoundary() . '"' . $this->eol . "This is a multi-part message in MIME format.",
-                ]);
+            $this->mimeType = (count($this->attachments) > 0) ? 'multipart/mixed' : 'multipart/alternative';
+            $closeBoundary  = true;
+        }
 
-                $attachments = $this->mail->getAttachments();
-                foreach ($attachments as $attachment) {
-                    $this->message .= $attachment->build($this->getBoundary(), $this->eol);
-                }
-
-                $this->message .= '--' . $this->getBoundary() . $this->eol .
-                    'Content-type: text/html; charset=' . $this->getCharset() .
-                    $this->eol . $this->eol . $this->html . $this->eol . $this->eol;
-
-                $this->message .= '--' . $this->getBoundary() . $this->eol .
+        if (null !== $this->text) {
+            if ((null === $this->html) && (count($this->attachments) == 0)) {
+                $this->body .= $this->text->getContent() . "\r\n";
+            } else {
+                $this->body .= '--' . $this->boundary . "\r\n" .
                     'Content-type: text/plain; charset=' . $this->getCharset() .
-                    $this->eol . $this->eol . $this->text . $this->eol . $this->eol . '--' .
-                    $this->getBoundary() . '--' . $this->eol . $this->eol;
+                    "\r\n" . "\r\n" . $this->text->getContent() . "\r\n" . "\r\n";
 
-                break;
-
-            // If the message contains files and HTML.
-            case self::HTML_FILE:
-                $this->mail->setHeaders([
-                    'MIME-Version' => '1.0',
-                    'Content-Type' => 'multipart/mixed; boundary="' . $this->getBoundary() . '"' . $this->eol . "This is a multi-part message in MIME format.",
-                ]);
-
-                $attachments = $this->mail->getAttachments();
-                foreach ($attachments as $attachment) {
-                    $this->message .= $attachment->build($this->getBoundary(), $this->eol);
-                }
-
-                $this->message .= '--' . $this->getBoundary() . $this->eol .
-                    'Content-type: text/html; charset=' . $this->getCharset() .
-                    $this->eol . $this->eol . $this->html . $this->eol . $this->eol . '--' .
-                    $this->getBoundary() . '--' . $this->eol . $this->eol;
-
-                break;
-
-            // If the message contains files and text.
-            case self::TEXT_FILE:
-                $this->mail->setHeaders([
-                    'MIME-Version' => '1.0',
-                    'Content-Type' => 'multipart/mixed; boundary="' . $this->getBoundary() . '"' . $this->eol . "This is a multi-part message in MIME format.",
-                ]);
-
-                $attachments = $this->mail->getAttachments();
-                foreach ($attachments as $attachment) {
-                    $this->message .= $attachment->build($this->getBoundary(), $this->eol);
-                }
-
-                $this->message .= '--' . $this->getBoundary() . $this->eol .
-                    'Content-type: text/plain; charset=' . $this->getCharset() .
-                    $this->eol . $this->eol . $this->text . $this->eol . $this->eol . '--' .
-                    $this->getBoundary() . '--' . $this->eol . $this->eol;
-
-                break;
-
-            // If the message contains HTML and text.
-            case self::TEXT_HTML:
-                $this->mail->setHeaders([
-                    'MIME-Version' => '1.0',
-                    'Content-Type' => 'multipart/alternative; boundary="' . $this->getBoundary() . '"' . $this->eol . "This is a multi-part message in MIME format.",
-                ]);
-
-                $this->message .= '--' . $this->getBoundary() . $this->eol .
-                    'Content-type: text/plain; charset=' . $this->getCharset() .
-                    $this->eol . $this->eol . $this->text . $this->eol . $this->eol;
-                $this->message .= '--' . $this->getBoundary() . $this->eol .
-                    'Content-type: text/html; charset=' . $this->getCharset() .
-                    $this->eol . $this->eol . $this->html . $this->eol . $this->eol .
-                    '--' . $this->getBoundary() . '--' . $this->eol . $this->eol;
-
-                break;
-
-            // If the message contains HTML.
-            case self::HTML:
-                $this->mail->setHeaders([
-                    'MIME-Version' => '1.0',
-                    'Content-Type' => 'multipart/alternative; boundary="' . $this->getBoundary() . '"' . $this->eol . "This is a multi-part message in MIME format.",
-                ]);
-
-                $this->message .= '--' . $this->getBoundary() . $this->eol .
-                    'Content-type: text/html; charset=' . $this->getCharset() .
-                    $this->eol . $this->eol . $this->html . $this->eol . $this->eol . '--' .
-                    $this->getBoundary() . '--' . $this->eol . $this->eol;
-
-                break;
-
-            // If the message contains text.
-            case self::TEXT:
-                $this->mail->setHeaders([
-                    'Content-Type' => 'text/plain; charset=' . $this->getCharset()
-                ]);
-
-                $this->message = $this->text . $this->eol;
-
-                break;
-
-            // Else if nothing has been set yet
-            default:
-                $this->message = null;
+                $closeBoundary = true;
+            }
         }
 
-        return $this;
-    }
-
-    /**
-     * Get message type.
-     *
-     * @return string
-     */
-    protected function getMessageType()
-    {
-        $type = null;
-        $numAttach = count($this->mail->getAttachments());
-
-        if (($numAttach > 0) && (null === $this->html) && (null === $this->text)) {
-            $type = null;
-        } else if (($numAttach > 0) && (null !== $this->html) && (null !== $this->text)) {
-            $type = self::TEXT_HTML_FILE;
-        } else if (($numAttach > 0) && (null !== $this->html)) {
-            $type = self::HTML_FILE;
-        } else if (($numAttach > 0) && (null !== $this->text)) {
-            $type = self::TEXT_FILE;
-        } else if ((null !== $this->html) && (null !== $this->text)) {
-            $type = self::TEXT_HTML;
-        } else if (null !== $this->html) {
-            $type = self::HTML;
-        } else if (null !== $this->text) {
-            $type = self::TEXT;
+        if ($closeBoundary) {
+            $this->body .= '--' . $this->boundary . '--' . "\r\n" . "\r\n";
         }
-
-        return $type;
     }
 
 }
