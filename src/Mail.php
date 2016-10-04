@@ -17,7 +17,7 @@ namespace Pop\Mail;
  * Mail class
  *
  * @category   Pop
- * @package    Pop_Mail
+ * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License

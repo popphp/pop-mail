@@ -17,7 +17,7 @@ namespace Pop\Mail;
  * Mail message class
  *
  * @category   Pop
- * @package    Pop_Mail
+ * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
@@ -346,7 +346,7 @@ class Message
         if ((null === $this->text) && (null === $this->html) && (count($this->attachments) == 0)) {
             throw new Exception('Error: There is no message body content.');
         }
-        
+
         if (null === $this->boundary) {
             $this->setBoundary();
         }
