@@ -33,7 +33,6 @@ class Queue extends \SplQueue
      *
      * @param  mixed  $email
      * @param  string $name
-     * @return Queue
      */
     public function __construct($email = null, $name = null)
     {

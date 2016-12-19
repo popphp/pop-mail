@@ -86,7 +86,6 @@ class Message
      * Instantiate the mail message object
      *
      * @param  string $subject
-     * @return Message
      */
     public function __construct($subject = null)
     {

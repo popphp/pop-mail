@@ -39,6 +39,18 @@ class Smtp extends AbstractTransport
     protected $port = 25;
 
     /**
+     * SMTP protocol
+     * @var string
+     */
+    protected $protocol = 'tcp';
+
+    /**
+     * Use TLS flag
+     * @var boolean
+     */
+    protected $tls = null;
+
+    /**
      * SMTP username
      * @var string
      */
@@ -57,11 +69,9 @@ class Smtp extends AbstractTransport
      *
      * @param  string $host
      * @param  int    $port
-     * @param  string $username
-     * @param  string $password
-     * @return Smtp
+     * @param  string $security
      */
-    public function __construct($host = 'localhost', $port = 25, $username = null, $password = null)
+    public function __construct($host = 'localhost', $port = 25, $security = null)
     {
         if (null !== $host) {
             $this->setHost($host);
@@ -69,11 +79,8 @@ class Smtp extends AbstractTransport
         if (null !== $port) {
             $this->setPort($port);
         }
-        if (null !== $username) {
-            $this->setUsername($username);
-        }
-        if (null !== $password) {
-            $this->setPassword($password);
+        if (null !== $security) {
+            $this->setSecurity($security);
         }
     }
 
@@ -98,6 +105,25 @@ class Smtp extends AbstractTransport
     public function setPort($port)
     {
         $this->port = (int)$port;
+        return $this;
+    }
+
+    /**
+     * Set the port
+     *
+     * @param  string $security
+     * @return Smtp
+     */
+    public function setSecurity($security)
+    {
+        $security = strtolower($security);
+        if ($security == 'tls') {
+            $this->protocol = 'tcp';
+            $this->tls      = true;
+        } else {
+            $this->protocol = $security;
+            $this->tls      = false;
+        }
         return $this;
     }
 
@@ -143,6 +169,26 @@ class Smtp extends AbstractTransport
     public function getPort()
     {
         return $this->port;
+    }
+
+    /**
+     * Get the protocol
+     *
+     * @return string
+     */
+    public function getProtocol()
+    {
+        return $this->protocol;
+    }
+
+    /**
+     * Get TLS flag
+     *
+     * @return boolean
+     */
+    public function isTls()
+    {
+        return $this->tls;
     }
 
     /**

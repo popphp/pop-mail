@@ -45,7 +45,6 @@ class Attachment extends AbstractPart
      *
      * @param  string $file
      * @throws Exception
-     * @return Attachment
      */
     public function __construct($file)
     {

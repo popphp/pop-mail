@@ -32,7 +32,6 @@ class Text extends AbstractPart
      * Instantiate the mail Text object
      *
      * @param  string $text
-     * @return Text
      */
     public function __construct($text)
     {

@@ -39,7 +39,6 @@ class Sendmail extends AbstractTransport
      *
      * @param  string $headers
      * @param  string $params
-     * @return Sendmail
      */
     public function __construct($headers = null, $params = null)
     {

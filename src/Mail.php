@@ -78,8 +78,6 @@ class Mail
      * Constructor
      *
      * Instantiate the mail object
-     *
-     * @return Mail
      */
     public function __construct()
     {

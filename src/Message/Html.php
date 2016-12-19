@@ -32,7 +32,6 @@ class Html extends AbstractPart
      * Instantiate the mail HTML object
      *
      * @param  string $html
-     * @return Html
      */
     public function __construct($html)
     {
