@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Transport;
 
+use Pop\Mail\Message;
+
 /**
  * Abstract mail transport class
  *
@@ -25,5 +27,13 @@ namespace Pop\Mail\Transport;
  */
 abstract class AbstractTransport implements TransportInterface
 {
+
+    /**
+     * Send the message
+     *
+     * @param  Message $message
+     * @return void
+     */
+    abstract public function send(Message $message);
 
 }

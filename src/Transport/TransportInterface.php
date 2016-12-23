@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Transport;
 
+use Pop\Mail\Message;
+
 /**
  * Mail transport interface
  *
@@ -25,5 +27,13 @@ namespace Pop\Mail\Transport;
  */
 interface TransportInterface
 {
+
+    /**
+     * Send the message
+     *
+     * @param  Message $message
+     * @return void
+     */
+    public function send(Message $message);
 
 }

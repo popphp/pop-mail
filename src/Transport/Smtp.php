@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Transport;
 
+use Pop\Mail\Message;
+
 /**
  * SMTP transport class
  *
@@ -25,5 +27,16 @@ namespace Pop\Mail\Transport;
  */
 class Smtp extends AbstractTransport
 {
+
+    /**
+     * Send the message
+     *
+     * @param  Message $message
+     * @return void
+     */
+    public function send(Message $message)
+    {
+
+    }
 
 }

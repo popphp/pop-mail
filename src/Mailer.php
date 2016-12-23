@@ -52,7 +52,7 @@ class Mailer
      */
     public function send(Message $message)
     {
-
+        $this->transport->send($message);
     }
 
 }
