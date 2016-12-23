@@ -14,7 +14,7 @@
 namespace Pop\Mail\Message;
 
 /**
- * Mail message exception class
+ * Message exception class
  *
  * @category   Pop
  * @package    Pop\Mail

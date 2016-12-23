@@ -14,7 +14,7 @@
 namespace Pop\Mail\Message;
 
 /**
- * Mail text message class
+ * Text part class
  *
  * @category   Pop
  * @package    Pop\Mail
@@ -25,17 +25,5 @@ namespace Pop\Mail\Message;
  */
 class Text extends AbstractPart
 {
-
-    /**
-     * Constructor
-     *
-     * Instantiate the mail Text object
-     *
-     * @param  string $text
-     */
-    public function __construct($text)
-    {
-        $this->content = $text;
-    }
 
 }

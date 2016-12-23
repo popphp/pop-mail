@@ -14,7 +14,7 @@
 namespace Pop\Mail\Message;
 
 /**
- * Abstract mail message part class
+ * Mail message part interface
  *
  * @category   Pop
  * @package    Pop\Mail
@@ -23,7 +23,7 @@ namespace Pop\Mail\Message;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-abstract class AbstractPart implements PartInterface
+interface PartInterface
 {
 
 }

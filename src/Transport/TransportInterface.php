@@ -11,10 +11,10 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Message;
+namespace Pop\Mail\Transport;
 
 /**
- * Abstract mail message part class
+ * Mail transport interface
  *
  * @category   Pop
  * @package    Pop\Mail
@@ -23,7 +23,7 @@ namespace Pop\Mail\Message;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-abstract class AbstractPart implements PartInterface
+interface TransportInterface
 {
 
 }

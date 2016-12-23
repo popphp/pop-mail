@@ -11,10 +11,10 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Message;
+namespace Pop\Mail\Client;
 
 /**
- * Abstract mail message part class
+ * Mail client exception class
  *
  * @category   Pop
  * @package    Pop\Mail
@@ -23,7 +23,4 @@ namespace Pop\Mail\Message;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-abstract class AbstractPart implements PartInterface
-{
-
-}
+class Exception extends \Exception {}

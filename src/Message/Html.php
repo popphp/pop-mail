@@ -14,7 +14,7 @@
 namespace Pop\Mail\Message;
 
 /**
- * Mail HTML message class
+ * HTML part class
  *
  * @category   Pop
  * @package    Pop\Mail
@@ -25,17 +25,5 @@ namespace Pop\Mail\Message;
  */
 class Html extends AbstractPart
 {
-
-    /**
-     * Constructor
-     *
-     * Instantiate the mail HTML object
-     *
-     * @param  string $html
-     */
-    public function __construct($html)
-    {
-        $this->content = $html;
-    }
 
 }
