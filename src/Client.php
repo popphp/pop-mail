@@ -26,8 +26,19 @@ namespace Pop\Mail;
 class Client
 {
 
+    /**
+     * Client object
+     * @var Client\ClientInterface
+     */
     protected $client = null;
 
+    /**
+     * Constructor
+     *
+     * Instantiate the client object
+     *
+     * @param  Client\ClientInterface $client
+     */
     public function __construct(Client\ClientInterface $client)
     {
         $this->client = $client;

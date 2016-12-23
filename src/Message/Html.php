@@ -26,4 +26,16 @@ namespace Pop\Mail\Message;
 class Html extends AbstractPart
 {
 
+    /**
+     * Constructor
+     *
+     * Instantiate the message part object
+     *
+     * @param  string $content
+     */
+    public function __construct($content)
+    {
+        parent::__construct($content, 'text/html');
+    }
+
 }
