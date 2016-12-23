@@ -39,6 +39,18 @@ class Message
     protected $headers = [];
 
     /**
+     * Message content type
+     * @var string
+     */
+    protected $contentType = 'text/plain';
+
+    /**
+     * Message boundary
+     * @var string
+     */
+    protected $boundary = null;
+
+    /**
      * Constructor
      *
      * Instantiate the message object
@@ -48,6 +60,28 @@ class Message
     public function __construct($subject)
     {
         $this->addHeader('Subject', $subject);
+    }
+
+    /**
+     * Set content type
+     *
+     * @param  string $contentType
+     * @return Message
+     */
+    public function setContentType($contentType)
+    {
+        $this->contentType = $contentType;
+        return $this;
+    }
+
+    /**
+     * Get content type
+     *
+     * @return string
+     */
+    public function getContentType()
+    {
+        return $this->contentType;
     }
 
     /**
@@ -128,6 +162,7 @@ class Message
     public function addPart(Message\PartInterface $part)
     {
         $this->parts[] = $part;
+        $this->validateContentType();
         return $this;
     }
 
@@ -202,6 +237,42 @@ class Message
     }
 
     /**
+     * Get message MIME boundary
+     *
+     * @return string
+     */
+    public function getBoundary()
+    {
+        if (null === $this->boundary) {
+            $this->generateBoundary();
+        }
+        return $this->boundary;
+    }
+
+    /**
+     * Set message MIME boundary
+     *
+     * @param  string $boundary
+     * @return Message
+     */
+    public function setBoundary($boundary)
+    {
+        $this->boundary = $boundary;
+        $this->addHeader('MIME-Version', '1.0');
+        return $this;
+    }
+
+    /**
+     * Generate message MIME boundary
+     *
+     * @return Message
+     */
+    public function generateBoundary()
+    {
+        return $this->setBoundary(sha1(time()));
+    }
+
+    /**
      * Parse recipients
      *
      * @param  string $recipients
@@ -226,6 +297,32 @@ class Message
         }
 
         return implode(', ', $result);
+    }
+
+    /**
+     * Validate content type based on message parts added to the message
+     *
+     * @return void
+     */
+    protected function validateContentType()
+    {
+        $hasFile = false;
+        $hasHtml = false;
+
+        foreach ($this->parts as $part) {
+            if ($part instanceof Message\Attachment) {
+                $hasFile = true;
+            }
+            if ($part instanceof Message\Html) {
+                $hasHtml = true;
+            }
+        }
+
+        if ($hasFile) {
+            $this->setContentType('multipart/mixed; boundary="' . $this->getBoundary() . '"');
+        } else if ((!$hasFile) && ($hasHtml)) {
+            $this->setContentType('multipart/alternative; boundary="' . $this->getBoundary() . '"');
+        }
     }
 
 }
