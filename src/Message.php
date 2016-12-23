@@ -26,4 +26,24 @@ namespace Pop\Mail;
 class Message
 {
 
+    protected $parts = [];
+
+    public function __construct()
+    {
+
+    }
+
+    public function addPart(Message\PartInterface $part, $mimeType = 'text/plain')
+    {
+        $this->parts[] = [
+            'part'     => $part,
+            'mimeType' => $mimeType
+        ];
+    }
+
+    public function attach(Message\Attachment $file, $mimeType = 'application/octet-stream')
+    {
+        $this->addPart($file, $mimeType);
+    }
+
 }

@@ -26,4 +26,16 @@ namespace Pop\Mail;
 class Mailer
 {
 
+    protected $transport = null;
+
+    public function __construct(Transport\TransportInterface $transport)
+    {
+        $this->transport = $transport;
+    }
+
+    public function send(Message $message)
+    {
+
+    }
+
 }
