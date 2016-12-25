@@ -27,6 +27,12 @@ class Message
 {
 
     /**
+     * Message newline constants
+     */
+    const CRLF   = "\r\n";
+    const CRLF_2 = "\r\n\r\n";
+
+    /**
      * Message parts
      * @var array
      */
@@ -59,7 +65,7 @@ class Message
      */
     public function __construct($subject)
     {
-        $this->addHeader('Subject', $subject);
+        $this->setSubject($subject);
     }
 
     /**
@@ -85,6 +91,17 @@ class Message
     }
 
     /**
+     * Set Subject
+     *
+     * @param  string $subject
+     * @return Message
+     */
+    public function setSubject($subject)
+    {
+        return $this->addHeader('Subject', $subject);
+    }
+
+    /**
      * Set To
      *
      * @param  string $to
@@ -92,7 +109,7 @@ class Message
      */
     public function setTo($to)
     {
-        return $this->addHeader('To', $this->parseRecipients($to));
+        return $this->addHeader('To', $this->parseAddresses($to));
     }
 
     /**
@@ -103,7 +120,7 @@ class Message
      */
     public function setCc($cc)
     {
-        return $this->addHeader('CC', $this->parseRecipients($cc));
+        return $this->addHeader('CC', $this->parseAddresses($cc));
     }
 
     /**
@@ -114,7 +131,7 @@ class Message
      */
     public function setBcc($bcc)
     {
-        return $this->addHeader('BCC', $this->parseRecipients($bcc));
+        return $this->addHeader('BCC', $this->parseAddresses($bcc));
     }
 
     /**
@@ -125,7 +142,7 @@ class Message
      */
     public function setFrom($from)
     {
-        return $this->addHeader('From', $this->parseRecipients($from));
+        return $this->addHeader('From', $this->parseAddresses($from));
     }
 
     /**
@@ -136,7 +153,7 @@ class Message
      */
     public function setReplyTo($replyTo)
     {
-        return $this->addHeader('Reply-To', $this->parseRecipients($replyTo));
+        return $this->addHeader('Reply-To', $this->parseAddresses($replyTo));
     }
 
     /**
@@ -167,12 +184,34 @@ class Message
     }
 
     /**
-     * Attach file
+     * Add text message part
+     *
+     * @param  Message\Text $text
+     * @return Message
+     */
+    public function addText(Message\Text $text)
+    {
+        return $this->addPart($text);
+    }
+
+    /**
+     * Add HTML message part
+     *
+     * @param  Message\Html $html
+     * @return Message
+     */
+    public function addHtml(Message\Html $html)
+    {
+        return $this->addPart($html);
+    }
+
+    /**
+     * Attach file message part
      *
      * @param  Message\Attachment $file
      * @return Message
      */
-    public function attach(Message\Attachment $file)
+    public function attachFile(Message\Attachment $file)
     {
         return $this->addPart($file);
     }
@@ -213,6 +252,16 @@ class Message
     public function hasHeader($header)
     {
         return isset($this->headers[$header]);
+    }
+
+    /**
+     * Get subject
+     *
+     * @return string
+     */
+    public function getSubject()
+    {
+        return $this->getHeader('Subject');
     }
 
     /**
@@ -273,17 +322,17 @@ class Message
     }
 
     /**
-     * Parse recipients
+     * Parse addresses
      *
-     * @param  string $recipients
+     * @param  mixed $addresses
      * @return string
      */
-    protected function parseRecipients($recipients)
+    protected function parseAddresses($addresses)
     {
         $result = [];
 
-        if (is_array($recipients)) {
-            foreach ($recipients as $key => $value) {
+        if (is_array($addresses)) {
+            foreach ($addresses as $key => $value) {
                 // $key is email
                 if (strpos($key, '@') !== false) {
                     $result[] = (!empty($value)) ? '"' . $value . '" <' . $key . '>' : $key;
@@ -293,7 +342,7 @@ class Message
                 }
             }
         } else {
-            $result = [$recipients];
+            $result = [$addresses];
         }
 
         return implode(', ', $result);
