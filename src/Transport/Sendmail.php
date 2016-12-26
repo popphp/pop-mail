@@ -29,14 +29,64 @@ class Sendmail extends AbstractTransport
 {
 
     /**
+     * Sendmail params
+     * @var string
+     */
+    protected $params = null;
+
+    /**
+     * Constructor
+     *
+     * Instantiate the Sendmail transport object
+     *
+     * @param  string $params
+     */
+    public function __construct($params = null)
+    {
+        if (null !== $params) {
+            $this->setParams($params);
+        }
+    }
+
+    /**
+     * Set the params
+     *
+     * @param  string $params
+     * @return Sendmail
+     */
+    public function setParams($params)
+    {
+        $this->params = $params;
+        return $this;
+    }
+
+    /**
+     * Get the params
+     *
+     * @return string
+     */
+    public function getParams()
+    {
+        return $this->params;
+    }
+
+    /**
      * Send the message
      *
      * @param  Message $message
-     * @return void
+     * @return boolean
      */
     public function send(Message $message)
     {
+        $headers = $message->getHeadersAsString();
 
+        if ((null !== $headers) && (null !== $this->params)) {
+            return mail($message->getTo(), $message->getSubject(), $message->getBody(), $headers, $this->params);
+        } else if (null !== $headers) {
+            return mail($message->getTo(), $message->getSubject(), $message->getBody(), $headers);
+        } else {
+            return mail($message->getTo(), $message->getSubject(), $message->getBody());
+        }
     }
 
 }

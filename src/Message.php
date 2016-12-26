@@ -27,10 +27,10 @@ class Message
 {
 
     /**
-     * Message newline constants
+     * Message newline constant
+     * @var string
      */
-    const CRLF   = "\r\n";
-    const CRLF_2 = "\r\n\r\n";
+    const CRLF = "\r\n";
 
     /**
      * Message parts
@@ -49,6 +49,12 @@ class Message
      * @var string
      */
     protected $contentType = 'text/plain';
+
+    /**
+     * Message part character set
+     * @var string
+     */
+    protected $charSet = 'utf-8';
 
     /**
      * Message boundary
@@ -88,6 +94,28 @@ class Message
     public function getContentType()
     {
         return $this->contentType;
+    }
+
+    /**
+     * Set message character set
+     *
+     * @param  string $charSet
+     * @return Message
+     */
+    public function setCharSet($charSet)
+    {
+        $this->charSet = $charSet;
+        return $this;
+    }
+
+    /**
+     * Get message character set
+     *
+     * @return string
+     */
+    public function getCharSet()
+    {
+        return $this->charSet;
     }
 
     /**
@@ -265,6 +293,16 @@ class Message
     }
 
     /**
+     * Get To
+     *
+     * @return string
+     */
+    public function getTo()
+    {
+        return $this->getHeader('To');
+    }
+
+    /**
      * Get message header
      *
      * @param  string $header
@@ -283,6 +321,58 @@ class Message
     public function getHeaders()
     {
         return $this->headers;
+    }
+
+    /**
+     * Get all message headers as string
+     *
+     * @return string
+     */
+    public function getHeadersAsString()
+    {
+        $headers = null;
+        $i       = 1;
+
+        foreach ($this->headers as $header => $value) {
+            $headers .= $header . ': ' . $value . (($i < count($this->headers)) ? self::CRLF : null);
+            $i++;
+        }
+
+        if (null !== $this->contentType) {
+            $headers .= self::CRLF . 'Content-Type: ' . $this->contentType;
+            if (null !== $this->charSet) {
+                $headers .= '; charset=' . $this->charSet;
+            }
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Get message body
+     *
+     * @return string
+     */
+    public function getBody()
+    {
+        $body = null;
+
+        if (count($this->parts) > 1) {
+            foreach ($this->parts as $i => $part) {
+                $body .= '--' . $this->getBoundary() . self::CRLF . $part;
+            }
+            $body .= '--' . $this->getBoundary() . '--' . self::CRLF . self::CRLF;
+        } else if (count($this->parts) == 1) {
+            $part = $this->parts[0];
+            if ($part instanceof Message\Text) {
+                $body .= $part . self::CRLF . self::CRLF;
+            } else {
+                $body .= '--' . $this->getBoundary() . self::CRLF . $part;
+                $body .= '--' . $this->getBoundary() . '--' . self::CRLF . self::CRLF;
+            }
+        }
+
+        return $body;
     }
 
     /**
@@ -319,6 +409,26 @@ class Message
     public function generateBoundary()
     {
         return $this->setBoundary(sha1(time()));
+    }
+
+    /**
+     * Render message
+     *
+     * @return string
+     */
+    public function render()
+    {
+        return $this->getHeadersAsString() . self::CRLF . self::CRLF . $this->getBody() . self::CRLF . self::CRLF;
+    }
+
+    /**
+     * Render message to string
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->render();
     }
 
     /**

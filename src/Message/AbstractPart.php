@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Message;
 
+use Pop\Mail\Message;
+
 /**
  * Abstract mail message part class
  *
@@ -187,6 +189,61 @@ abstract class AbstractPart implements PartInterface
     {
         $this->charSet = $charSet;
         return $this;
+    }
+
+    /**
+     * Get all message headers as string
+     *
+     * @return string
+     */
+    public function getHeadersAsString()
+    {
+        $headers = null;
+        $i       = 1;
+
+        foreach ($this->headers as $header => $value) {
+            $headers .= $header . ': ' . $value . (($i < count($this->headers)) ? Message::CRLF : null);
+            $i++;
+        }
+
+        if (null !== $this->contentType) {
+            $headers .= Message::CRLF . 'Content-Type: ' . $this->contentType;
+            if (null !== $this->charSet) {
+                $headers .= '; charset=' . $this->charSet;
+            }
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Get message body
+     *
+     * @return string
+     */
+    public function getBody()
+    {
+        return $this->getContent();
+    }
+
+    /**
+     * Render message
+     *
+     * @return string
+     */
+    public function render()
+    {
+        return $this->getHeadersAsString() . Message::CRLF . Message::CRLF . $this->getBody() . Message::CRLF . Message::CRLF;
+    }
+
+    /**
+     * Render message to string
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->render();
     }
 
 }
