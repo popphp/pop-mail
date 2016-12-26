@@ -194,22 +194,25 @@ abstract class AbstractPart implements PartInterface
     /**
      * Get all message headers as string
      *
+     * @param  array $omit
      * @return string
      */
-    public function getHeadersAsString()
+    public function getHeadersAsString(array $omit = [])
     {
         $headers = null;
         $i       = 1;
 
         foreach ($this->headers as $header => $value) {
-            $headers .= $header . ': ' . $value . (($i < count($this->headers)) ? Message::CRLF : null);
+            if (!in_array($header, $omit)) {
+                $headers .= $header . ': ' . $value . (($i < count($this->headers)) ? Message::CRLF : null);
+            }
             $i++;
         }
 
         if (null !== $this->contentType) {
-            $headers .= Message::CRLF . 'Content-Type: ' . $this->contentType;
+            $headers .= ((null !== $headers) ? Message::CRLF : null) . 'Content-Type: ' . $this->contentType;
             if (null !== $this->charSet) {
-                $headers .= '; charset=' . $this->charSet;
+                $headers .= '; charset="' . $this->charSet . '""';
             }
         }
 

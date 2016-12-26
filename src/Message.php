@@ -214,33 +214,42 @@ class Message
     /**
      * Add text message part
      *
-     * @param  Message\Text $text
+     * @param  mixed $text
      * @return Message
      */
-    public function addText(Message\Text $text)
+    public function addText($text)
     {
+        if (!($text instanceof Message\Text) && is_string($text)) {
+            $text = new Message\Text($text);
+        }
         return $this->addPart($text);
     }
 
     /**
      * Add HTML message part
      *
-     * @param  Message\Html $html
+     * @param  mixed $html
      * @return Message
      */
-    public function addHtml(Message\Html $html)
+    public function addHtml($html)
     {
+        if (!($html instanceof Message\Html) && is_string($html)) {
+            $html = new Message\Html($html);
+        }
         return $this->addPart($html);
     }
 
     /**
      * Attach file message part
      *
-     * @param  Message\Attachment $file
+     * @param  mixed $file
      * @return Message
      */
-    public function attachFile(Message\Attachment $file)
+    public function attachFile($file)
     {
+        if (!($file instanceof Message\Attachment) && is_string($file)) {
+            $file = new Message\Attachment($file);
+        }
         return $this->addPart($file);
     }
 
@@ -326,22 +335,25 @@ class Message
     /**
      * Get all message headers as string
      *
+     * @param  array $omit
      * @return string
      */
-    public function getHeadersAsString()
+    public function getHeadersAsString(array $omit = [])
     {
         $headers = null;
         $i       = 1;
 
         foreach ($this->headers as $header => $value) {
-            $headers .= $header . ': ' . $value . (($i < count($this->headers)) ? self::CRLF : null);
+            if (!in_array($header, $omit)) {
+                $headers .= $header . ': ' . $value . (($i < count($this->headers)) ? self::CRLF : null);
+            }
             $i++;
         }
 
         if (null !== $this->contentType) {
-            $headers .= self::CRLF . 'Content-Type: ' . $this->contentType;
+            $headers .= ((null !== $headers) ? self::CRLF : null) . 'Content-Type: ' . $this->contentType;
             if (null !== $this->charSet) {
-                $headers .= '; charset=' . $this->charSet;
+                $headers .= '; charset="' . $this->charSet . '""';
             }
         }
 
@@ -365,7 +377,7 @@ class Message
         } else if (count($this->parts) == 1) {
             $part = $this->parts[0];
             if ($part instanceof Message\Text) {
-                $body .= $part . self::CRLF . self::CRLF;
+                $body .= $part->getBody() . self::CRLF . self::CRLF;
             } else {
                 $body .= '--' . $this->getBoundary() . self::CRLF . $part;
                 $body .= '--' . $this->getBoundary() . '--' . self::CRLF . self::CRLF;
@@ -418,7 +430,7 @@ class Message
      */
     public function render()
     {
-        return $this->getHeadersAsString() . self::CRLF . self::CRLF . $this->getBody() . self::CRLF . self::CRLF;
+        return $this->getHeadersAsString() . self::CRLF . self::CRLF . $this->getBody();
     }
 
     /**

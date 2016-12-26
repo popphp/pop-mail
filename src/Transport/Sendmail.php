@@ -78,7 +78,7 @@ class Sendmail extends AbstractTransport
      */
     public function send(Message $message)
     {
-        $headers = $message->getHeadersAsString();
+        $headers = $message->getHeadersAsString(['Subject', 'To']);
 
         if ((null !== $headers) && (null !== $this->params)) {
             return mail($message->getTo(), $message->getSubject(), $message->getBody(), $headers, $this->params);

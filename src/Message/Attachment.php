@@ -48,12 +48,13 @@ class Attachment extends AbstractPart
             throw new Exception('Error: The file does not exist.');
         }
 
+        $this->basename = basename($file);
+
         parent::__construct(
             chunk_split(base64_encode(file_get_contents($file))),
             $contentType . '; name="' . $this->basename . '"'
         );
 
-        $this->basename = basename($file);
         $this->addHeader('Content-Transfer-Encoding', 'base64')
              ->addHeader('Content-Description', $this->basename)
              ->addHeader('Content-Disposition', 'attachment; filename="' . $this->basename . '"');
