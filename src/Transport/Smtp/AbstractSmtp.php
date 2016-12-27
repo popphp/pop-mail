@@ -285,19 +285,16 @@ abstract class AbstractSmtp implements SmtpInterface
     /** Determine the best-use reverse path for this message */
     protected function getReversePath(\Pop\Mail\Message $message)
     {
-        $return = $message->getReturnPath();
-        $sender = $message->getSender();
-        $from = $message->getFrom();
-        $path = null;
+        $return = $message->getHeader('Return-Path');
+        $sender = $message->getHeader('Sender');
+        $from   = $message->getHeader('From');
+        $path   = null;
         if (!empty($return)) {
             $path = $return;
         } elseif (!empty($sender)) {
-            // Don't use array_keys
-            reset($sender); // Reset Pointer to first pos
-            $path = key($sender); // Get key
+            $path = $sender;
         } elseif (!empty($from)) {
-            reset($from); // Reset Pointer to first pos
-            $path = key($from); // Get key
+            $path = $from;
         }
 
         return $path;

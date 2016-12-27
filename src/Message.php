@@ -39,6 +39,24 @@ class Message extends Message\AbstractMessage
     protected $parts = [];
 
     /**
+     * Message send To
+     * @var array
+     */
+    protected $to = [];
+
+    /**
+     * Message send CC
+     * @var array
+     */
+    protected $cc = [];
+
+    /**
+     * Message send BCC
+     * @var array
+     */
+    protected $bcc = [];
+
+    /**
      * Message boundary
      * @var string
      */
@@ -53,6 +71,7 @@ class Message extends Message\AbstractMessage
      */
     public function __construct($subject)
     {
+        parent::__construct();
         $this->setSubject($subject);
     }
 
@@ -75,7 +94,13 @@ class Message extends Message\AbstractMessage
      */
     public function setTo($to)
     {
-        return $this->addHeader('To', $this->parseAddresses($to));
+        $this->to = array_unique(array_merge($this->to, $this->parseAddresses($to, true)));
+
+        $to = (isset($this->headers['To'])) ?
+            $this->getHeader('To') . ', ' . $this->parseAddresses($to) :
+            $this->parseAddresses($to);
+
+        return $this->addHeader('To', $to);
     }
 
     /**
@@ -86,6 +111,12 @@ class Message extends Message\AbstractMessage
      */
     public function setCc($cc)
     {
+        $this->cc = array_unique(array_merge($this->cc, $this->parseAddresses($cc, true)));
+
+        $cc = (isset($this->headers['CC'])) ?
+            $this->getHeader('CC') . ', ' . $this->parseAddresses($cc) :
+            $this->parseAddresses($cc);
+
         return $this->addHeader('CC', $this->parseAddresses($cc));
     }
 
@@ -97,6 +128,12 @@ class Message extends Message\AbstractMessage
      */
     public function setBcc($bcc)
     {
+        $this->bcc = array_unique(array_merge($this->bcc, $this->parseAddresses($bcc, true)));
+
+        $bcc = (isset($this->headers['BCC'])) ?
+            $this->getHeader('BCC') . ', ' . $this->parseAddresses($bcc) :
+            $this->parseAddresses($bcc);
+
         return $this->addHeader('BCC', $this->parseAddresses($bcc));
     }
 
@@ -192,6 +229,20 @@ class Message extends Message\AbstractMessage
     }
 
     /**
+     * Remove header
+     *
+     * @param  string $header
+     * @return Message
+     */
+    public function removeHeader($header)
+    {
+        if (isset($this->headers[$header])) {
+            unset($this->headers[$header]);
+        }
+        return $this;
+    }
+
+    /**
      * Get subject
      *
      * @return string
@@ -204,11 +255,31 @@ class Message extends Message\AbstractMessage
     /**
      * Get To
      *
-     * @return string
+     * @return array
      */
     public function getTo()
     {
-        return $this->getHeader('To');
+        return $this->to;
+    }
+
+    /**
+     * Get CC
+     *
+     * @return array
+     */
+    public function getCc()
+    {
+        return $this->cc;
+    }
+
+    /**
+     * Get BCC
+     *
+     * @return array
+     */
+    public function getBcc()
+    {
+        return $this->bcc;
     }
 
     /**
@@ -218,7 +289,7 @@ class Message extends Message\AbstractMessage
      */
     public function getBody()
     {
-        $body = null;
+        $body  = null;
 
         if (count($this->parts) > 1) {
             foreach ($this->parts as $i => $part) {
@@ -285,30 +356,119 @@ class Message extends Message\AbstractMessage
     }
 
     /**
+     * Render as an array of lines
+     *
+     * @return array
+     */
+    public function renderAsLines()
+    {
+        $lines = [];
+
+        $headers = explode(Message::CRLF, $this->getHeadersAsString());
+        $body    = explode("\n", $this->getBody());
+
+        foreach ($headers as $header) {
+            $lines[] = trim($header);
+        }
+
+        if (count($lines) > 0) {
+            $lines[] = Message::CRLF;
+            $lines[] = Message::CRLF;
+        }
+
+        foreach ($body as $line) {
+            $lines[] = trim($line);
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Write this entire entity to a {@see Swift\InputByteStream}.
+     *
+     * @param Transport\Smtp\InputByteStreamInterface $is
+     */
+    public function toByteStream(Transport\Smtp\InputByteStreamInterface $is)
+    {
+        $is->write($this->getHeadersAsString());
+        $is->commit();
+        $this->bodyToByteStream($is);
+    }
+
+    /**
+     * Write this entire entity to a {@link Swift\InputByteStream}.
+     *
+     * @param Transport\Smtp\InputByteStreamInterface $is
+     */
+    protected function bodyToByteStream(Transport\Smtp\InputByteStreamInterface $is)
+    {
+        $lines = $this->renderAsLines();
+        foreach ($lines as $line) {
+            $is->write($line . self::CRLF);
+        }
+        /*
+        if (empty($this->immediateChildren)) {
+            if (isset($this->body)) {
+                if ($this->cache->hasKey($this->cacheKey, 'body')) {
+                    $this->cache->exportToByteStream($this->cacheKey, 'body', $is);
+                } else {
+                    $cacheIs = $this->cache->getInputByteStream($this->cacheKey, 'body');
+                    if ($cacheIs) {
+                        $is->bind($cacheIs);
+                    }
+                    $is->write("\r\n");
+                    if ($this->body instanceof \Swift\OutputByteStream) {
+                        $this->body->setReadPointer(0);
+                        $this->encoder->encodeByteStream($this->body, $is, 0, $this->getMaxLineLength());
+                    } else {
+                        $is->write($this->encoder->encodeString($this->getBody(), 0, $this->getMaxLineLength()));
+                    }
+                    if ($cacheIs) {
+                        $is->unbind($cacheIs);
+                    }
+                }
+            }
+        }
+        if (!empty($this->immediateChildren)) {
+            foreach ($this->immediateChildren as $child) {
+                $is->write("\r\n\r\n--".$this->getBoundary()."\r\n");
+                $child->toByteStream($is);
+            }
+            $is->write("\r\n\r\n--".$this->getBoundary()."--\r\n");
+        }
+        */
+    }
+
+    /**
      * Parse addresses
      *
-     * @param  mixed $addresses
+     * @param  mixed   $addresses
+     * @param  boolean $asArray
      * @return string
      */
-    protected function parseAddresses($addresses)
+    protected function parseAddresses($addresses, $asArray = false)
     {
-        $result = [];
+        $formatted = [];
+        $emails    = [];
 
         if (is_array($addresses)) {
             foreach ($addresses as $key => $value) {
                 // $key is email
                 if (strpos($key, '@') !== false) {
-                    $result[] = (!empty($value)) ? '"' . $value . '" <' . $key . '>' : $key;
+                    $formatted[] = (!empty($value)) ? '"' . $value . '" <' . $key . '>' : $key;
+                    $emails[]    = $key;
                 // $value is email
                 } else if (strpos($value, '@') !== false) {
-                    $result[] = (!empty($key)) ? '"' . $key . '" <' . $value . '>' : $value;
+                    $formatted[] = (!empty($key)) ? '"' . $key . '" <' . $value . '>' : $value;
+                    $emails[]    = $value;
                 }
             }
         } else {
-            $result = [$addresses];
+            $formatted = [$addresses];
+            $emails    = [$addresses];
         }
 
-        return implode(', ', $result);
+        return ($asArray) ? $emails : implode(', ', $formatted);
     }
 
     /**

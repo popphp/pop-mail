@@ -81,11 +81,11 @@ class Sendmail extends AbstractTransport
         $headers = $message->getHeadersAsString(['Subject', 'To']);
 
         if ((null !== $headers) && (null !== $this->params)) {
-            return mail($message->getTo(), $message->getSubject(), $message->getBody(), $headers, $this->params);
+            return mail($message->getHeader('To'), $message->getSubject(), $message->getBody(), $headers, $this->params);
         } else if (null !== $headers) {
-            return mail($message->getTo(), $message->getSubject(), $message->getBody(), $headers);
+            return mail($message->getHeader('To'), $message->getSubject(), $message->getBody(), $headers);
         } else {
-            return mail($message->getTo(), $message->getSubject(), $message->getBody());
+            return mail($message->getHeader('To'), $message->getSubject(), $message->getBody());
         }
     }
 

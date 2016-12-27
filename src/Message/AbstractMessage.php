@@ -47,6 +47,28 @@ abstract class AbstractMessage implements MessageInterface
     protected $charSet = 'utf-8';
 
     /**
+     * Message or part ID
+     * @var string
+     */
+    protected $id = null;
+
+    /**
+     * Message or part ID header name
+     * @var string
+     */
+    protected $idHeader = null;
+
+
+    /**
+     * Instantiate the message object
+     *
+     */
+    public function __construct()
+    {
+        $this->generateId();
+    }
+
+    /**
      * Add message part header
      *
      * @param  string $header
@@ -178,6 +200,13 @@ abstract class AbstractMessage implements MessageInterface
             $i++;
         }
 
+        if (null !== $this->id) {
+            if (null === $this->idHeader) {
+                $this->setIdHeader((($this instanceof Message) ? 'Message-ID' : 'Content-ID'));
+            }
+            $headers .= ((null !== $headers) ? Message::CRLF : null) . $this->idHeader . ': ' . $this->id;
+        }
+
         if ((null !== $this->contentType) && !in_array('Content-Type', $omit)) {
             $headers .= ((null !== $headers) ? Message::CRLF : null) . 'Content-Type: ' . $this->contentType;
             if (!empty($this->charSet)) {
@@ -186,6 +215,73 @@ abstract class AbstractMessage implements MessageInterface
         }
 
         return $headers;
+    }
+
+    /**
+     * Set the ID header name
+     *
+     * @param  string $header
+     * @return AbstractMessage
+     */
+    public function setIdHeader($header)
+    {
+        $this->idHeader = $header;
+        return $this;
+    }
+
+    /**
+     * Get the ID
+     *
+     * @return string
+     */
+    public function getIdHeader()
+    {
+        return $this->idHeader;
+    }
+
+    /**
+     * Set the ID
+     *
+     * @param  string $id
+     * @return AbstractMessage
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * Get the ID
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Generate a new ID
+     *
+     * @return string
+     */
+    public function generateId()
+    {
+        $this->setId($this->getRandomId());
+        return $this->id;
+    }
+
+    /**
+     * Returns a random ID
+     *
+     * @return string
+     */
+    protected function getRandomId()
+    {
+        $idLeft  = md5(getmypid().'.'.time().'.'.uniqid(mt_rand(), true));
+        $idRight = !empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'popmail.generated';
+        return $idLeft . '@' . $idRight;
     }
 
     /**
@@ -201,6 +297,13 @@ abstract class AbstractMessage implements MessageInterface
      * @return string
      */
     abstract public function render();
+
+    /**
+     * Render as an array of lines
+     *
+     * @return array
+     */
+    abstract public function renderAsLines();
 
     /**
      * Render message to string

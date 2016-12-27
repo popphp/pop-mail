@@ -44,6 +44,7 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
      */
     public function __construct($content, $contentType = 'text/plain')
     {
+        parent::__construct();
         $this->setContent($content);
         $this->setContentType($contentType);
     }
@@ -88,6 +89,37 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     public function render()
     {
         return $this->getHeadersAsString() . Message::CRLF . Message::CRLF . $this->getBody() . Message::CRLF . Message::CRLF;
+    }
+
+    /**
+     * Render as an array of lines
+     *
+     * @return array
+     */
+    public function renderAsLines()
+    {
+        $lines = [];
+
+        $headers = explode(Message::CRLF, $this->getHeadersAsString());
+        $body    = explode("\n", $this->getContent());
+
+        foreach ($headers as $header) {
+            $lines[] = trim($header);
+        }
+
+        if (count($lines) > 0) {
+            $lines[] = Message::CRLF;
+            $lines[] = Message::CRLF;
+        }
+
+        foreach ($body as $line) {
+            $lines[] = trim($line);
+        }
+
+        $lines[] = Message::CRLF;
+        $lines[] = Message::CRLF;
+
+        return $lines;
     }
 
 }

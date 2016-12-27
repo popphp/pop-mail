@@ -25,7 +25,7 @@ use Pop\Mail\Message;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-class Smtp extends Smtp\EsmtpTransport
+class Smtp extends Smtp\EsmtpTransport implements TransportInterface
 {
 
     /**
@@ -37,7 +37,7 @@ class Smtp extends Smtp\EsmtpTransport
      */
     public function __construct($host = 'localhost', $port = 25, $security = null)
     {
-        $streamBuffer = new Smtp\StreamBuffer(new Smtp\StreamFilters\StringReplacementFilterFactory);
+        $streamBuffer = new Smtp\StreamBuffer(new Smtp\StreamFilters\StringReplacementFilterFactory());
         $authHandler  = [new Smtp\AuthHandler([
             new Smtp\Auth\CramMd5Authenticator(),
             new Smtp\Auth\LoginAuthenticator(),
@@ -62,7 +62,7 @@ class Smtp extends Smtp\EsmtpTransport
      */
     public function send(\Pop\Mail\Message $message, &$failedRecipients = null)
     {
-        return;
+        return parent::send($message, $failedRecipients);
     }
 
 }
