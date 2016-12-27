@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Transport\Smtp\Auth;
 
+use Pop\Mail\Transport\Smtp\AgentInterface;
+
 /**
  * LOGIN Auth class
  *
@@ -36,13 +38,13 @@ class LoginAuthenticator implements AuthInterface
     /**
      * Try to authenticate the user with $username and $password.
      *
-     * @param mixed  $agent
-     * @param string $username
-     * @param string $password
+     * @param AgentInterface $agent
+     * @param string         $username
+     * @param string         $password
      *
      * @return bool
      */
-    public function authenticate($agent, $username, $password)
+    public function authenticate(AgentInterface $agent, $username, $password)
     {
         try {
             $agent->executeCommand("AUTH LOGIN\r\n", [334]);

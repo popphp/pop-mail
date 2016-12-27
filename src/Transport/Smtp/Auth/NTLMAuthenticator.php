@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Transport\Smtp\Auth;
 
+use Pop\Mail\Transport\Smtp\AgentInterface;
+
 /**
  * NTLM Auth class
  *
@@ -23,7 +25,7 @@ namespace Pop\Mail\Transport\Smtp\Auth;
  */
 class NTLMAuthenticator implements AuthInterface
 {
-    const NTLMSIG = "NTLMSSP\x00";
+    const NTLMSIG  = "NTLMSSP\x00";
     const DESCONST = 'KGS!@#$%';
 
     /**
@@ -39,13 +41,13 @@ class NTLMAuthenticator implements AuthInterface
     /**
      * Try to authenticate the user with $username and $password.
      *
-     * @param mixed  $agent
-     * @param string $username
-     * @param string $password
+     * @param AgentInterface $agent
+     * @param string         $username
+     * @param string         $password
      *
      * @return bool
      */
-    public function authenticate($agent, $username, $password)
+    public function authenticate(AgentInterface $agent, $username, $password)
     {
         if (!function_exists('openssl_random_pseudo_bytes') || !function_exists('openssl_encrypt')) {
             throw new \LogicException('The OpenSSL extension must be enabled to use the NTLM authenticator.');
@@ -104,11 +106,11 @@ class NTLMAuthenticator implements AuthInterface
     /**
      * Send our auth message and returns the response.
      *
-     * @param mixed $agent
+     * @param AgentInterface $agent
      *
      * @return string SMTP Response
      */
-    protected function sendMessage1($agent)
+    protected function sendMessage1(AgentInterface $agent)
     {
         $message = $this->createMessage1();
 
@@ -184,17 +186,17 @@ class NTLMAuthenticator implements AuthInterface
     /**
      * Send our final message with all our data.
      *
-     * @param string $response  Message 1 response (message 2)
-     * @param string $username
-     * @param string $password
-     * @param string $timestamp
-     * @param string $client
-     * @param mixed  $agent
-     * @param bool   $v2        Use version2 of the protocol
+     * @param string         $response  Message 1 response (message 2)
+     * @param string         $username
+     * @param string         $password
+     * @param string         $timestamp
+     * @param string         $client
+     * @param AgentInterface $agent
+     * @param bool           $v2        Use version2 of the protocol
      *
      * @return string
      */
-    protected function sendMessage3($response, $username, $password, $timestamp, $client, $agent, $v2 = true)
+    protected function sendMessage3($response, $username, $password, $timestamp, $client, AgentInterface $agent, $v2 = true)
     {
         list($domain, $username) = $this->getDomainAndUsername($username);
         //$challenge, $context, $targetInfoH, $targetName, $domainName, $workstation, $DNSDomainName, $DNSServerName, $blob, $ter

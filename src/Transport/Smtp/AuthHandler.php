@@ -172,10 +172,10 @@ class AuthHandler implements HandlerInterface
     /**
      * Runs immediately after a EHLO has been issued.
      *
-     * @param mixed $agent to read/write
+     * @param AgentInterface $agent to read/write
      * @throws Exception
      */
-    public function afterEhlo($agent)
+    public function afterEhlo(AgentInterface $agent)
     {
         if ($this->username) {
             $count = 0;
@@ -214,7 +214,7 @@ class AuthHandler implements HandlerInterface
     /**
      * Not used.
      */
-    public function onCommand($agent, $command, $codes = [], &$failedRecipients = null, &$stop = false)
+    public function onCommand(AgentInterface $agent, $command, $codes = [], &$failedRecipients = null, &$stop = false)
     {
     }
 

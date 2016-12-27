@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Transport\Smtp\Auth;
 
+use Pop\Mail\Transport\Smtp\AgentInterface;
+
 /**
  * NTLM Auth class
  *
@@ -37,13 +39,13 @@ class XOAuth2Authenticator implements AuthInterface
     /**
      * Try to authenticate the user with $email and $token.
      *
-     * @param mixed  $agent
-     * @param string $email
-     * @param string $token
+     * @param AgentInterface $agent
+     * @param string         $email
+     * @param string         $token
      *
      * @return bool
      */
-    public function authenticate($agent, $email, $token)
+    public function authenticate(AgentInterface $agent, $email, $token)
     {
         try {
             $param = $this->constructXOAuth2Params($email, $token);

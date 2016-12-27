@@ -11,37 +11,24 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp\Auth;
-
-use Pop\Mail\Transport\Smtp\AgentInterface;
+namespace Pop\Mail\Transport\Smtp;
 
 /**
- * SMTP authenticator interface
+ * File stream interface
  *
  * @category   Pop
  * @package    Pop\Mail
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-interface AuthInterface
+interface FileStreamInterface
 {
 
     /**
-     * Get the name of the AUTH mechanism this Authenticator handles.
+     * Get the complete path to the file.
      *
      * @return string
      */
-    public function getAuthKeyword();
-
-    /**
-     * Try to authenticate the user with $username and $password.
-     *
-     * @param AgentInterface $agent
-     * @param string         $username
-     * @param string         $password
-     *
-     * @return bool
-     */
-    public function authenticate(AgentInterface $agent, $username, $password);
+    public function getPath();
 
 }

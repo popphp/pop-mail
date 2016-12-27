@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Transport\Smtp\Auth;
 
+use Pop\Mail\Transport\Smtp\AgentInterface;
+
 /**
  * CRAM-MD5 Auth class
  *
@@ -36,13 +38,13 @@ class CramMd5Authenticator implements AuthInterface
     /**
      * Try to authenticate the user with $username and $password.
      *
-     * @param mixed  $agent
-     * @param string $username
-     * @param string $password
+     * @param AgentInterface  $agent
+     * @param string          $username
+     * @param string          $password
      *
      * @return bool
      */
-    public function authenticate($agent, $username, $password)
+    public function authenticate(AgentInterface $agent, $username, $password)
     {
         try {
             $challenge = $agent->executeCommand("AUTH CRAM-MD5\r\n", [334]);

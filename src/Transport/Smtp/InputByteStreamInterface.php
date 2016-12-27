@@ -14,7 +14,7 @@
 namespace Pop\Mail\Transport\Smtp;
 
 /**
- * SMTP buffer interface
+ * SMTP input byte stream interface
  *
  * @category   Pop
  * @package    Pop\Mail

@@ -151,8 +151,8 @@ abstract class AbstractSmtp implements SmtpInterface
             );
         }
 
-        $to = (array) $message->getTo();
-        $cc = (array) $message->getCc();
+        $to  = (array) $message->getTo();
+        $cc  = (array) $message->getCc();
         $tos = array_merge($to, $cc);
         $bcc = (array) $message->getBcc();
 
