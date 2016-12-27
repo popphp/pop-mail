@@ -23,7 +23,7 @@ namespace Pop\Mail;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-class Message
+class Message extends Message\AbstractMessage
 {
 
     /**
@@ -37,24 +37,6 @@ class Message
      * @var array
      */
     protected $parts = [];
-
-    /**
-     * Message headers
-     * @var array
-     */
-    protected $headers = [];
-
-    /**
-     * Message content type
-     * @var string
-     */
-    protected $contentType = 'text/plain';
-
-    /**
-     * Message part character set
-     * @var string
-     */
-    protected $charSet = 'utf-8';
 
     /**
      * Message boundary
@@ -72,50 +54,6 @@ class Message
     public function __construct($subject)
     {
         $this->setSubject($subject);
-    }
-
-    /**
-     * Set content type
-     *
-     * @param  string $contentType
-     * @return Message
-     */
-    public function setContentType($contentType)
-    {
-        $this->contentType = $contentType;
-        return $this;
-    }
-
-    /**
-     * Get content type
-     *
-     * @return string
-     */
-    public function getContentType()
-    {
-        return $this->contentType;
-    }
-
-    /**
-     * Set message character set
-     *
-     * @param  string $charSet
-     * @return Message
-     */
-    public function setCharSet($charSet)
-    {
-        $this->charSet = $charSet;
-        return $this;
-    }
-
-    /**
-     * Get message character set
-     *
-     * @return string
-     */
-    public function getCharSet()
-    {
-        return $this->charSet;
     }
 
     /**
@@ -199,19 +137,6 @@ class Message
     }
 
     /**
-     * Add message part
-     *
-     * @param  Message\PartInterface $part
-     * @return Message
-     */
-    public function addPart(Message\PartInterface $part)
-    {
-        $this->parts[] = $part;
-        $this->validateContentType();
-        return $this;
-    }
-
-    /**
      * Add text message part
      *
      * @param  mixed $text
@@ -254,41 +179,16 @@ class Message
     }
 
     /**
-     * Add message header
+     * Add message part
      *
-     * @param  string $header
-     * @param  string $value
+     * @param  Message\PartInterface $part
      * @return Message
      */
-    public function addHeader($header, $value)
+    public function addPart(Message\PartInterface $part)
     {
-        $this->headers[$header] = $value;
+        $this->parts[] = $part;
+        $this->validateContentType();
         return $this;
-    }
-
-    /**
-     * Add message headers
-     *
-     * @param  array $headers
-     * @return Message
-     */
-    public function addHeaders(array $headers)
-    {
-        foreach ($headers as $header => $value) {
-            $this->addHeader($header, $value);
-        }
-        return $this;
-    }
-
-    /**
-     * Determine if message has header
-     *
-     * @param  string $header
-     * @return boolean
-     */
-    public function hasHeader($header)
-    {
-        return isset($this->headers[$header]);
     }
 
     /**
@@ -309,55 +209,6 @@ class Message
     public function getTo()
     {
         return $this->getHeader('To');
-    }
-
-    /**
-     * Get message header
-     *
-     * @param  string $header
-     * @return string
-     */
-    public function getHeader($header)
-    {
-        return (isset($this->headers[$header])) ? $this->headers[$header] : null;
-    }
-
-    /**
-     * Get all message headers
-     *
-     * @return array
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
-    /**
-     * Get all message headers as string
-     *
-     * @param  array $omit
-     * @return string
-     */
-    public function getHeadersAsString(array $omit = [])
-    {
-        $headers = null;
-        $i       = 1;
-
-        foreach ($this->headers as $header => $value) {
-            if (!in_array($header, $omit)) {
-                $headers .= $header . ': ' . $value . (($i < count($this->headers)) ? self::CRLF : null);
-            }
-            $i++;
-        }
-
-        if (null !== $this->contentType) {
-            $headers .= ((null !== $headers) ? self::CRLF : null) . 'Content-Type: ' . $this->contentType;
-            if (null !== $this->charSet) {
-                $headers .= '; charset="' . $this->charSet . '""';
-            }
-        }
-
-        return $headers;
     }
 
     /**
@@ -434,16 +285,6 @@ class Message
     }
 
     /**
-     * Render message to string
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->render();
-    }
-
-    /**
      * Parse addresses
      *
      * @param  mixed $addresses
@@ -477,22 +318,34 @@ class Message
      */
     protected function validateContentType()
     {
-        $hasFile = false;
+        $hasText = false;
         $hasHtml = false;
+        $hasFile = false;
 
         foreach ($this->parts as $part) {
-            if ($part instanceof Message\Attachment) {
-                $hasFile = true;
+            if ($part instanceof Message\Text) {
+                $hasText = true;
             }
             if ($part instanceof Message\Html) {
                 $hasHtml = true;
             }
+            if ($part instanceof Message\Attachment) {
+                $hasFile = true;
+            }
         }
 
-        if ($hasFile) {
-            $this->setContentType('multipart/mixed; boundary="' . $this->getBoundary() . '"');
-        } else if ((!$hasFile) && ($hasHtml)) {
-            $this->setContentType('multipart/alternative; boundary="' . $this->getBoundary() . '"');
+        if (($hasText) && ($hasHtml)) {
+            $this->setContentType(
+                'multipart/alternative; boundary="' . $this->getBoundary() . '"' . self::CRLF .
+                'This is a multi-part message in MIME format.'
+            );
+            $this->setCharSet('');
+        } else if ($hasFile) {
+            $this->setContentType(
+                'multipart/mixed; boundary="' . $this->getBoundary() . '"' . self::CRLF .
+                'This is a multi-part message in MIME format.'
+            );
+            $this->setCharSet('');
         }
     }
 

@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Message;
 
+use Pop\Mail\Message;
+
 /**
  * Attachment class
  *
@@ -57,7 +59,8 @@ class Attachment extends AbstractPart
 
         $this->addHeader('Content-Transfer-Encoding', 'base64')
              ->addHeader('Content-Description', $this->basename)
-             ->addHeader('Content-Disposition', 'attachment; filename="' . $this->basename . '"');
+             ->addHeader('Content-Disposition', 'attachment; filename="' . $this->basename . '"')
+             ->setCharSet('');
     }
 
     /**

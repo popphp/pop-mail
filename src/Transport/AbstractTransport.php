@@ -32,7 +32,7 @@ abstract class AbstractTransport implements TransportInterface
      * Send the message
      *
      * @param  Message $message
-     * @return void
+     * @return mixed
      */
     abstract public function send(Message $message);
 

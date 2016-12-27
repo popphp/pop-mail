@@ -48,11 +48,11 @@ class Mailer
      * Send message
      *
      * @param  Message $message
-     * @return void
+     * @return mixed
      */
     public function send(Message $message)
     {
-        $this->transport->send($message);
+        return $this->transport->send($message);
     }
 
 }

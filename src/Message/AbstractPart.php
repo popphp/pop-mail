@@ -25,32 +25,14 @@ use Pop\Mail\Message;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-abstract class AbstractPart implements PartInterface
+abstract class AbstractPart extends AbstractMessage implements PartInterface
 {
-
-    /**
-     * Message part headers
-     * @var array
-     */
-    protected $headers = [];
 
     /**
      * Message part content
      * @var string
      */
     protected $content = null;
-
-    /**
-     * Message part content type
-     * @var string
-     */
-    protected $contentType = 'text/plain';
-
-    /**
-     * Message part character set
-     * @var string
-     */
-    protected $charSet = 'utf-8';
 
     /**
      * Constructor
@@ -67,65 +49,6 @@ abstract class AbstractPart implements PartInterface
     }
 
     /**
-     * Add message part header
-     *
-     * @param  string $header
-     * @param  string $value
-     * @return AbstractPart
-     */
-    public function addHeader($header, $value)
-    {
-        $this->headers[$header] = $value;
-        return $this;
-    }
-
-    /**
-     * Add message part headers
-     *
-     * @param  array $headers
-     * @return AbstractPart
-     */
-    public function addHeaders(array $headers)
-    {
-        foreach ($headers as $header => $value) {
-            $this->addHeader($header, $value);
-        }
-        return $this;
-    }
-
-    /**
-     * Determine if message part has header
-     *
-     * @param  string $header
-     * @return boolean
-     */
-    public function hasHeader($header)
-    {
-        return isset($this->headers[$header]);
-    }
-
-    /**
-     * Get message part header
-     *
-     * @param  string $header
-     * @return string
-     */
-    public function getHeader($header)
-    {
-        return (isset($this->headers[$header])) ? $this->headers[$header] : null;
-    }
-
-    /**
-     * Get all message part headers
-     *
-     * @return array
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
-    /**
      * Get message part content
      *
      * @return string
@@ -133,26 +56,6 @@ abstract class AbstractPart implements PartInterface
     public function getContent()
     {
         return $this->content;
-    }
-
-    /**
-     * Get message part content type
-     *
-     * @return string
-     */
-    public function getContentType()
-    {
-        return $this->contentType;
-    }
-
-    /**
-     * Get message part character set
-     *
-     * @return string
-     */
-    public function getCharSet()
-    {
-        return $this->charSet;
     }
 
     /**
@@ -165,58 +68,6 @@ abstract class AbstractPart implements PartInterface
     {
         $this->content = $content;
         return $this;
-    }
-
-    /**
-     * Set message part content type
-     *
-     * @param  string $contentType
-     * @return AbstractPart
-     */
-    public function setContentType($contentType)
-    {
-        $this->contentType = $contentType;
-        return $this;
-    }
-
-    /**
-     * Set message part character set
-     *
-     * @param  string $charSet
-     * @return AbstractPart
-     */
-    public function setCharSet($charSet)
-    {
-        $this->charSet = $charSet;
-        return $this;
-    }
-
-    /**
-     * Get all message headers as string
-     *
-     * @param  array $omit
-     * @return string
-     */
-    public function getHeadersAsString(array $omit = [])
-    {
-        $headers = null;
-        $i       = 1;
-
-        foreach ($this->headers as $header => $value) {
-            if (!in_array($header, $omit)) {
-                $headers .= $header . ': ' . $value . (($i < count($this->headers)) ? Message::CRLF : null);
-            }
-            $i++;
-        }
-
-        if (null !== $this->contentType) {
-            $headers .= ((null !== $headers) ? Message::CRLF : null) . 'Content-Type: ' . $this->contentType;
-            if (null !== $this->charSet) {
-                $headers .= '; charset="' . $this->charSet . '""';
-            }
-        }
-
-        return $headers;
     }
 
     /**
@@ -237,16 +88,6 @@ abstract class AbstractPart implements PartInterface
     public function render()
     {
         return $this->getHeadersAsString() . Message::CRLF . Message::CRLF . $this->getBody() . Message::CRLF . Message::CRLF;
-    }
-
-    /**
-     * Render message to string
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->render();
     }
 
 }

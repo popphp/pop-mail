@@ -32,7 +32,7 @@ interface TransportInterface
      * Send the message
      *
      * @param  Message $message
-     * @return void
+     * @return mixed
      */
     public function send(Message $message);
 
