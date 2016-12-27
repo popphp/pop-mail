@@ -39,22 +39,18 @@ class Message extends Message\AbstractMessage
     protected $parts = [];
 
     /**
-     * Message send To
+     * Message addresses
      * @var array
      */
-    protected $to = [];
-
-    /**
-     * Message send CC
-     * @var array
-     */
-    protected $cc = [];
-
-    /**
-     * Message send BCC
-     * @var array
-     */
-    protected $bcc = [];
+    protected $addresses = [
+        'To'          => [],
+        'CC'          => [],
+        'BCC'         => [],
+        'From'        => [],
+        'Reply-To'    => [],
+        'Sender'      => [],
+        'Return-Path' => []
+    ];
 
     /**
      * Message boundary
@@ -94,13 +90,8 @@ class Message extends Message\AbstractMessage
      */
     public function setTo($to)
     {
-        $this->to = array_unique(array_merge($this->to, $this->parseAddresses($to, true)));
-
-        $to = (isset($this->headers['To'])) ?
-            $this->getHeader('To') . ', ' . $this->parseAddresses($to) :
-            $this->parseAddresses($to);
-
-        return $this->addHeader('To', $to);
+        $this->addresses['To'] = $this->parseAddresses($to, true);
+        return $this->addHeader('To', $this->parseAddresses($to));
     }
 
     /**
@@ -111,12 +102,7 @@ class Message extends Message\AbstractMessage
      */
     public function setCc($cc)
     {
-        $this->cc = array_unique(array_merge($this->cc, $this->parseAddresses($cc, true)));
-
-        $cc = (isset($this->headers['CC'])) ?
-            $this->getHeader('CC') . ', ' . $this->parseAddresses($cc) :
-            $this->parseAddresses($cc);
-
+        $this->addresses['CC'] = $this->parseAddresses($cc, true);
         return $this->addHeader('CC', $this->parseAddresses($cc));
     }
 
@@ -128,12 +114,7 @@ class Message extends Message\AbstractMessage
      */
     public function setBcc($bcc)
     {
-        $this->bcc = array_unique(array_merge($this->bcc, $this->parseAddresses($bcc, true)));
-
-        $bcc = (isset($this->headers['BCC'])) ?
-            $this->getHeader('BCC') . ', ' . $this->parseAddresses($bcc) :
-            $this->parseAddresses($bcc);
-
+        $this->addresses['BCC'] = $this->parseAddresses($bcc, true);
         return $this->addHeader('BCC', $this->parseAddresses($bcc));
     }
 
@@ -145,6 +126,7 @@ class Message extends Message\AbstractMessage
      */
     public function setFrom($from)
     {
+        $this->addresses['From'] = $this->parseAddresses($from, true);
         return $this->addHeader('From', $this->parseAddresses($from));
     }
 
@@ -156,7 +138,32 @@ class Message extends Message\AbstractMessage
      */
     public function setReplyTo($replyTo)
     {
+        $this->addresses['Reply-To'] = $this->parseAddresses($replyTo, true);
         return $this->addHeader('Reply-To', $this->parseAddresses($replyTo));
+    }
+
+    /**
+     * Set Sender
+     *
+     * @param  mixed $sender
+     * @return Message
+     */
+    public function setSender($sender)
+    {
+        $this->addresses['Sender'] = $this->parseAddresses($sender, true);
+        return $this->addHeader('Sender', $this->parseAddresses($sender));
+    }
+
+    /**
+     * Set Return-Path
+     *
+     * @param  mixed $returnPath
+     * @return Message
+     */
+    public function setReturnPath($returnPath)
+    {
+        $this->addresses['Return-Path'] = $this->parseAddresses($returnPath, true);
+        return $this->addHeader('Return-Path', $this->parseAddresses($returnPath));
     }
 
     /**
@@ -259,7 +266,7 @@ class Message extends Message\AbstractMessage
      */
     public function getTo()
     {
-        return $this->to;
+        return $this->addresses['To'];
     }
 
     /**
@@ -269,7 +276,7 @@ class Message extends Message\AbstractMessage
      */
     public function getCc()
     {
-        return $this->cc;
+        return $this->addresses['CC'];
     }
 
     /**
@@ -279,7 +286,47 @@ class Message extends Message\AbstractMessage
      */
     public function getBcc()
     {
-        return $this->bcc;
+        return $this->addresses['BCC'];
+    }
+
+    /**
+     * Get From
+     *
+     * @return array
+     */
+    public function getFrom()
+    {
+        return $this->addresses['From'];
+    }
+
+    /**
+     * Get Reply-To
+     *
+     * @return array
+     */
+    public function getReplyTo()
+    {
+        return $this->addresses['Reply-To'];
+    }
+
+    /**
+     * Get Sender
+     *
+     * @return array
+     */
+    public function getSender()
+    {
+        return $this->addresses['Sender'];
+    }
+
+    /**
+     * Get Return-Path
+     *
+     * @return array
+     */
+    public function getReturnPath()
+    {
+        return $this->addresses['Return-Path'];
     }
 
     /**
@@ -406,37 +453,6 @@ class Message extends Message\AbstractMessage
         foreach ($lines as $line) {
             $is->write($line . self::CRLF);
         }
-        /*
-        if (empty($this->immediateChildren)) {
-            if (isset($this->body)) {
-                if ($this->cache->hasKey($this->cacheKey, 'body')) {
-                    $this->cache->exportToByteStream($this->cacheKey, 'body', $is);
-                } else {
-                    $cacheIs = $this->cache->getInputByteStream($this->cacheKey, 'body');
-                    if ($cacheIs) {
-                        $is->bind($cacheIs);
-                    }
-                    $is->write("\r\n");
-                    if ($this->body instanceof \Swift\OutputByteStream) {
-                        $this->body->setReadPointer(0);
-                        $this->encoder->encodeByteStream($this->body, $is, 0, $this->getMaxLineLength());
-                    } else {
-                        $is->write($this->encoder->encodeString($this->getBody(), 0, $this->getMaxLineLength()));
-                    }
-                    if ($cacheIs) {
-                        $is->unbind($cacheIs);
-                    }
-                }
-            }
-        }
-        if (!empty($this->immediateChildren)) {
-            foreach ($this->immediateChildren as $child) {
-                $is->write("\r\n\r\n--".$this->getBoundary()."\r\n");
-                $child->toByteStream($is);
-            }
-            $is->write("\r\n\r\n--".$this->getBoundary()."--\r\n");
-        }
-        */
     }
 
     /**
@@ -455,17 +471,28 @@ class Message extends Message\AbstractMessage
             foreach ($addresses as $key => $value) {
                 // $key is email
                 if (strpos($key, '@') !== false) {
-                    $formatted[] = (!empty($value)) ? '"' . $value . '" <' . $key . '>' : $key;
-                    $emails[]    = $key;
+                    if (!empty($value)) {
+                        $formatted[]  = '"' . $value . '" <' . $key . '>';
+                        $emails[$key] = $value;
+
+                    } else {
+                        $formatted[]  = $key;
+                        $emails[$key] = null;
+                    }
                 // $value is email
                 } else if (strpos($value, '@') !== false) {
-                    $formatted[] = (!empty($key)) ? '"' . $key . '" <' . $value . '>' : $value;
-                    $emails[]    = $value;
+                    if (!empty($key)) {
+                        $formatted[]    = '"' . $key . '" <' . $value . '>';
+                        $emails[$value] = $key;
+                    } else {
+                        $formatted[]    = $value;
+                        $emails[$value] = null;
+                    }
                 }
             }
-        } else {
-            $formatted = [$addresses];
-            $emails    = [$addresses];
+        } else if (is_string($addresses) && (strpos($addresses, '@') !== false)) {
+            $formatted          = [$addresses];
+            $emails[$addresses] = null;
         }
 
         return ($asArray) ? $emails : implode(', ', $formatted);

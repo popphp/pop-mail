@@ -372,7 +372,7 @@ abstract class AbstractSmtp implements SmtpInterface
             return 0;
         }
 
-        return $this->doMailTransaction($message, $reversePath, $to,
+        return $this->doMailTransaction($message, $reversePath, array_keys($to),
             $failedRecipients);
     }
 
