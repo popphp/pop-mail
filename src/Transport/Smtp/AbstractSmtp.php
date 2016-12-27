@@ -141,6 +141,9 @@ abstract class AbstractSmtp implements SmtpInterface
      */
     public function send(\Pop\Mail\Message $message, &$failedRecipients = null)
     {
+        if (!$this->isStarted()) {
+            $this->start();
+        }
         $sent = 0;
         $failedRecipients = (array) $failedRecipients;
 
