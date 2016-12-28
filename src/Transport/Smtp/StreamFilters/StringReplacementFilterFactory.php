@@ -26,15 +26,17 @@ use Pop\Mail\Transport\Smtp\StreamFilterInterface;
  */
 class StringReplacementFilterFactory implements ReplacementFilterFactoryInterface
 {
-    /** Lazy-loaded filters */
+    /**
+     * Lazy-loaded filters
+     * @var array
+     */
     private $filters = [];
 
     /**
-     * Create a new StreamFilter to replace $search with $replace in a string.
+     * Create a new StreamFilter to replace $search with $replace in a string
      *
-     * @param string $search
-     * @param string $replace
-     *
+     * @param  string $search
+     * @param  string $replace
      * @return StreamFilterInterface
      */
     public function createFilter($search, $replace)

@@ -27,19 +27,18 @@ interface AuthInterface
 {
 
     /**
-     * Get the name of the AUTH mechanism this Authenticator handles.
+     * Get the name of the AUTH mechanism this Authenticator handles
      *
      * @return string
      */
     public function getAuthKeyword();
 
     /**
-     * Try to authenticate the user with $username and $password.
+     * Try to authenticate the user with $username and $password
      *
      * @param AgentInterface $agent
      * @param string         $username
      * @param string         $password
-     *
      * @return bool
      */
     public function authenticate(AgentInterface $agent, $username, $password);

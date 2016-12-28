@@ -25,8 +25,9 @@ use Pop\Mail\Transport\Smtp\AgentInterface;
  */
 class PlainAuthenticator implements AuthInterface
 {
+
     /**
-     * Get the name of the AUTH mechanism this Authenticator handles.
+     * Get the name of the AUTH mechanism this Authenticator handles
      *
      * @return string
      */
@@ -36,18 +37,17 @@ class PlainAuthenticator implements AuthInterface
     }
 
     /**
-     * Try to authenticate the user with $username and $password.
+     * Try to authenticate the user with $username and $password
      *
-     * @param AgentInterface $agent
-     * @param string         $username
-     * @param string         $password
-     *
+     * @param  AgentInterface $agent
+     * @param  string         $username
+     * @param  string         $password
      * @return bool
      */
     public function authenticate(AgentInterface $agent, $username, $password)
     {
         try {
-            $message = base64_encode($username.chr(0).$username.chr(0).$password);
+            $message = base64_encode($username . chr(0) . $username . chr(0) . $password);
             $agent->executeCommand(sprintf("AUTH PLAIN %s\r\n", $message), [235]);
 
             return true;
@@ -57,4 +57,5 @@ class PlainAuthenticator implements AuthInterface
             return false;
         }
     }
+
 }

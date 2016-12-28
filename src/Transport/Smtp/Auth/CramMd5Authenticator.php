@@ -25,8 +25,9 @@ use Pop\Mail\Transport\Smtp\AgentInterface;
  */
 class CramMd5Authenticator implements AuthInterface
 {
+
     /**
-     * Get the name of the AUTH mechanism this Authenticator handles.
+     * Get the name of the AUTH mechanism this Authenticator handles
      *
      * @return string
      */
@@ -36,12 +37,11 @@ class CramMd5Authenticator implements AuthInterface
     }
 
     /**
-     * Try to authenticate the user with $username and $password.
+     * Try to authenticate the user with $username and $password
      *
-     * @param AgentInterface  $agent
-     * @param string          $username
-     * @param string          $password
-     *
+     * @param  AgentInterface  $agent
+     * @param  string          $username
+     * @param  string          $password
      * @return bool
      */
     public function authenticate(AgentInterface $agent, $username, $password)
@@ -49,9 +49,7 @@ class CramMd5Authenticator implements AuthInterface
         try {
             $challenge = $agent->executeCommand("AUTH CRAM-MD5\r\n", [334]);
             $challenge = base64_decode(substr($challenge, 4));
-            $message = base64_encode(
-                $username.' '.$this->getResponse($password, $challenge)
-                );
+            $message   = base64_encode($username . ' ' . $this->getResponse($password, $challenge));
             $agent->executeCommand(sprintf("%s\r\n", $message), [235]);
 
             return true;
@@ -63,11 +61,10 @@ class CramMd5Authenticator implements AuthInterface
     }
 
     /**
-     * Generate a CRAM-MD5 response from a server challenge.
+     * Generate a CRAM-MD5 response from a server challenge
      *
-     * @param string $secret
-     * @param string $challenge
-     *
+     * @param  string $secret
+     * @param  string $challenge
      * @return string
      */
     private function getResponse($secret, $challenge)
@@ -83,8 +80,8 @@ class CramMd5Authenticator implements AuthInterface
         $k_ipad = substr($secret, 0, 64) ^ str_repeat(chr(0x36), 64);
         $k_opad = substr($secret, 0, 64) ^ str_repeat(chr(0x5C), 64);
 
-        $inner = pack('H32', md5($k_ipad.$challenge));
-        $digest = md5($k_opad.$inner);
+        $inner  = pack('H32', md5($k_ipad . $challenge));
+        $digest = md5($k_opad . $inner);
 
         return $digest;
     }

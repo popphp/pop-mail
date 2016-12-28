@@ -31,7 +31,7 @@ interface OutputByteStreamInterface
      * If less bytes exist than are requested the remaining bytes are given instead.
      * If no bytes are remaining at all, boolean false is returned.
      *
-     * @param int $length
+     * @param  int $length
      * @throws Exception
      * @return string|bool
      */
@@ -40,7 +40,7 @@ interface OutputByteStreamInterface
     /**
      * Move the internal read pointer to $byteOffset in the stream.
      *
-     * @param int $byteOffset
+     * @param  int $byteOffset
      * @throws Exception
      * @return bool
      */

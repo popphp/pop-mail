@@ -26,41 +26,36 @@ class AuthHandler implements HandlerInterface
 
     /**
      * Authenticators available to process the request.
-     *
      * @var array
      */
     private $authenticators = [];
 
     /**
-     * The username for authentication.
-     *
+     * The username for authentication
      * @var string
      */
     private $username;
 
     /**
-     * The password for authentication.
-     *
+     * The password for authentication
      * @var string
      */
     private $password;
 
     /**
-     * The auth mode for authentication.
-     *
+     * The auth mode for authentication
      * @var string
      */
     private $authMode;
 
     /**
-     * The ESMTP AUTH parameters available.
-     *
-     * @var string[]
+     * The ESMTP AUTH parameters available
+     * @var array
      */
     private $esmtpParams = [];
 
     /**
-     * Create a new AuthHandler with $authenticators for support.
+     * Create a new AuthHandler with $authenticators for support
      *
      * @param array $authenticators
      */
@@ -70,7 +65,7 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Set the Authenticators which can process a login request.
+     * Set the Authenticators which can process a login request
      *
      * @param array $authenticators
      */
@@ -80,7 +75,7 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Get the Authenticators which can process a login request.
+     * Get the Authenticators which can process a login request
      *
      * @return array
      */
@@ -90,7 +85,7 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Set the username to authenticate with.
+     * Set the username to authenticate with
      *
      * @param string $username
      */
@@ -100,7 +95,7 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Get the username to authenticate with.
+     * Get the username to authenticate with
      *
      * @return string
      */
@@ -110,7 +105,7 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Set the password to authenticate with.
+     * Set the password to authenticate with
      *
      * @param string $password
      */
@@ -120,7 +115,7 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Get the password to authenticate with.
+     * Get the password to authenticate with
      *
      * @return string
      */
@@ -130,7 +125,7 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Set the auth mode to use to authenticate.
+     * Set the auth mode to use to authenticate
      *
      * @param string $mode
      */
@@ -140,7 +135,7 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Get the auth mode to use to authenticate.
+     * Get the auth mode to use to authenticate
      *
      * @return string
      */
@@ -150,7 +145,7 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Get the name of the ESMTP extension this handles.
+     * Get the name of the ESMTP extension this handles
      *
      * @return bool
      */
@@ -160,9 +155,9 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Set the parameters which the EHLO greeting indicated.
+     * Set the parameters which the EHLO greeting indicated
      *
-     * @param string[] $parameters
+     * @param array $parameters
      */
     public function setKeywordParams(array $parameters)
     {
@@ -170,9 +165,9 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Runs immediately after a EHLO has been issued.
+     * Runs immediately after a EHLO has been issued
      *
-     * @param AgentInterface $agent to read/write
+     * @param  AgentInterface $agent to read/write
      * @throws Exception
      */
     public function afterEhlo(AgentInterface $agent)
@@ -189,14 +184,14 @@ class AuthHandler implements HandlerInterface
                 }
             }
             throw new Exception(
-                'Failed to authenticate on SMTP server with username "'.
-                $this->username.'" using '.$count.' possible authenticators'
+                'Failed to authenticate on SMTP server with username "' .
+                $this->username . '" using ' . $count . ' possible authenticators'
             );
         }
     }
 
     /**
-     * Not used.
+     * Not used
      */
     public function getMailParams()
     {
@@ -204,7 +199,7 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Not used.
+     * Not used
      */
     public function getRcptParams()
     {
@@ -212,7 +207,12 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Not used.
+     * Not used
+     *
+     * @param AgentInterface $agent
+     * @param string $command
+     * @param array $codes
+     * @param bool $stop
      */
     public function onCommand(AgentInterface $agent, $command, $codes = [], &$stop = false)
     {
@@ -223,8 +223,7 @@ class AuthHandler implements HandlerInterface
      *
      * This method is called to ensure extensions can be execute in an appropriate order.
      *
-     * @param string $esmtpKeyword to compare with
-     *
+     * @param  string $esmtpKeyword to compare with
      * @return int
      */
     public function getPriorityOver($esmtpKeyword)
@@ -233,9 +232,9 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Returns an array of method names which are exposed to the Esmtp class.
+     * Returns an array of method names which are exposed to the Esmtp class
      *
-     * @return string[]
+     * @return array
      */
     public function exposeMixinMethods()
     {
@@ -243,17 +242,17 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Not used.
+     * Not used
      */
     public function resetState()
     {
     }
 
     /**
-     * Returns the authenticator list for the given agent.
-     * @return array
-     * @throws Exception
+     * Returns the authenticator list for the given agent
      *
+     * @throws Exception
+     * @return array
      */
     protected function getAuthenticatorsForAgent()
     {
@@ -267,7 +266,7 @@ class AuthHandler implements HandlerInterface
             }
         }
 
-        throw new Exception('Auth mode '.$mode.' is invalid');
+        throw new Exception('Auth mode ' . $mode . ' is invalid');
     }
 
 }

@@ -25,10 +25,10 @@ interface ReplacementFilterFactoryInterface
 {
 
     /**
-     * Create a filter to replace $search with $replace.
+     * Create a filter to replace $search with $replace
      *
-     * @param mixed $search
-     * @param mixed $replace
+     * @param  mixed $search
+     * @param  mixed $replace
      * @return StreamFilterInterface
      */
     public function createFilter($search, $replace);

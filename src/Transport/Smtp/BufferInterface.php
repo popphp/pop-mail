@@ -24,10 +24,14 @@ namespace Pop\Mail\Transport\Smtp;
 interface BufferInterface
 {
 
-    /** A socket buffer over TCP */
+    /**
+     * A socket buffer over TCP
+     */
     const TYPE_SOCKET = 0x0001;
 
-    /** A process buffer with I/O support */
+    /**
+     * A process buffer with I/O support
+     */
     const TYPE_PROCESS = 0x0010;
 
     /**
@@ -38,6 +42,13 @@ interface BufferInterface
      * @param array $params
      */
     public function initialize(array $params);
+
+    /**
+     * Start TLS
+     *
+     * @return boolean
+     */
+    public function startTls();
 
     /**
      * Set an individual param on the buffer (e.g. switching to SSL).
@@ -69,7 +80,6 @@ interface BufferInterface
      * depending upon the implementation.
      *
      * @param int $sequence of last write to scan from
-     *
      * @return string
      */
     public function readLine($sequence);
@@ -84,10 +94,8 @@ interface BufferInterface
      * This method returns the sequence ID of the write (i.e. 1 for first, 2 for
      * second, etc etc).
      *
-     * @param string $bytes
-     *
+     * @param  string $bytes
      * @throws Exception
-     *
      * @return int
      */
     public function write($bytes);
@@ -136,10 +144,8 @@ interface BufferInterface
      * If less bytes exist than are requested the remaining bytes are given instead.
      * If no bytes are remaining at all, boolean false is returned.
      *
-     * @param int $length
-     *
+     * @param  int $length
      * @throws Exception
-     *
      * @return string|bool
      */
     public function read($length);
@@ -147,10 +153,8 @@ interface BufferInterface
     /**
      * Move the internal read pointer to $byteOffset in the stream.
      *
-     * @param int $byteOffset
-     *
+     * @param  int $byteOffset
      * @throws Exception
-     *
      * @return bool
      */
     public function setReadPointer($byteOffset);

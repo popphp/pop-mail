@@ -27,29 +27,25 @@ use Pop\Mail\Transport\Smtp\OutputByteStreamInterface;
 class ArrayByteStream implements InputByteStreamInterface, OutputByteStreamInterface
 {
     /**
-     * The internal stack of bytes.
-     *
-     * @var string[]
+     * The internal stack of bytes
+     * @var array
      */
     private $array = [];
 
     /**
-     * The size of the stack.
-     *
+     * The size of the stack
      * @var int
      */
     private $arraySize = 0;
 
     /**
-     * The internal pointer offset.
-     *
+     * The internal pointer offset
      * @var int
      */
     private $offset = 0;
 
     /**
-     * Bound streams.
-     *
+     * Bound streams
      * @var array
      */
     private $mirrors = [];
@@ -81,8 +77,7 @@ class ArrayByteStream implements InputByteStreamInterface, OutputByteStreamInter
      * remaining bytes are given instead. If no bytes are remaining at all, boolean
      * false is returned.
      *
-     * @param int $length
-     *
+     * @param  int $length
      * @return string
      */
     public function read($length)
@@ -103,9 +98,9 @@ class ArrayByteStream implements InputByteStreamInterface, OutputByteStreamInter
     }
 
     /**
-     * Writes $bytes to the end of the stream.
+     * Writes $bytes to the end of the stream
      *
-     * @param string $bytes
+     * @param  string $bytes
      * @return int|void
      */
     public function write($bytes)
@@ -122,7 +117,7 @@ class ArrayByteStream implements InputByteStreamInterface, OutputByteStreamInter
     }
 
     /**
-     * Not used.
+     * Not used
      */
     public function commit()
     {
@@ -162,8 +157,7 @@ class ArrayByteStream implements InputByteStreamInterface, OutputByteStreamInter
     /**
      * Move the internal read pointer to $byteOffset in the stream.
      *
-     * @param int $byteOffset
-     *
+     * @param  int $byteOffset
      * @return bool
      */
     public function setReadPointer($byteOffset)
@@ -183,12 +177,13 @@ class ArrayByteStream implements InputByteStreamInterface, OutputByteStreamInter
      */
     public function flushBuffers()
     {
-        $this->offset = 0;
-        $this->array = [];
+        $this->offset    = 0;
+        $this->array     = [];
         $this->arraySize = 0;
 
         foreach ($this->mirrors as $stream) {
             $stream->flushBuffers();
         }
     }
+
 }

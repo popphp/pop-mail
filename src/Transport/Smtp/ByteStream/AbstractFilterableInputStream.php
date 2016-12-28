@@ -28,43 +28,43 @@ use Pop\Mail\Transport\Smtp\StreamFilterInterface;
 abstract class AbstractFilterableInputStream implements InputByteStreamInterface, FilterableInterface
 {
     /**
-     * Write sequence.
+     * Write sequence
+     * @var int
      */
     protected $sequence = 0;
 
     /**
-     * StreamFilters.
-     *
+     * StreamFilters
      * @var array
      */
     private $filters = [];
 
     /**
-     * A buffer for writing.
+     * A buffer for writing
+     * @var string
      */
     private $writeBuffer = '';
 
     /**
-     * Bound streams.
-     *
+     * Bound streams
      * @var array
      */
     private $mirrors = [];
 
     /**
-     * Commit the given bytes to the storage medium immediately.
+     * Commit the given bytes to the storage medium immediately
      *
      * @param string $bytes
      */
     abstract protected function commitBytes($bytes);
 
     /**
-     * Flush any buffers/content with immediate effect.
+     * Flush any buffers/content with immediate effect
      */
     abstract protected function flush();
 
     /**
-     * Add a StreamFilter to this InputByteStream.
+     * Add a StreamFilter to this InputByteStream
      *
      * @param StreamFilterInterface $filter
      * @param string                $key
@@ -75,7 +75,7 @@ abstract class AbstractFilterableInputStream implements InputByteStreamInterface
     }
 
     /**
-     * Remove an already present StreamFilter based on its $key.
+     * Remove an already present StreamFilter based on its $key
      *
      * @param string $key
      */
@@ -85,10 +85,9 @@ abstract class AbstractFilterableInputStream implements InputByteStreamInterface
     }
 
     /**
-     * Writes $bytes to the end of the stream.
+     * Writes $bytes to the end of the stream
      *
      * @param string $bytes
-     *
      * @return int
      */
     public function write($bytes)
@@ -105,8 +104,8 @@ abstract class AbstractFilterableInputStream implements InputByteStreamInterface
     }
 
     /**
-     * For any bytes that are currently buffered inside the stream, force them
-     * off the buffer.
+     * For any bytes that are currently buffered inside the stream,
+     * force them off the buffer
      */
     public function commit()
     {
@@ -163,7 +162,12 @@ abstract class AbstractFilterableInputStream implements InputByteStreamInterface
         }
     }
 
-    /** Run $bytes through all filters */
+    /**
+     * Run $bytes through all filters
+     *
+     * @param  int $bytes
+     * @return int
+     */
     private function filter($bytes)
     {
         foreach ($this->filters as $filter) {
@@ -173,7 +177,11 @@ abstract class AbstractFilterableInputStream implements InputByteStreamInterface
         return $bytes;
     }
 
-    /** Just write the bytes to the stream */
+    /**
+     * Just write the bytes to the stream
+     *
+     * @param int $bytes
+     */
     private function doWrite($bytes)
     {
         $this->commitBytes($this->filter($bytes));

@@ -25,7 +25,7 @@ interface FilterableInterface
 {
 
     /**
-     * Add a new StreamFilter, referenced by $key.
+     * Add a new StreamFilter, referenced by $key
      *
      * @param StreamFilterInterface $filter
      * @param string                $key
@@ -33,7 +33,7 @@ interface FilterableInterface
     public function addFilter(StreamFilterInterface $filter, $key);
 
     /**
-     * Remove an existing filter using $key.
+     * Remove an existing filter using $key
      *
      * @param string $key
      */

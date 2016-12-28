@@ -25,14 +25,20 @@ use Pop\Mail\Transport\Smtp\StreamFilterInterface;
  */
 class StringReplacementFilter implements StreamFilterInterface
 {
-    /** The needle(s) to search for */
+    /**
+     * The needle(s) to search for
+     * @var string|array
+     */
     private $search;
 
-    /** The replacement(s) to make */
+    /**
+     * The replacement(s) to make
+     * @var string|array
+     */
     private $replace;
 
     /**
-     * Create a new StringReplacementFilter with $search and $replace.
+     * Create a new StringReplacementFilter with $search and $replace
      *
      * @param string|array $search
      * @param string|array $replace
@@ -44,10 +50,9 @@ class StringReplacementFilter implements StreamFilterInterface
     }
 
     /**
-     * Returns true if based on the buffer passed more bytes should be buffered.
+     * Returns true if based on the buffer passed more bytes should be buffered
      *
-     * @param string $buffer
-     *
+     * @param  string $buffer
      * @return bool
      */
     public function shouldBuffer($buffer)
@@ -63,10 +68,9 @@ class StringReplacementFilter implements StreamFilterInterface
     }
 
     /**
-     * Perform the actual replacements on $buffer and return the result.
+     * Perform the actual replacements on $buffer and return the result
      *
-     * @param string $buffer
-     *
+     * @param  string $buffer
      * @return string
      */
     public function filter($buffer)

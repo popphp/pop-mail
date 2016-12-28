@@ -25,19 +25,19 @@ interface SmtpInterface
 {
 
     /**
-     * Test if this Transport mechanism has started.
+     * Test if this Transport mechanism has started
      *
      * @return bool
      */
     public function isStarted();
 
     /**
-     * Start this Transport mechanism.
+     * Start this Transport mechanism
      */
     public function start();
 
     /**
-     * Stop this Transport mechanism.
+     * Stop this Transport mechanism
      */
     public function stop();
 

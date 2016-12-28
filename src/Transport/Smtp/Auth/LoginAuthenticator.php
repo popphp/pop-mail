@@ -25,8 +25,9 @@ use Pop\Mail\Transport\Smtp\AgentInterface;
  */
 class LoginAuthenticator implements AuthInterface
 {
+
     /**
-     * Get the name of the AUTH mechanism this Authenticator handles.
+     * Get the name of the AUTH mechanism this Authenticator handles
      *
      * @return string
      */
@@ -36,12 +37,11 @@ class LoginAuthenticator implements AuthInterface
     }
 
     /**
-     * Try to authenticate the user with $username and $password.
+     * Try to authenticate the user with $username and $password
      *
-     * @param AgentInterface $agent
-     * @param string         $username
-     * @param string         $password
-     *
+     * @param  AgentInterface $agent
+     * @param  string         $username
+     * @param  string         $password
      * @return bool
      */
     public function authenticate(AgentInterface $agent, $username, $password)
@@ -58,4 +58,5 @@ class LoginAuthenticator implements AuthInterface
             return false;
         }
     }
+
 }

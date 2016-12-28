@@ -25,44 +25,64 @@ use Pop\Mail\Transport\Smtp\StreamFilterInterface;
  */
 class ByteArrayReplacementFilter implements StreamFilterInterface
 {
-    /** The needle(s) to search for */
+    /**
+     * The needle(s) to search for
+     * @var array
+     */
     private $search;
 
-    /** The replacement(s) to make */
+    /**
+     * The replacement(s) to make
+     * @var array
+     */
     private $replace;
 
-    /** The Index for searching */
+    /**
+     * The Index for searching
+     * @var int
+     */
     private $index;
 
-    /** The Search Tree */
+    /**
+     * The Search Tree
+     * @var array 
+     */
     private $tree = [];
 
-    /**  Gives the size of the largest search */
+    /**
+     * Gives the size of the largest search
+     * @var int
+     */
     private $treeMaxLen = 0;
 
+    /**
+     * Replace size
+     * @var array
+     */
     private $repSize;
 
     /**
-     * Create a new ByteArrayReplacementFilter with $search and $replace.
+     * Create a new ByteArrayReplacementFilter with $search and $replace
      *
      * @param array $search
      * @param array $replace
      */
     public function __construct($search, $replace)
     {
-        $this->search = $search;
-        $this->index = [];
-        $this->tree = [];
+        $this->search  = $search;
+        $this->index   = [];
+        $this->tree    = [];
         $this->replace = [];
         $this->repSize = [];
 
-        $tree = null;
-        $i = null;
-        $last_size = $size = 0;
+        $tree     = null;
+        $i        = null;
+        $lastSize = $size = 0;
+
         foreach ($search as $i => $search_element) {
             if ($tree !== null) {
                 $tree[-1] = min(count($replace) - 1, $i - 1);
-                $tree[-2] = $last_size;
+                $tree[-2] = $lastSize;
             }
             $tree = &$this->tree;
             if (is_array($search_element)) {
@@ -73,21 +93,21 @@ class ByteArrayReplacementFilter implements StreamFilterInterface
                     }
                     $tree = &$tree[$char];
                 }
-                $last_size = $k + 1;
-                $size = max($size, $last_size);
+                $lastSize = $k + 1;
+                $size     = max($size, $lastSize);
             } else {
-                $last_size = 1;
+                $lastSize = 1;
                 if (!isset($tree[$search_element])) {
                     $tree[$search_element] = [];
                 }
                 $tree = &$tree[$search_element];
-                $size = max($last_size, $size);
+                $size = max($lastSize, $size);
                 $this->index[$search_element] = true;
             }
         }
         if ($i !== null) {
             $tree[-1] = min(count($replace) - 1, $i);
-            $tree[-2] = $last_size;
+            $tree[-2] = $lastSize;
             $this->treeMaxLen = $size;
         }
         foreach ($replace as $rep) {
@@ -103,25 +123,22 @@ class ByteArrayReplacementFilter implements StreamFilterInterface
     }
 
     /**
-     * Returns true if based on the buffer passed more bytes should be buffered.
+     * Returns true if based on the buffer passed more bytes should be buffered
      *
      * @param array $buffer
-     *
      * @return bool
      */
     public function shouldBuffer($buffer)
     {
         $endOfBuffer = end($buffer);
-
         return isset($this->index[$endOfBuffer]);
     }
 
     /**
-     * Perform the actual replacements on $buffer and return the result.
+     * Perform the actual replacements on $buffer and return the result
      *
-     * @param array $buffer
-     * @param int   $minReplaces
-     *
+     * @param  array $buffer
+     * @param  int   $minReplaces
      * @return array
      */
     public function filter($buffer, $minReplaces = -1)
@@ -144,7 +161,7 @@ class ByteArrayReplacementFilter implements StreamFilterInterface
                     if (isset($search_pos[-1]) && $search_pos[-1] < $last_found
                         && $search_pos[-1] > $minReplaces) {
                         $last_found = $search_pos[-1];
-                        $last_size = $search_pos[-2];
+                        $lastSize   = $search_pos[-2];
                     }
                 }
                 // We got a complete pattern
@@ -155,7 +172,7 @@ class ByteArrayReplacementFilter implements StreamFilterInterface
                         $newBuffer[] = $this->replace[$last_found][$j];
                     }
                     // We Move cursor forward
-                    $i += $last_size - 1;
+                    $i += $lastSize - 1;
                     // Edge Case, last position in buffer
                     if ($i >= $buf_size) {
                         $newBuffer[] = $buffer[$i];

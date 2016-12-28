@@ -26,23 +26,35 @@ use Pop\Mail\Transport\Smtp\FileStreamInterface;
 class FileByteStream extends AbstractFilterableInputStream implements FileStreamInterface
 {
 
-    /** The internal pointer offset */
+    /**
+     * The internal pointer offset
+     * @var int
+     */
     private $offset = 0;
 
-    /** The path to the file */
+    /**
+     * The path to the file
+     * @var string
+     */
     private $path;
 
-    /** The mode this file is opened in for writing */
+    /**
+     * The mode this file is opened in for writing
+     * @var string
+     */
     private $mode;
 
-    /** A lazy-loaded resource handle for reading the file */
+    /**
+     * A lazy-loaded resource handle for reading the file
+     * @var resource
+     */
     private $reader;
 
-    /** A lazy-loaded resource handle for writing the file */
+    /**
+     * A lazy-loaded resource handle for writing the file
+     * @var resource
+     */
     private $writer;
-
-    /** If magic_quotes_runtime is on, this will be true */
-    private $quotes = false;
 
     /** If stream is seekable true/false, or null if not known */
     private $seekable = null;
@@ -61,14 +73,10 @@ class FileByteStream extends AbstractFilterableInputStream implements FileStream
         }
         $this->path = $path;
         $this->mode = $writable ? 'w+b' : 'rb';
-
-        if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime() == 1) {
-            $this->quotes = true;
-        }
     }
 
     /**
-     * Get the complete path to the file.
+     * Get the complete path to the file
      *
      * @return string
      */
@@ -85,23 +93,15 @@ class FileByteStream extends AbstractFilterableInputStream implements FileStream
      * remaining bytes are given instead. If no bytes are remaining at all, boolean
      * false is returned.
      *
-     * @param int $length
-     *
+     * @param  int $length
      * @throws Exception
-     *
      * @return string|bool
      */
     public function read($length)
     {
         $fp = $this->getReadHandle();
         if (!feof($fp)) {
-            if ($this->quotes) {
-                ini_set('magic_quotes_runtime', 0);
-            }
             $bytes = fread($fp, $length);
-            if ($this->quotes) {
-                ini_set('magic_quotes_runtime', 1);
-            }
             $this->offset = ftell($fp);
 
             // If we read one byte after reaching the end of the file
@@ -121,10 +121,9 @@ class FileByteStream extends AbstractFilterableInputStream implements FileStream
     }
 
     /**
-     * Move the internal read pointer to $byteOffset in the stream.
+     * Move the internal read pointer to $byteOffset in the stream
      *
-     * @param int $byteOffset
-     *
+     * @param  int $byteOffset
      * @return bool
      */
     public function setReadPointer($byteOffset)
@@ -135,27 +134,36 @@ class FileByteStream extends AbstractFilterableInputStream implements FileStream
         $this->offset = $byteOffset;
     }
 
-    /** Just write the bytes to the file */
+    /**
+     * Just write the bytes to the file
+     *
+     * @param string $bytes
+     */
     protected function commitBytes($bytes)
     {
         fwrite($this->getWriteHandle(), $bytes);
         $this->resetReadHandle();
     }
 
-    /** Not used */
+    /**
+     * Not used
+     */
     protected function flush()
     {
     }
 
-    /** Get the resource for reading */
+    /**
+     * Get the resource for reading
+     *
+     * @throws Exception
+     * @return resource
+     */
     private function getReadHandle()
     {
         if (!isset($this->reader)) {
             $pointer = @fopen($this->path, 'rb');
             if (!$pointer) {
-                throw new Exception(
-                    'Unable to open file for reading ['.$this->path.']'
-                );
+                throw new Exception('Unable to open file for reading [' . $this->path . ']');
             }
             $this->reader = $pointer;
             if ($this->offset != 0) {
@@ -167,21 +175,26 @@ class FileByteStream extends AbstractFilterableInputStream implements FileStream
         return $this->reader;
     }
 
-    /** Get the resource for writing */
+    /**
+     * Get the resource for writing
+     *
+     * @throws Exception
+     * @return resource
+     */
     private function getWriteHandle()
     {
         if (!isset($this->writer)) {
             if (!$this->writer = fopen($this->path, $this->mode)) {
-                throw new Exception(
-                    'Unable to open file for writing ['.$this->path.']'
-                );
+                throw new Exception('Unable to open file for writing [' . $this->path . ']');
             }
         }
 
         return $this->writer;
     }
 
-    /** Force a reload of the resource for reading */
+    /**
+     * Force a reload of the resource for reading
+     */
     private function resetReadHandle()
     {
         if (isset($this->reader)) {
@@ -190,14 +203,20 @@ class FileByteStream extends AbstractFilterableInputStream implements FileStream
         }
     }
 
-    /** Check if ReadOnly Stream is seekable */
+    /**
+     * Check if ReadOnly Stream is seekable
+     */
     private function getReadStreamSeekableStatus()
     {
         $metas = stream_get_meta_data($this->reader);
         $this->seekable = $metas['seekable'];
     }
 
-    /** Streams in a readOnly stream ensuring copy if needed */
+    /**
+     * Streams in a readOnly stream ensuring copy if needed
+     *
+     * @param int $offset
+     */
     private function seekReadStreamToPosition($offset)
     {
         if ($this->seekable === null) {
@@ -216,7 +235,9 @@ class FileByteStream extends AbstractFilterableInputStream implements FileStream
         fseek($this->reader, $offset, SEEK_SET);
     }
 
-    /** Copy a readOnly Stream to ensure seekability */
+    /**
+     * Copy a readOnly Stream to ensure seekability
+     */
     private function copyReadStream()
     {
         if ($tmpFile = fopen('php://temp/maxmemory:4096', 'w+b')) {

@@ -23,6 +23,11 @@ namespace Pop\Mail\Transport\Smtp\ByteStream;
  */
 class TemporaryFileByteStream extends FileByteStream
 {
+    /**
+     * Create a new TemporaryFileByteStream
+     *
+     * @throws Exception
+     */
     public function __construct()
     {
         $filePath = tempnam(sys_get_temp_dir(), 'FileByteStream');
@@ -34,6 +39,12 @@ class TemporaryFileByteStream extends FileByteStream
         parent::__construct($filePath, true);
     }
 
+    /**
+     * Get content
+     *
+     * @throws Exception
+     * @return string
+     */
     public function getContent()
     {
         if (($content = file_get_contents($this->getPath())) === false) {
@@ -43,10 +54,14 @@ class TemporaryFileByteStream extends FileByteStream
         return $content;
     }
 
+    /**
+     * Destructor
+     */
     public function __destruct()
     {
         if (file_exists($this->getPath())) {
             @unlink($this->getPath());
         }
     }
+
 }

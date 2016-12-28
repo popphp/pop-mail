@@ -26,8 +26,9 @@ use Pop\Mail\Transport\Smtp\AgentInterface;
  */
 class XOAuth2Authenticator implements AuthInterface
 {
+
     /**
-     * Get the name of the AUTH mechanism this Authenticator handles.
+     * Get the name of the AUTH mechanism this Authenticator handles
      *
      * @return string
      */
@@ -37,19 +38,18 @@ class XOAuth2Authenticator implements AuthInterface
     }
 
     /**
-     * Try to authenticate the user with $email and $token.
+     * Try to authenticate the user with $email and $token
      *
-     * @param AgentInterface $agent
-     * @param string         $email
-     * @param string         $token
-     *
+     * @param  AgentInterface $agent
+     * @param  string         $email
+     * @param  string         $token
      * @return bool
      */
     public function authenticate(AgentInterface $agent, $email, $token)
     {
         try {
             $param = $this->constructXOAuth2Params($email, $token);
-            $agent->executeCommand('AUTH XOAUTH2 '.$param."\r\n", [235]);
+            $agent->executeCommand('AUTH XOAUTH2 ' . $param . "\r\n", [235]);
 
             return true;
         } catch (Exception $e) {
@@ -60,7 +60,7 @@ class XOAuth2Authenticator implements AuthInterface
     }
 
     /**
-     * Construct the auth parameter.
+     * Construct the auth parameter
      *
      * @see https://developers.google.com/google-apps/gmail/xoauth2_protocol#the_sasl_xoauth2_mechanism
      */
@@ -68,4 +68,5 @@ class XOAuth2Authenticator implements AuthInterface
     {
         return base64_encode("user=$email\1auth=Bearer $token\1\1");
     }
+
 }

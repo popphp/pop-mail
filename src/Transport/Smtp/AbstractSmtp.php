@@ -27,29 +27,43 @@ use Pop\Mail\Transport\TransportInterface;
 abstract class AbstractSmtp implements SmtpInterface, TransportInterface
 {
 
-    /** Input-Output buffer for sending/receiving SMTP commands and responses */
+    /**
+     * Input-Output buffer for sending/receiving SMTP commands and responses
+     * @var BufferInterface
+     */
     protected $buffer;
 
-    /** Connection status */
+    /**
+     * Connection status
+     * @var boolean
+     */
     protected $started = false;
 
-    /** The domain name to use in HELO command */
+    /**
+     * The domain name to use in HELO command
+     * @var string
+     */
     protected $domain = '[127.0.0.1]';
 
-    /** Source Ip */
-    protected $sourceIp;
+    /**
+     * Source IP
+     * @var string
+     */
+    protected $sourceIp = null;
 
-    /** Return an array of params for the Buffer */
+    /**
+     * Return an array of params for the Buffer
+     */
     abstract protected function getBufferParams();
 
     /**
      * Creates a new EsmtpTransport using the given I/O buffer.
      *
-     * @param BufferInterface $buf
+     * @param BufferInterface $buffer
      */
-    public function __construct(BufferInterface $buf)
+    public function __construct(BufferInterface $buffer)
     {
-        $this->buffer = $buf;
+        $this->buffer = $buffer;
         $this->lookupHostname();
     }
 
@@ -63,18 +77,16 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * brackets (i.e. [127.0.0.1]).
      *
      * @param string $domain
-     *
      * @return AbstractSmtp
      */
     public function setLocalDomain($domain)
     {
         $this->domain = $domain;
-
         return $this;
     }
 
     /**
-     * Get the name of the domain Swift will identify as.
+     * Get the name of the domain Swift will identify as
      *
      * @return string
      */
@@ -84,7 +96,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     }
 
     /**
-     * Sets the source IP.
+     * Sets the source IP
      *
      * @param string $source
      */
@@ -94,7 +106,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     }
 
     /**
-     * Returns the IP used to connect to the destination.
+     * Returns the IP used to connect to the destination
      *
      * @return string
      */
@@ -104,7 +116,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     }
 
     /**
-     * Start the SMTP connection.
+     * Start the SMTP connection
      */
     public function start()
     {
@@ -122,7 +134,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     }
 
     /**
-     * Test if an SMTP connection has been established.
+     * Test if an SMTP connection has been established
      *
      * @return bool
      */
@@ -137,7 +149,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * Recipient/sender data will be retrieved from the Message API.
      * The return value is the number of recipients who were accepted for delivery.
      *
-     * @param Message $message
+     * @param  Message $message
      * @return int
      * @throws \Exception
      */
@@ -149,16 +161,13 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         $sent = 0;
 
         if (!$reversePath = $this->getReversePath($message)) {
-            $this->throwException(new Exception(
-                    'Cannot send message without a sender address'
-                )
-            );
+            $this->throwException(new Exception('Cannot send message without a sender address'));
         }
 
-        $to  = (array) $message->getTo();
-        $cc  = (array) $message->getCc();
+        $to  = $message->getTo();
+        $cc  = $message->getCc();
         $tos = array_merge($to, $cc);
-        $bcc = (array) $message->getBcc();
+        $bcc = $message->getBcc();
 
         $message->setBcc([]);
 
@@ -222,7 +231,6 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      *
      * @param string   $command
      * @param int[]    $codes
-     *
      * @return string
      */
     public function executeCommand($command, $codes = [])
@@ -243,25 +251,27 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /** Send the HELO welcome */
     protected function doHeloCommand()
     {
-        $this->executeCommand(
-            sprintf("HELO %s\r\n", $this->domain), [250]
-        );
+        $this->executeCommand(sprintf("HELO %s\r\n", $this->domain), [250]);
     }
 
-    /** Send the MAIL FROM command */
+    /**
+     * Send the MAIL FROM command
+     *
+     * @param $address
+     */
     protected function doMailFromCommand($address)
     {
-        $this->executeCommand(
-            sprintf("MAIL FROM:<%s>\r\n", $address), [250]
-        );
+        $this->executeCommand(sprintf("MAIL FROM:<%s>\r\n", $address), [250]);
     }
 
-    /** Send the RCPT TO command */
+    /**
+     * Send the RCPT TO command
+     *
+     * @param $address
+     */
     protected function doRcptToCommand($address)
     {
-        $this->executeCommand(
-            sprintf("RCPT TO:<%s>\r\n", $address), [250, 251, 252]
-        );
+        $this->executeCommand(sprintf("RCPT TO:<%s>\r\n", $address), [250, 251, 252]);
     }
 
     /** Send the DATA command */
@@ -270,10 +280,14 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         $this->executeCommand("DATA\r\n", [354]);
     }
 
-    /** Stream the contents of the message over the buffer */
+    /**
+     * Stream the contents of the message over the buffer
+     *
+     * @param Message $message
+     */
     protected function streamMessage(Message $message)
     {
-        $this->buffer->setWriteTranslations(array("\r\n." => "\r\n.."));
+        $this->buffer->setWriteTranslations(["\r\n." => "\r\n.."]);
         try {
             $message->toByteStream($this->buffer);
             $this->buffer->flushBuffers();
@@ -284,7 +298,12 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         $this->executeCommand("\r\n.\r\n", [250]);
     }
 
-    /** Determine the best-use reverse path for this message */
+    /**
+     * Determine the best-use reverse path for this message
+     *
+     * @param  Message $message
+     * @return null|string
+     */
     protected function getReversePath(Message $message)
     {
         $return = $message->getHeader('Return-Path');
@@ -302,13 +321,23 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         return $path;
     }
 
-    /** Throw a TransportException, first sending it to any listeners */
+    /**
+     * Throw a TransportException, first sending it to any listeners
+     *
+     * @param  Exception $e
+     * @throws Exception
+     */
     protected function throwException(Exception $e)
     {
         throw $e;
     }
 
-    /** Throws an Exception if a response code is incorrect */
+    /**
+     * Throws an Exception if a response code is incorrect
+     *
+     * @param string $response
+     * @param string $wanted
+     */
     protected function assertResponseCode($response, $wanted)
     {
         list($code) = sscanf($response, '%3d');
@@ -317,14 +346,20 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         if (!$valid) {
             $this->throwException(
                 new Exception(
-                    'Expected response code '.implode('/', $wanted).' but got code '.
-                    '"'.$code.'", with message "'.$response.'"',
-                    $code)
+                    'Expected response code ' . implode('/', $wanted) . ' but got code ' .
+                    '"' . $code . '", with message "' . $response . '"',
+                    $code
+                )
             );
         }
     }
 
-    /** Get an entire multi-line response using its sequence number */
+    /**
+     * Get an entire multi-line response using its sequence number
+     *
+     * @param  string $seq
+     * @return string
+     */
     protected function getFullResponse($seq)
     {
         $response = '';
@@ -340,8 +375,15 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         return $response;
     }
 
-    /** Send an email to the given recipients from the given reverse path */
-    private function doMailTransaction($message, $reversePath, array $recipients)
+    /**
+     * Send an email to the given recipients from the given reverse path
+     *
+     * @param  Message $message
+     * @param  string  $reversePath
+     * @param  array   $recipients
+     * @return int
+     */
+    private function doMailTransaction(Message $message, $reversePath, array $recipients)
     {
         $sent = 0;
         $this->doMailFromCommand($reversePath);
@@ -363,7 +405,14 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         return $sent;
     }
 
-    /** Send a message to the given To: recipients */
+    /**
+     * Send a message to the given To: recipients
+     *
+     * @param  Message $message
+     * @param  string  $reversePath
+     * @param  array   $to
+     * @return int
+     */
     private function sendTo(Message $message, $reversePath, array $to)
     {
         if (empty($to)) {
@@ -373,19 +422,28 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         return $this->doMailTransaction($message, $reversePath, array_keys($to));
     }
 
-    /** Send a message to all Bcc: recipients */
+    /**
+     * Send a message to all Bcc: recipients
+     *
+     * @param  Message $message
+     * @param  string  $reversePath
+     * @param  array   $bcc
+     * @return int
+     */
     private function sendBcc(Message $message, $reversePath, array $bcc)
     {
         $sent = 0;
         foreach ($bcc as $forwardPath => $name) {
-            $message->setBcc(array($forwardPath => $name));
+            $message->setBcc([$forwardPath => $name]);
             $sent += $this->doMailTransaction($message, $reversePath, [$forwardPath]);
         }
 
         return $sent;
     }
 
-    /** Try to determine the hostname of the server this is run on */
+    /**
+     * Try to determine the hostname of the server this is run on
+     */
     private function lookupHostname()
     {
         if (!empty($_SERVER['SERVER_NAME']) && $this->isFqdn($_SERVER['SERVER_NAME'])) {
@@ -402,7 +460,12 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         }
     }
 
-    /** Determine is the $hostname is a fully-qualified name */
+    /**
+     * Determine is the $hostname is a fully-qualified name
+     *
+     * @param  string $hostname
+     * @return bool
+     */
     private function isFqdn($hostname)
     {
         // We could do a really thorough check, but there's really no point
@@ -414,7 +477,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     }
 
     /**
-     * Destructor.
+     * Destructor
      */
     public function __destruct()
     {
