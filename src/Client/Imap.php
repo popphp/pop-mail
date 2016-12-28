@@ -26,4 +26,17 @@ namespace Pop\Mail\Client;
 class Imap extends AbstractClient
 {
 
+    /**
+     * Constructor
+     *
+     * Instantiate the IMAP mail client object
+     *
+     * @param string $host
+     * @param int    $port
+     */
+    public function __construct($host, $port)
+    {
+        parent::__construct($host, $port, 'imap');
+    }
+
 }

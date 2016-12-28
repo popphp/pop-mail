@@ -26,4 +26,70 @@ namespace Pop\Mail\Client;
 interface ClientInterface
 {
 
+    /**
+     * Get mail client host
+     *
+     * @return string
+     */
+    public function getHost();
+
+    /**
+     * Get mail client port
+     *
+     * @return int
+     */
+    public function getPort();
+
+    /**
+     * Get mail client service
+     *
+     * @return string
+     */
+    public function getService();
+
+    /**
+     * Get username
+     *
+     * @return string
+     */
+    public function getUsername();
+
+    /**
+     * Get password
+     *
+     * @return string
+     */
+    public function getPassword();
+
+    /**
+     * Get folder
+     *
+     * @return string
+     */
+    public function getFolder();
+
+    /**
+     * Set username
+     *
+     * @param  string $username
+     * @return ClientInterface
+     */
+    public function setUsername($username);
+
+    /**
+     * Set password
+     *
+     * @param  string $password
+     * @return ClientInterface
+     */
+    public function setPassword($password);
+
+    /**
+     * Set folder
+     *
+     * @param  string $folder
+     * @return ClientInterface
+     */
+    public function setFolder($folder);
+
 }
