@@ -55,18 +55,30 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      * Creates a new EsmtpTransport using the given I/O buffer
      *
      * @param Stream\BufferInterface $buffer
-     * @param array           $extensionHandlers
+     * @param array                  $handlers
      */
-    public function __construct(Stream\BufferInterface $buffer, array $extensionHandlers)
+    public function __construct(Stream\BufferInterface $buffer = null, array $handlers = null)
     {
+        if (null === $buffer) {
+            $buffer = new Stream\Buffer(new Stream\Filter\StringReplacementFactory());
+        }
+        if (null === $handlers) {
+            $handlers  = [new AuthHandler([
+                new Auth\CramMd5Authenticator(),
+                new Auth\LoginAuthenticator(),
+                new Auth\NTLMAuthenticator(),
+                new Auth\PlainAuthenticator(),
+                new Auth\XOAuth2Authenticator()
+            ])];
+        }
         parent::__construct($buffer);
-        $this->setExtensionHandlers($extensionHandlers);
+        $this->setExtensionHandlers($handlers);
     }
 
     /**
      * Set the host to connect to
      *
-     * @param string $host
+     * @param  string $host
      * @return EsmtpTransport
      */
     public function setHost($host)
