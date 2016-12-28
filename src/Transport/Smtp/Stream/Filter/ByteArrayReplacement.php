@@ -16,7 +16,7 @@ namespace Pop\Mail\Transport\Smtp\Stream\Filter;
 use Pop\Mail\Transport\Smtp\Stream\FilterInterface;
 
 /**
- * Mail transport SMTP stream filters exception class
+ * Byte array replacement filter class
  *
  * @category   Pop
  * @package    Pop\Mail

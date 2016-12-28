@@ -20,7 +20,7 @@ use Pop\Mail\Transport\Smtp\AgentInterface;
  *
  * @category   Pop
  * @package    Pop\Mail
- * @author     Ward Peeters <ward@coding-tech.com> & Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
+ * @author     Ward Peeters & Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
 class NTLMAuthenticator implements AuthInterface

@@ -426,7 +426,7 @@ class Message extends Message\AbstractMessage
     }
 
     /**
-     * Write this entire entity to a {@see Swift\InputByteStream}.
+     * Write this entire entity to a buffer
      *
      * @param Transport\Smtp\Stream\BufferInterface $is
      */

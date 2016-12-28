@@ -14,7 +14,7 @@
 namespace Pop\Mail\Transport\Smtp\Stream;
 
 /**
- * SMTP stream filter interface
+ * Stream filter interface
  *
  * @category   Pop
  * @package    Pop\Mail

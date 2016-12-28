@@ -13,10 +13,8 @@
  */
 namespace Pop\Mail\Message;
 
-use Pop\Mail\Message;
-
 /**
- * Attachment class
+ * Attachment message part class
  *
  * @category   Pop
  * @package    Pop\Mail

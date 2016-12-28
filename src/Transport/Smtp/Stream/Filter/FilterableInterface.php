@@ -16,7 +16,7 @@ namespace Pop\Mail\Transport\Smtp\Stream\Filter;
 use Pop\Mail\Transport\Smtp\Stream\FilterInterface;
 
 /**
- * SMTP buffer interface
+ * Filterable interface
  *
  * @category   Pop
  * @package    Pop\Mail

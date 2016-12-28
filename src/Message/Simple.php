@@ -14,7 +14,7 @@
 namespace Pop\Mail\Message;
 
 /**
- * Simple mime part class
+ * Simple message part class
  *
  * @category   Pop
  * @package    Pop\Mail
@@ -23,7 +23,7 @@ namespace Pop\Mail\Message;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-class SimplePart extends AbstractPart
+class Simple extends AbstractPart
 {
 
 }

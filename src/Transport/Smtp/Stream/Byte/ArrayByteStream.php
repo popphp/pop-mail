@@ -13,9 +13,8 @@
  */
 namespace Pop\Mail\Transport\Smtp\Stream\Byte;
 
-
 /**
- * Abstract filterable input stream class
+ * Array byte stream class
  *
  * @category   Pop
  * @package    Pop\Mail

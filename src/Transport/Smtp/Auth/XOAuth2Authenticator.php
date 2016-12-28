@@ -20,7 +20,7 @@ use Pop\Mail\Transport\Smtp\AgentInterface;
  *
  * @category   Pop
  * @package    Pop\Mail
- * @author     xu.li <AthenaLightenedMyPath@gmail.com> & Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
+ * @author     xu.li & Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @see        https://developers.google.com/google-apps/gmail/xoauth2_protocol
  * @version    3.0.0
  */

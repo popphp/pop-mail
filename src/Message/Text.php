@@ -14,7 +14,7 @@
 namespace Pop\Mail\Message;
 
 /**
- * Text part class
+ * Text message part class
  *
  * @category   Pop
  * @package    Pop\Mail

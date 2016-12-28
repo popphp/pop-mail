@@ -280,6 +280,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      *
      * @param  $method
      * @param  $args
+     * @throws Exception
      * @return mixed
      */
     public function __call($method, $args)
@@ -293,6 +294,8 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
                 } else {
                     return $return;
                 }
+            } else {
+                throw new Exception('Error: The method ' . $method . ' does not exist.');
             }
         }
     }

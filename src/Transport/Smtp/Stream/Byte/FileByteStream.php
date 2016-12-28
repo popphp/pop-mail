@@ -16,7 +16,7 @@ namespace Pop\Mail\Transport\Smtp\Stream\Byte;
 use Pop\Mail\Transport\Smtp\Stream\FileInterface;
 
 /**
- * Abstract filterable input stream class
+ * File byte stream class
  *
  * @category   Pop
  * @package    Pop\Mail

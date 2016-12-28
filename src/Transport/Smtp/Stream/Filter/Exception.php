@@ -14,7 +14,7 @@
 namespace Pop\Mail\Transport\Smtp\Stream\Filter;
 
 /**
- * Mail transport SMTP stream filters exception class
+ * Mail transport SMTP stream filter exception class
  *
  * @category   Pop
  * @package    Pop\Mail
