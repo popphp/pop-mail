@@ -27,8 +27,7 @@ interface StreamFilterInterface
     /**
      * Based on the buffer given, this returns true if more buffering is needed.
      *
-     * @param mixed $buffer
-     *
+     * @param  mixed $buffer
      * @return bool
      */
     public function shouldBuffer($buffer);
@@ -36,8 +35,7 @@ interface StreamFilterInterface
     /**
      * Filters $buffer and returns the changes.
      *
-     * @param mixed $buffer
-     *
+     * @param  mixed $buffer
      * @return mixed
      */
     public function filter($buffer);

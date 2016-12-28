@@ -255,27 +255,23 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      * If no response codes are given, the response will not be validated.
      * If codes are given, an exception will be thrown on an invalid response.
      *
-     * @param string   $command
-     * @param int[]    $codes
-     * @param string[] $failures An array of failures by-reference
+     * @param string $command
+     * @param int[]  $codes
      *
      * @return string
      */
-    public function executeCommand($command, $codes = [], &$failures = null)
+    public function executeCommand($command, $codes = [])
     {
-        $failures = (array) $failures;
         $stopSignal = false;
-        $response = null;
+        $response   = null;
         foreach ($this->getActiveHandlers() as $handler) {
-            $response = $handler->onCommand(
-                $this, $command, $codes, $failures, $stopSignal
-            );
+            $response = $handler->onCommand($this, $command, $codes, $stopSignal);
             if ($stopSignal) {
                 return $response;
             }
         }
 
-        return parent::executeCommand($command, $codes, $failures);
+        return parent::executeCommand($command, $codes);
     }
 
     // -- Mixin invocation code

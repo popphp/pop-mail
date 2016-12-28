@@ -214,7 +214,7 @@ class AuthHandler implements HandlerInterface
     /**
      * Not used.
      */
-    public function onCommand(AgentInterface $agent, $command, $codes = [], &$failedRecipients = null, &$stop = false)
+    public function onCommand(AgentInterface $agent, $command, $codes = [], &$stop = false)
     {
     }
 

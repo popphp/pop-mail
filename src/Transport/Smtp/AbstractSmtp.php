@@ -222,14 +222,12 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      *
      * @param string   $command
      * @param int[]    $codes
-     * @param string[] $failures An array of failures by-reference
      *
      * @return string
      */
-    public function executeCommand($command, $codes = [], &$failures = null)
+    public function executeCommand($command, $codes = [])
     {
-        $failures = (array) $failures;
-        $seq = $this->buffer->write($command);
+        $seq      = $this->buffer->write($command);
         $response = $this->getFullResponse($seq);
         $this->assertResponseCode($response, $codes);
 

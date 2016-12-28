@@ -32,9 +32,7 @@ interface OutputByteStreamInterface
      * If no bytes are remaining at all, boolean false is returned.
      *
      * @param int $length
-     *
      * @throws Exception
-     *
      * @return string|bool
      */
     public function read($length);
@@ -43,9 +41,7 @@ interface OutputByteStreamInterface
      * Move the internal read pointer to $byteOffset in the stream.
      *
      * @param int $byteOffset
-     *
      * @throws Exception
-     *
      * @return bool
      */
     public function setReadPointer($byteOffset);

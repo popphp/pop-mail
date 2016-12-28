@@ -37,10 +37,9 @@ interface AgentInterface
      * If no response codes are given, the response will not be validated.
      * If codes are given, an exception will be thrown on an invalid response.
      *
-     * @param string   $command
-     * @param int[]    $codes
-     * @param string[] $failures An array of failures by-reference
+     * @param string $command
+     * @param int[]  $codes
      */
-    public function executeCommand($command, $codes = [], &$failures = null);
+    public function executeCommand($command, $codes = []);
 
 }

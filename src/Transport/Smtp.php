@@ -57,7 +57,7 @@ class Smtp extends Smtp\EsmtpTransport implements TransportInterface
      * Send the message
      *
      * @param Message $message
-     * @return mixed
+     * @return int
      */
     public function send(Message $message)
     {

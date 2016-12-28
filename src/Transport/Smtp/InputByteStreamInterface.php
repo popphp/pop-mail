@@ -34,10 +34,8 @@ interface InputByteStreamInterface
      * This method returns the sequence ID of the write (i.e. 1 for first, 2 for
      * second, etc etc).
      *
-     * @param string $bytes
-     *
+     * @param  string $bytes
      * @throws Exception
-     *
      * @return int
      */
     public function write($bytes);
