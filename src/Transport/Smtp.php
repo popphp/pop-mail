@@ -30,13 +30,13 @@ class Smtp extends Smtp\EsmtpTransport implements TransportInterface
 {
 
     /**
-     * Create a new SmtpTransport, optionally with $host, $port and $security.
+     * Create a new SMTP transport
      *
-     * @param string $host
-     * @param int    $port
-     * @param string $sec
-     * @param BI     $buffer
-     * @param array  $handlers
+     * @param string $host      host
+     * @param int    $port      port
+     * @param string $sec       security
+     * @param BI     $buffer    buffer
+     * @param array  $handlers  handlers
      */
     public function __construct($host = 'localhost', $port = 25, $sec = null, BI $buffer = null, array $handlers = null)
     {
