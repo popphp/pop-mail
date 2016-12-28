@@ -37,7 +37,7 @@ class Smtp extends Smtp\EsmtpTransport implements TransportInterface
      */
     public function __construct($host = 'localhost', $port = 25, $security = null)
     {
-        $streamBuffer = new Smtp\StreamBuffer(new Smtp\StreamFilters\StringReplacementFilterFactory());
+        $streamBuffer = new Smtp\Stream\Buffer(new Smtp\Stream\Filter\StringReplacementFactory());
         $authHandler  = [new Smtp\AuthHandler([
             new Smtp\Auth\CramMd5Authenticator(),
             new Smtp\Auth\LoginAuthenticator(),

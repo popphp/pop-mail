@@ -29,7 +29,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
 
     /**
      * Input-Output buffer for sending/receiving SMTP commands and responses
-     * @var BufferInterface
+     * @var Stream\BufferInterface
      */
     protected $buffer;
 
@@ -59,9 +59,9 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Creates a new EsmtpTransport using the given I/O buffer.
      *
-     * @param BufferInterface $buffer
+     * @param Stream\BufferInterface $buffer
      */
-    public function __construct(BufferInterface $buffer)
+    public function __construct(Stream\BufferInterface $buffer)
     {
         $this->buffer = $buffer;
         $this->lookupHostname();
@@ -216,7 +216,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Get the IoBuffer where read/writes are occurring.
      *
-     * @return BufferInterface
+     * @return Stream\BufferInterface
      */
     public function getBuffer()
     {

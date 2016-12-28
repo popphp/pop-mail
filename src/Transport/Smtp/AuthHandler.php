@@ -232,16 +232,6 @@ class AuthHandler implements HandlerInterface
     }
 
     /**
-     * Returns an array of method names which are exposed to the Esmtp class
-     *
-     * @return array
-     */
-    public function exposeMixinMethods()
-    {
-        return ['setUsername', 'getUsername', 'setPassword', 'getPassword', 'setAuthMode', 'getAuthMode'];
-    }
-
-    /**
      * Not used
      */
     public function resetState()

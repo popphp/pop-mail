@@ -11,33 +11,24 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp;
+namespace Pop\Mail\Transport\Smtp\Stream;
 
 /**
- * SMTP buffer interface
+ * File stream interface
  *
  * @category   Pop
  * @package    Pop\Mail
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-interface StreamFilterInterface
+interface FileInterface
 {
 
     /**
-     * Based on the buffer given, this returns true if more buffering is needed.
+     * Get the complete path to the file.
      *
-     * @param  mixed $buffer
-     * @return bool
+     * @return string
      */
-    public function shouldBuffer($buffer);
-
-    /**
-     * Filters $buffer and returns the changes.
-     *
-     * @param  mixed $buffer
-     * @return mixed
-     */
-    public function filter($buffer);
+    public function getPath();
 
 }

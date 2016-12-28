@@ -11,10 +11,8 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp\ByteStream;
+namespace Pop\Mail\Transport\Smtp\Stream\Byte;
 
-use Pop\Mail\Transport\Smtp\InputByteStreamInterface;
-use Pop\Mail\Transport\Smtp\OutputByteStreamInterface;
 
 /**
  * Abstract filterable input stream class
@@ -24,7 +22,7 @@ use Pop\Mail\Transport\Smtp\OutputByteStreamInterface;
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-class ArrayByteStream implements InputByteStreamInterface, OutputByteStreamInterface
+class ArrayByteStream implements InputInterface, OutputInterface
 {
     /**
      * The internal stack of bytes
@@ -129,9 +127,9 @@ class ArrayByteStream implements InputByteStreamInterface, OutputByteStreamInter
      * The stream acts as an observer, receiving all data that is written.
      * All {@link write()} and {@link flushBuffers()} operations will be mirrored.
      *
-     * @param InputByteStreamInterface $is
+     * @param InputInterface $is
      */
-    public function bind(InputByteStreamInterface $is)
+    public function bind(InputInterface $is)
     {
         $this->mirrors[] = $is;
     }
@@ -143,9 +141,9 @@ class ArrayByteStream implements InputByteStreamInterface, OutputByteStreamInter
      * If the stream currently has any buffered data it will be written to $is
      * before unbinding occurs.
      *
-     * @param InputByteStreamInterface $is
+     * @param InputInterface $is
      */
-    public function unbind(InputByteStreamInterface $is)
+    public function unbind(InputInterface $is)
     {
         foreach ($this->mirrors as $k => $stream) {
             if ($is === $stream) {

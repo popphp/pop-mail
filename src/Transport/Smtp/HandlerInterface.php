@@ -80,13 +80,6 @@ interface HandlerInterface
     public function getPriorityOver($esmtpKeyword);
 
     /**
-     * Returns an array of method names which are exposed to the Esmtp class
-     *
-     * @return array
-     */
-    public function exposeMixinMethods();
-
-    /**
      * Tells this handler to clear any buffers and reset its state
      */
     public function resetState();

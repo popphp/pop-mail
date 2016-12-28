@@ -47,17 +47,17 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
         'timeout'                => 30,
         'blocking'               => 1,
         'tls'                    => false,
-        'type'                   => BufferInterface::TYPE_SOCKET,
+        'type'                   => Stream\BufferInterface::TYPE_SOCKET,
         'stream_context_options' => [],
     ];
 
     /**
      * Creates a new EsmtpTransport using the given I/O buffer
      *
-     * @param BufferInterface $buffer
+     * @param Stream\BufferInterface $buffer
      * @param array           $extensionHandlers
      */
-    public function __construct(BufferInterface $buffer, array $extensionHandlers)
+    public function __construct(Stream\BufferInterface $buffer, array $extensionHandlers)
     {
         parent::__construct($buffer);
         $this->setExtensionHandlers($extensionHandlers);
@@ -268,24 +268,21 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      *
      * @param  $method
      * @param  $args
-     * @return $this|mixed
+     * @return mixed
      */
     public function __call($method, $args)
     {
         foreach ($this->handlers as $handler) {
-            if (in_array(strtolower($method),
-                array_map('strtolower', (array)$handler->exposeMixinMethods())
-            )) {
+            if (method_exists($handler, $method)) {
                 $return = call_user_func_array([$handler, $method], $args);
                 // Allow fluid method calls
-                if (is_null($return) && substr($method, 0, 3) == 'set') {
+                if (is_null($return) && substr(strtolower($method), 0, 3) == 'set') {
                     return $this;
                 } else {
                     return $return;
                 }
             }
         }
-        trigger_error('Call to undefined method ' . $method, E_USER_ERROR);
     }
 
     /**

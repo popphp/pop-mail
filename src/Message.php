@@ -428,9 +428,9 @@ class Message extends Message\AbstractMessage
     /**
      * Write this entire entity to a {@see Swift\InputByteStream}.
      *
-     * @param Transport\Smtp\BufferInterface $is
+     * @param Transport\Smtp\Stream\BufferInterface $is
      */
-    public function toByteStream(Transport\Smtp\BufferInterface $is)
+    public function toByteStream(Transport\Smtp\Stream\BufferInterface $is)
     {
         $lines = $this->renderAsLines();
         foreach ($lines as $line) {

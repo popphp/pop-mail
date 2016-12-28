@@ -11,26 +11,33 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp;
+namespace Pop\Mail\Transport\Smtp\Stream;
 
 /**
- * SMTP buffer interface
+ * SMTP stream filter interface
  *
  * @category   Pop
  * @package    Pop\Mail
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-interface ReplacementFilterFactoryInterface
+interface FilterInterface
 {
 
     /**
-     * Create a filter to replace $search with $replace
+     * Based on the buffer given, this returns true if more buffering is needed.
      *
-     * @param  mixed $search
-     * @param  mixed $replace
-     * @return StreamFilterInterface
+     * @param  mixed $buffer
+     * @return bool
      */
-    public function createFilter($search, $replace);
+    public function shouldBuffer($buffer);
+
+    /**
+     * Filters $buffer and returns the changes.
+     *
+     * @param  mixed $buffer
+     * @return mixed
+     */
+    public function filter($buffer);
 
 }

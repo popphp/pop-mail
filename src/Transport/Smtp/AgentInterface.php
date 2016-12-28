@@ -27,7 +27,7 @@ interface AgentInterface
     /**
      * Get the IoBuffer where read/writes are occurring.
      *
-     * @return BufferInterface
+     * @return Stream\BufferInterface
      */
     public function getBuffer();
 

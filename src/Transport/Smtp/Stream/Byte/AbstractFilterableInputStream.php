@@ -11,11 +11,10 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp\ByteStream;
+namespace Pop\Mail\Transport\Smtp\Stream\Byte;
 
-use Pop\Mail\Transport\Smtp\InputByteStreamInterface;
-use Pop\Mail\Transport\Smtp\FilterableInterface;
-use Pop\Mail\Transport\Smtp\StreamFilterInterface;
+use Pop\Mail\Transport\Smtp\Stream\Filter\FilterableInterface;
+use Pop\Mail\Transport\Smtp\Stream\FilterInterface;
 
 /**
  * Abstract filterable input stream class
@@ -25,7 +24,7 @@ use Pop\Mail\Transport\Smtp\StreamFilterInterface;
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-abstract class AbstractFilterableInputStream implements InputByteStreamInterface, FilterableInterface
+abstract class AbstractFilterableInputStream implements InputInterface, FilterableInterface
 {
     /**
      * Write sequence
@@ -66,10 +65,10 @@ abstract class AbstractFilterableInputStream implements InputByteStreamInterface
     /**
      * Add a StreamFilter to this InputByteStream
      *
-     * @param StreamFilterInterface $filter
-     * @param string                $key
+     * @param FilterInterface $filter
+     * @param string          $key
      */
-    public function addFilter(StreamFilterInterface $filter, $key)
+    public function addFilter(FilterInterface $filter, $key)
     {
         $this->filters[$key] = $filter;
     }
@@ -118,9 +117,9 @@ abstract class AbstractFilterableInputStream implements InputByteStreamInterface
      * The stream acts as an observer, receiving all data that is written.
      * All {@link write()} and {@link flushBuffers()} operations will be mirrored.
      *
-     * @param InputByteStreamInterface $is
+     * @param InputInterface $is
      */
-    public function bind(InputByteStreamInterface $is)
+    public function bind(InputInterface $is)
     {
         $this->mirrors[] = $is;
     }
@@ -132,9 +131,9 @@ abstract class AbstractFilterableInputStream implements InputByteStreamInterface
      * If the stream currently has any buffered data it will be written to $is
      * before unbinding occurs.
      *
-     * @param InputByteStreamInterface $is
+     * @param InputInterface $is
      */
-    public function unbind(InputByteStreamInterface $is)
+    public function unbind(InputInterface $is)
     {
         foreach ($this->mirrors as $k => $stream) {
             if ($is === $stream) {

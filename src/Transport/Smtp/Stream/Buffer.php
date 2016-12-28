@@ -11,7 +11,7 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp;
+namespace Pop\Mail\Transport\Smtp\Stream;
 
 /**
  * Stream buffer class
@@ -21,7 +21,7 @@ namespace Pop\Mail\Transport\Smtp;
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-class StreamBuffer extends ByteStream\AbstractFilterableInputStream implements BufferInterface
+class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterface
 {
 
     /**
@@ -50,7 +50,7 @@ class StreamBuffer extends ByteStream\AbstractFilterableInputStream implements B
 
     /**
      * The ReplacementFilterFactory
-     * @var ReplacementFilterFactoryInterface
+     * @var Filter\ReplacementFactoryInterface
      */
     private $replacementFactory;
 
@@ -63,9 +63,9 @@ class StreamBuffer extends ByteStream\AbstractFilterableInputStream implements B
     /**
      * Create a new StreamBuffer using $replacementFactory for transformations.
      *
-     * @param ReplacementFilterFactoryInterface $replacementFactory
+     * @param Filter\ReplacementFactoryInterface $replacementFactory
      */
-    public function __construct(ReplacementFilterFactoryInterface $replacementFactory)
+    public function __construct(Filter\ReplacementFactoryInterface $replacementFactory)
     {
         $this->replacementFactory = $replacementFactory;
     }

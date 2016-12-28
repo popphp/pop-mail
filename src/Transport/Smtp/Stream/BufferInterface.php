@@ -11,7 +11,7 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp;
+namespace Pop\Mail\Transport\Smtp\Stream;
 
 /**
  * SMTP buffer interface
@@ -114,9 +114,9 @@ interface BufferInterface
      * The stream acts as an observer, receiving all data that is written.
      * All {@link write()} and {@link flushBuffers()} operations will be mirrored.
      *
-     * @param InputByteStreamInterface $is
+     * @param Byte\InputInterface $is
      */
-    public function bind(InputByteStreamInterface $is);
+    public function bind(Byte\InputInterface $is);
 
     /**
      * Remove an already bound stream.
@@ -125,9 +125,9 @@ interface BufferInterface
      * If the stream currently has any buffered data it will be written to $is
      * before unbinding occurs.
      *
-     * @param InputByteStreamInterface $is
+     * @param Byte\InputInterface $is
      */
-    public function unbind(InputByteStreamInterface $is);
+    public function unbind(Byte\InputInterface $is);
 
     /**
      * Flush the contents of the stream (empty it) and set the internal pointer

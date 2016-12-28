@@ -11,9 +11,9 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp\ByteStream;
+namespace Pop\Mail\Transport\Smtp\Stream\Byte;
 
-use Pop\Mail\Transport\Smtp\FileStreamInterface;
+use Pop\Mail\Transport\Smtp\Stream\FileInterface;
 
 /**
  * Abstract filterable input stream class
@@ -23,7 +23,7 @@ use Pop\Mail\Transport\Smtp\FileStreamInterface;
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-class FileByteStream extends AbstractFilterableInputStream implements FileStreamInterface
+class FileByteStream extends AbstractFilterableInputStream implements FileInterface
 {
 
     /**

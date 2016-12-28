@@ -11,24 +11,34 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp;
+namespace Pop\Mail\Transport\Smtp\Stream\Filter;
+
+use Pop\Mail\Transport\Smtp\Stream\FilterInterface;
 
 /**
- * File stream interface
+ * SMTP buffer interface
  *
  * @category   Pop
  * @package    Pop\Mail
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-interface FileStreamInterface
+interface FilterableInterface
 {
 
     /**
-     * Get the complete path to the file.
+     * Add a new StreamFilter, referenced by $key
      *
-     * @return string
+     * @param FilterInterface $filter
+     * @param string                $key
      */
-    public function getPath();
+    public function addFilter(FilterInterface $filter, $key);
+
+    /**
+     * Remove an existing filter using $key
+     *
+     * @param string $key
+     */
+    public function removeFilter($key);
 
 }

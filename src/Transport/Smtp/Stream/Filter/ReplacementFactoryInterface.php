@@ -11,7 +11,9 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp;
+namespace Pop\Mail\Transport\Smtp\Stream\Filter;
+
+use Pop\Mail\Transport\Smtp\Stream\FilterInterface;
 
 /**
  * SMTP buffer interface
@@ -21,22 +23,16 @@ namespace Pop\Mail\Transport\Smtp;
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-interface FilterableInterface
+interface ReplacementFactoryInterface
 {
 
     /**
-     * Add a new StreamFilter, referenced by $key
+     * Create a filter to replace $search with $replace
      *
-     * @param StreamFilterInterface $filter
-     * @param string                $key
+     * @param  mixed $search
+     * @param  mixed $replace
+     * @return FilterInterface
      */
-    public function addFilter(StreamFilterInterface $filter, $key);
-
-    /**
-     * Remove an existing filter using $key
-     *
-     * @param string $key
-     */
-    public function removeFilter($key);
+    public function createFilter($search, $replace);
 
 }

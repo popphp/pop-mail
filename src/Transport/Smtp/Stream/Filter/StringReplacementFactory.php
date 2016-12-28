@@ -11,10 +11,9 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp\StreamFilters;
+namespace Pop\Mail\Transport\Smtp\Stream\Filter;
 
-use Pop\Mail\Transport\Smtp\ReplacementFilterFactoryInterface;
-use Pop\Mail\Transport\Smtp\StreamFilterInterface;
+use Pop\Mail\Transport\Smtp\Stream\FilterInterface;
 
 /**
  * Mail transport SMTP stream filters exception class
@@ -24,7 +23,7 @@ use Pop\Mail\Transport\Smtp\StreamFilterInterface;
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-class StringReplacementFilterFactory implements ReplacementFilterFactoryInterface
+class StringReplacementFactory implements ReplacementFactoryInterface
 {
     /**
      * Lazy-loaded filters
@@ -37,7 +36,7 @@ class StringReplacementFilterFactory implements ReplacementFilterFactoryInterfac
      *
      * @param  string $search
      * @param  string $replace
-     * @return StreamFilterInterface
+     * @return FilterInterface
      */
     public function createFilter($search, $replace)
     {
@@ -50,7 +49,7 @@ class StringReplacementFilterFactory implements ReplacementFilterFactoryInterfac
                 $this->filters[$search][$replace] = [];
             }
 
-            $this->filters[$search][$replace] = new StringReplacementFilter($search, $replace);
+            $this->filters[$search][$replace] = new StringReplacement($search, $replace);
         }
 
         return $this->filters[$search][$replace];

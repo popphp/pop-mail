@@ -11,7 +11,7 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp;
+namespace Pop\Mail\Transport\Smtp\Stream\Byte;
 
 /**
  * SMTP input byte stream interface
@@ -21,7 +21,7 @@ namespace Pop\Mail\Transport\Smtp;
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-interface InputByteStreamInterface
+interface InputInterface
 {
 
     /**
@@ -54,9 +54,9 @@ interface InputByteStreamInterface
      * The stream acts as an observer, receiving all data that is written.
      * All {@link write()} and {@link flushBuffers()} operations will be mirrored.
      *
-     * @param InputByteStreamInterface $is
+     * @param InputInterface $is
      */
-    public function bind(InputByteStreamInterface $is);
+    public function bind(InputInterface $is);
 
     /**
      * Remove an already bound stream.
@@ -65,9 +65,9 @@ interface InputByteStreamInterface
      * If the stream currently has any buffered data it will be written to $is
      * before unbinding occurs.
      *
-     * @param InputByteStreamInterface $is
+     * @param InputInterface $is
      */
-    public function unbind(InputByteStreamInterface $is);
+    public function unbind(InputInterface $is);
 
     /**
      * Flush the contents of the stream (empty it) and set the internal pointer

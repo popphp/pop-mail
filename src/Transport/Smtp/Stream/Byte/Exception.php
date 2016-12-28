@@ -11,7 +11,7 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp\ByteStream;
+namespace Pop\Mail\Transport\Smtp\Stream\Byte;
 
 /**
  * Mail transport SMTP byte stream exception class

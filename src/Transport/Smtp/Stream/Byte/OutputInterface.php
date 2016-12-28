@@ -11,7 +11,7 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Transport\Smtp;
+namespace Pop\Mail\Transport\Smtp\Stream\Byte;
 
 /**
  * SMTP output byte stream interface
@@ -21,7 +21,7 @@ namespace Pop\Mail\Transport\Smtp;
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-interface OutputByteStreamInterface
+interface OutputInterface
 {
 
     /**
