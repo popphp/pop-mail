@@ -304,7 +304,12 @@ class NTLMAuthenticator implements AuthInterface
             return explode('\\', $name);
         }
 
-        list($user, $domain) = explode('@', $name);
+        if (strpos($name, '@') !== false) {
+            list($user, $domain) = explode('@', $name);
+        } else {
+            $user   = $name;
+            $domain = '';
+        }
 
         return [$domain, $user];
     }

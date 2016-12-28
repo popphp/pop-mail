@@ -56,13 +56,12 @@ class Smtp extends Smtp\EsmtpTransport implements TransportInterface
     /**
      * Send the message
      *
-     * @param \Pop\Mail\Message $message
-     * @param string[] $failedRecipients An array of failures by-reference
+     * @param Message $message
      * @return mixed
      */
-    public function send(\Pop\Mail\Message $message, &$failedRecipients = null)
+    public function send(Message $message)
     {
-        return parent::send($message, $failedRecipients);
+        return parent::send($message);
     }
 
 }

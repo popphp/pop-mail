@@ -13,6 +13,9 @@
  */
 namespace Pop\Mail\Transport\Smtp;
 
+use Pop\Mail\Message;
+use Pop\Mail\Transport\TransportInterface;
+
 /**
  * Abstract SMTP transport class
  *
@@ -21,7 +24,7 @@ namespace Pop\Mail\Transport\Smtp;
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    3.0.0
  */
-abstract class AbstractSmtp implements SmtpInterface
+abstract class AbstractSmtp implements SmtpInterface, TransportInterface
 {
 
     /** Input-Output buffer for sending/receiving SMTP commands and responses */
@@ -134,18 +137,16 @@ abstract class AbstractSmtp implements SmtpInterface
      * Recipient/sender data will be retrieved from the Message API.
      * The return value is the number of recipients who were accepted for delivery.
      *
-     * @param \Pop\Mail\Message $message
-     * @param string[] $failedRecipients An array of failures by-reference
+     * @param Message $message
      * @return int
      * @throws \Exception
      */
-    public function send(\Pop\Mail\Message $message, &$failedRecipients = null)
+    public function send(Message $message)
     {
         if (!$this->isStarted()) {
             $this->start();
         }
         $sent = 0;
-        $failedRecipients = (array) $failedRecipients;
 
         if (!$reversePath = $this->getReversePath($message)) {
             $this->throwException(new Exception(
@@ -162,8 +163,8 @@ abstract class AbstractSmtp implements SmtpInterface
         $message->setBcc([]);
 
         try {
-            $sent += $this->sendTo($message, $reversePath, $tos, $failedRecipients);
-            $sent += $this->sendBcc($message, $reversePath, $bcc, $failedRecipients);
+            $sent += $this->sendTo($message, $reversePath, $tos);
+            $sent += $this->sendBcc($message, $reversePath, $bcc);
         } catch (\Exception $e) {
             $message->setBcc($bcc);
             throw $e;
@@ -272,7 +273,7 @@ abstract class AbstractSmtp implements SmtpInterface
     }
 
     /** Stream the contents of the message over the buffer */
-    protected function streamMessage(\Pop\Mail\Message $message)
+    protected function streamMessage(Message $message)
     {
         $this->buffer->setWriteTranslations(array("\r\n." => "\r\n.."));
         try {
@@ -286,7 +287,7 @@ abstract class AbstractSmtp implements SmtpInterface
     }
 
     /** Determine the best-use reverse path for this message */
-    protected function getReversePath(\Pop\Mail\Message $message)
+    protected function getReversePath(Message $message)
     {
         $return = $message->getHeader('Return-Path');
         $sender = $message->getHeader('Sender');
@@ -342,7 +343,7 @@ abstract class AbstractSmtp implements SmtpInterface
     }
 
     /** Send an email to the given recipients from the given reverse path */
-    private function doMailTransaction($message, $reversePath, array $recipients, array &$failedRecipients)
+    private function doMailTransaction($message, $reversePath, array $recipients)
     {
         $sent = 0;
         $this->doMailFromCommand($reversePath);
@@ -351,7 +352,6 @@ abstract class AbstractSmtp implements SmtpInterface
                 $this->doRcptToCommand($forwardPath);
                 ++$sent;
             } catch (Exception $e) {
-                $failedRecipients[] = $forwardPath;
             }
         }
 
@@ -366,25 +366,22 @@ abstract class AbstractSmtp implements SmtpInterface
     }
 
     /** Send a message to the given To: recipients */
-    private function sendTo(\Pop\Mail\Message $message, $reversePath, array $to, array &$failedRecipients)
+    private function sendTo(Message $message, $reversePath, array $to)
     {
         if (empty($to)) {
             return 0;
         }
 
-        return $this->doMailTransaction($message, $reversePath, array_keys($to),
-            $failedRecipients);
+        return $this->doMailTransaction($message, $reversePath, array_keys($to));
     }
 
     /** Send a message to all Bcc: recipients */
-    private function sendBcc(\Pop\Mail\Message $message, $reversePath, array $bcc, array &$failedRecipients)
+    private function sendBcc(Message $message, $reversePath, array $bcc)
     {
         $sent = 0;
         foreach ($bcc as $forwardPath => $name) {
             $message->setBcc(array($forwardPath => $name));
-            $sent += $this->doMailTransaction(
-                $message, $reversePath, [$forwardPath], $failedRecipients
-            );
+            $sent += $this->doMailTransaction($message, $reversePath, [$forwardPath]);
         }
 
         return $sent;

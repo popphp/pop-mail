@@ -41,17 +41,4 @@ interface SmtpInterface
      */
     public function stop();
 
-    /**
-     * Send the given Message.
-     *
-     * Recipient/sender data will be retrieved from the Message API.
-     * The return value is the number of recipients who were accepted for delivery.
-     *
-     * @param \Pop\Mail\Message $message
-     * @param string[]           $failedRecipients An array of failures by-reference
-     *
-     * @return int
-     */
-    public function send(\Pop\Mail\Message $message, &$failedRecipients = null);
-
 }

@@ -107,11 +107,6 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
             $lines[] = trim($header);
         }
 
-        if (count($lines) > 0) {
-            $lines[] = Message::CRLF;
-            $lines[] = Message::CRLF;
-        }
-
         foreach ($body as $line) {
             $lines[] = trim($line);
         }

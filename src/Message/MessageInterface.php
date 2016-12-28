@@ -127,6 +127,13 @@ interface MessageInterface
     public function render();
 
     /**
+     * Render as an array of lines
+     *
+     * @return array
+     */
+    public function renderAsLines();
+
+    /**
      * Render to string
      *
      * @return string
