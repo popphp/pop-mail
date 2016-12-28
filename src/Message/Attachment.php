@@ -32,6 +32,13 @@ class Attachment extends AbstractPart
      */
     protected $basename = null;
 
+
+    /**
+     * File attachment original stream content
+     * @var string
+     */
+    protected $stream = null;
+
     /**
      * Constructor
      *
@@ -39,19 +46,20 @@ class Attachment extends AbstractPart
      *
      * @param  string $file
      * @param  string $contentType
-     * @throws Exception
+     * @param  string $basename
      */
-    public function __construct($file, $contentType = 'file')
+    public function __construct($file, $contentType = 'file', $basename = 'file.tmp')
     {
-        // Determine if the file is valid.
-        if (!file_exists($file)) {
-            throw new Exception('Error: The file does not exist.');
+        if (file_exists($file)) {
+            $this->stream   = file_get_contents($file);
+            $this->basename = basename($file);
+        } else {
+            $this->stream   = $file;
+            $this->basename = $basename;
         }
 
-        $this->basename = basename($file);
-
         parent::__construct(
-            chunk_split(base64_encode(file_get_contents($file))),
+            chunk_split(base64_encode($this->stream)),
             $contentType . '; name="' . $this->basename . '"'
         );
 
@@ -69,6 +77,16 @@ class Attachment extends AbstractPart
     public function getBasename()
     {
         return $this->basename;
+    }
+
+    /**
+     * Get attachment original stream content
+     *
+     * @return string
+     */
+    public function getStream()
+    {
+        return $this->stream;
     }
 
 }

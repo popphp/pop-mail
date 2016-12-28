@@ -45,10 +45,16 @@ abstract class AbstractClient implements ClientInterface
     protected $service = null;
 
     /**
-     * Mailbox resource
+     * Mailbox connection string
+     * @var string
+     */
+    protected $connectionString = null;
+
+    /**
+     * Mailbox connection resource
      * @var resource
      */
-    protected $mailbox = null;
+    protected $connection = null;
 
     /**
      * Username
@@ -181,7 +187,7 @@ abstract class AbstractClient implements ClientInterface
     }
 
     /**
-     * Open mailbox
+     * Open mailbox connection
      *
      * @param string $flags
      * @param int    $options
@@ -189,38 +195,225 @@ abstract class AbstractClient implements ClientInterface
      * @param array  $params
      * @return AbstractClient
      */
-    public function open($flags = null, $options = null, $retries = 0, array $params = null)
+    public function open($flags = null, $options = null, $retries = null, array $params = null)
     {
-        $connection = '{' . $this->host . ':' . $this->port . '/' . $this->service;
+        $this->connectionString = '{' . $this->host . ':' . $this->port . '/' . $this->service;
 
         if (null !== $flags) {
-            $connection .= $flags;
+            $this->connectionString .= $flags;
         }
 
-        $connection .= '}' . $this->folder;
+        $this->connectionString .= '}' . $this->folder;
 
-        $this->mailbox = imap_open($connection, $this->username, $this->password, $options, $retries, $params);
+        if ((null !== $options) && (null !== $retries) && (null !== $params)) {
+            $this->connection = imap_open($this->connectionString, $this->username, $this->password, $options, $retries, $params);
+        } else if ((null !== $options) && (null !== $retries)) {
+            $this->connection = imap_open($this->connectionString, $this->username, $this->password, $options, $retries);
+        } else if (null !== $options) {
+            $this->connection = imap_open($this->connectionString, $this->username, $this->password, $options);
+        } else {
+            $this->connection = imap_open($this->connectionString, $this->username, $this->password);
+        }
+
         return $this;
     }
 
     /**
-     * Determine if the mailbox has been opened
+     * Determine if the mailbox connection has been opened
      *
      * @return boolean
      */
     public function isOpen()
     {
-        return is_resource($this->mailbox);
+        return is_resource($this->connection);
     }
 
     /**
-     * Get mailbox
+     * Get mailbox connection
      *
      * @return resource
      */
-    public function mailbox()
+    public function connection()
     {
-        return $this->mailbox;
+        return $this->connection;
+    }
+
+    /**
+     * List mailboxes
+     *
+     * @param string $pattern
+     * @return array
+     */
+    public function listMailboxes($pattern = '*')
+    {
+        return imap_list($this->connection, $this->connectionString, $pattern);
+    }
+
+    /**
+     * Get message IDs from a mailbox
+     *
+     * @param string $criteria
+     * @param int    $options
+     * @param string $charset
+     * @return array
+     */
+    public function getMessageIds($criteria = 'ALL', $options = SE_UID, $charset = null)
+    {
+        return imap_search($this->connection, $criteria, $options, $charset);
+    }
+
+    /**
+     * Get message headers from a mailbox
+     *
+     * @param  string $criteria
+     * @param  int    $options
+     * @param  string $charset
+     * @return array
+     */
+    public function getMessageHeaders($criteria = 'ALL', $options = SE_UID, $charset = null)
+    {
+        $headers = [];
+        $ids     = imap_search($this->connection, $criteria, $options, $charset);
+
+        foreach ($ids as $id) {
+            $headers[$id] =  imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Get message headers by message ID
+     *
+     * @param  int $id
+     * @return \stdClass
+     */
+    public function getMessageHeadersById($id)
+    {
+        return imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
+    }
+
+    /**
+     * Get message structure by message ID
+     *
+     * @param  int $id
+     * @return \stdClass
+     */
+    public function getMessageStructure($id)
+    {
+        return imap_fetchstructure($this->connection, $id, FT_UID);
+    }
+
+    /**
+     * Get message boundary by message ID
+     *
+     * @param  int $id
+     * @return string
+     */
+    public function getMessageBoundary($id)
+    {
+        $boundary  = null;
+        $structure = $this->getMessageStructure($id);
+
+        if (isset($structure->parameters) && (count($structure->parameters) > 0)) {
+            foreach ($structure->parameters as $parameter) {
+                if (strtolower($parameter->attribute) == 'boundary') {
+                    $boundary = $parameter->value;
+                    break;
+                }
+            }
+        }
+
+        return $boundary;
+    }
+
+    /**
+     * Get message body by message ID
+     *
+     * @param  int $id
+     * @return string
+     */
+    public function getMessageBody($id)
+    {
+        return imap_body($this->connection, $id, FT_UID);
+    }
+
+    /**
+     * Get message parts by message ID
+     *
+     * @param  int $id
+     * @return array
+     */
+    public function getMessageParts($id)
+    {
+        $boundary = $this->getMessageBoundary($id);
+        $body     = $this->getMessageBody($id);
+
+        if (strpos($body, $boundary) !== false) {
+            $parts = explode($boundary, $body);
+        } else {
+            $parts = [$body];
+        }
+
+        foreach ($parts as $i => $part) {
+            $part = trim($part);
+            if ($part == '--') {
+                unset($parts[$i]);
+            } else {
+                $headers    = substr($part, 0, strpos($part, "\r\n\r\n"));
+                $headers    = explode("\r\n", $headers);
+                $headersAry = [];
+                $part       = trim(substr($part, (strpos($part, "\r\n\r\n") + 4)));
+                foreach ($headers as $header) {
+                    $name  = trim(substr($header, 0, strpos($header, ':')));
+                    $value = trim(substr($header, (strpos($header, ': ') + 2)));
+                    $headersAry[$name] = $value;
+                }
+
+                if (substr($part, -2) == '--') {
+                    $part = trim(substr($part, 0, -2));
+                }
+
+                if (isset($headersAry['Content-Transfer-Encoding'])) {
+                    switch (strtolower($headersAry['Content-Transfer-Encoding'])) {
+                        case 'quoted-printable':
+                            $part = quoted_printable_decode($part);
+                            break;
+                        case 'base64':
+                            $part = base64_decode($part);
+                            break;
+                    }
+                }
+
+                $type = null;
+                if (isset($headersAry['Content-Type'])) {
+                    $type = $headersAry['Content-Type'];
+                    if (strpos($type, ';') !== false) {
+                        $type = trim(substr($type, 0, strpos($type, ';')));
+                    }
+                }
+
+                $parts[$i] = new \ArrayObject([
+                    'headers' => $headersAry,
+                    'type'    => $type,
+                    'content' => $part
+                ], \ArrayObject::ARRAY_AS_PROPS);
+            }
+        }
+
+        return array_values($parts);
+    }
+
+    /**
+     * Close the mailbox connection resource
+     *
+     * @return void
+     */
+    public function close()
+    {
+        if (is_resource($this->connection)) {
+            imap_close($this->connection);
+        }
     }
 
 }
