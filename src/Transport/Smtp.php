@@ -14,7 +14,7 @@
 namespace Pop\Mail\Transport;
 
 use Pop\Mail\Message;
-use Pop\Mail\Transport\Smtp\Stream\BufferInterface;
+use Pop\Mail\Transport\Smtp\Stream\BufferInterface as BI;
 
 /**
  * SMTP transport class
@@ -32,19 +32,19 @@ class Smtp extends Smtp\EsmtpTransport implements TransportInterface
     /**
      * Create a new SmtpTransport, optionally with $host, $port and $security.
      *
-     * @param string          $host
-     * @param int             $port
-     * @param string          $security
-     * @param BufferInterface $buffer
-     * @param array           $handlers
+     * @param string $host
+     * @param int    $port
+     * @param string $sec
+     * @param BI     $buffer
+     * @param array  $handlers
      */
-    public function __construct($host = 'localhost', $port = 25, $security = null, BufferInterface $buffer = null, array $handlers = null)
+    public function __construct($host = 'localhost', $port = 25, $sec = null, BI $buffer = null, array $handlers = null)
     {
         parent::__construct($buffer, $handlers);
 
         $this->setHost($host);
         $this->setPort($port);
-        $this->setEncryption($security);
+        $this->setEncryption($sec);
     }
 
     /**
