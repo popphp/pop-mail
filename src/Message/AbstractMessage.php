@@ -191,27 +191,26 @@ abstract class AbstractMessage implements MessageInterface
     public function getHeadersAsString(array $omit = [])
     {
         $headers = null;
-        $i       = 1;
 
         foreach ($this->headers as $header => $value) {
-            if (!in_array($header, $omit)) {
-                $headers .= $header . ': ' . $value . (($i < count($this->headers)) ? Message::CRLF : null);
+            if (!in_array($header, $omit) && !empty($value)) {
+                $headers .= $header . ': ' . $value . Message::CRLF;
             }
-            $i++;
         }
 
         if (null !== $this->id) {
             if (null === $this->idHeader) {
                 $this->setIdHeader((($this instanceof Message) ? 'Message-ID' : 'Content-ID'));
             }
-            $headers .= ((null !== $headers) ? Message::CRLF : null) . $this->idHeader . ': ' . $this->id;
+            $headers .= $this->idHeader . ': ' . $this->id . Message::CRLF;
         }
 
         if ((null !== $this->contentType) && !in_array('Content-Type', $omit)) {
-            $headers .= ((null !== $headers) ? Message::CRLF : null) . 'Content-Type: ' . $this->contentType;
+            $headers .= 'Content-Type: ' . $this->contentType;
             if (!empty($this->charSet)) {
                 $headers .= '; charset="' . $this->charSet . '"';
             }
+            $headers .= Message::CRLF;
         }
 
         return $headers;

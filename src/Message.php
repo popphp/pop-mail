@@ -399,7 +399,7 @@ class Message extends Message\AbstractMessage
      */
     public function render()
     {
-        return $this->getHeadersAsString() . self::CRLF . self::CRLF . $this->getBody();
+        return $this->getHeadersAsString() . self::CRLF . $this->getBody();
     }
 
     /**
@@ -411,16 +411,11 @@ class Message extends Message\AbstractMessage
     {
         $lines = [];
 
-        $headers = explode(Message::CRLF, $this->getHeadersAsString());
+        $headers = explode(Message::CRLF, $this->getHeadersAsString() . Message::CRLF);
         $body    = explode("\n", $this->getBody());
 
         foreach ($headers as $header) {
             $lines[] = trim($header);
-        }
-
-        if (count($lines) > 0) {
-            $lines[] = Message::CRLF;
-            $lines[] = Message::CRLF;
         }
 
         foreach ($body as $line) {
@@ -437,22 +432,11 @@ class Message extends Message\AbstractMessage
      */
     public function toByteStream(Transport\Smtp\InputByteStreamInterface $is)
     {
-        $is->write($this->getHeadersAsString());
-        $is->commit();
-        $this->bodyToByteStream($is);
-    }
-
-    /**
-     * Write this entire entity to a {@link Swift\InputByteStream}.
-     *
-     * @param Transport\Smtp\InputByteStreamInterface $is
-     */
-    protected function bodyToByteStream(Transport\Smtp\InputByteStreamInterface $is)
-    {
         $lines = $this->renderAsLines();
         foreach ($lines as $line) {
             $is->write($line . self::CRLF);
         }
+        $is->commit();
     }
 
     /**

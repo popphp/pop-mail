@@ -88,7 +88,7 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
      */
     public function render()
     {
-        return $this->getHeadersAsString() . Message::CRLF . Message::CRLF . $this->getBody() . Message::CRLF . Message::CRLF;
+        return $this->getHeadersAsString() . Message::CRLF . $this->getBody() . Message::CRLF . Message::CRLF;
     }
 
     /**
@@ -100,7 +100,7 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     {
         $lines = [];
 
-        $headers = explode(Message::CRLF, $this->getHeadersAsString());
+        $headers = explode(Message::CRLF, $this->getHeadersAsString() . Message::CRLF);
         $body    = explode("\n", $this->getContent());
 
         foreach ($headers as $header) {
