@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Client;
 
+use Pop\Mail\Message;
+
 /**
  * Mail client IMAP class
  *
@@ -322,53 +324,7 @@ class Imap extends AbstractClient
         $parts    = (strpos($body, $boundary) !== false) ?
             explode($boundary, $body) : [$body];
 
-        foreach ($parts as $i => $part) {
-            $part = trim($part);
-            if (($part == '--') || empty($part)) {
-                unset($parts[$i]);
-            } else {
-                $headers    = substr($part, 0, strpos($part, "\r\n\r\n"));
-                $headers    = explode("\r\n", $headers);
-                $headersAry = [];
-                $part       = trim(substr($part, (strpos($part, "\r\n\r\n") + 4)));
-                foreach ($headers as $header) {
-                    $name  = trim(substr($header, 0, strpos($header, ':')));
-                    $value = trim(substr($header, (strpos($header, ': ') + 2)));
-                    $headersAry[$name] = $value;
-                }
-
-                if (substr($part, -2) == '--') {
-                    $part = trim(substr($part, 0, -2));
-                }
-
-                if (isset($headersAry['Content-Transfer-Encoding'])) {
-                    switch (strtolower($headersAry['Content-Transfer-Encoding'])) {
-                        case 'quoted-printable':
-                            $part = quoted_printable_decode($part);
-                            break;
-                        case 'base64':
-                            $part = base64_decode($part);
-                            break;
-                    }
-                }
-
-                $type = null;
-                if (isset($headersAry['Content-Type'])) {
-                    $type = $headersAry['Content-Type'];
-                    if (strpos($type, ';') !== false) {
-                        $type = trim(substr($type, 0, strpos($type, ';')));
-                    }
-                }
-
-                $parts[$i] = new \ArrayObject([
-                    'headers' => $headersAry,
-                    'type'    => $type,
-                    'content' => $part
-                ], \ArrayObject::ARRAY_AS_PROPS);
-            }
-        }
-
-        return array_values($parts);
+        return Message::parseMessageParts($parts);
     }
 
     /**

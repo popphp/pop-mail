@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail;
 
+
+
 /**
  * Message class
  *
@@ -69,6 +71,24 @@ class Message extends Message\AbstractMessage
     {
         parent::__construct();
         $this->setSubject($subject);
+    }
+
+    /**
+     * Load a message from a string source or file on disk
+     *
+     * @param  string $message
+     * @throws Exception
+     * @return Message
+     */
+    public static function load($message)
+    {
+        if (is_string($message) && (strpos($message, 'Subject:') !== false)) {
+            return self::parse($message);
+        } else if (file_exists($message)) {
+            return self::parse(file_get_contents($message));
+        } else {
+            throw new Exception('Error: Unable to parse message content');
+        }
     }
 
     /**
@@ -370,6 +390,27 @@ class Message extends Message\AbstractMessage
     }
 
     /**
+     * Get message part
+     *
+     * @param  int $i
+     * @return Message\PartInterface
+     */
+    public function getPart($i)
+    {
+        return (isset($this->parts[(int)$i])) ? $this->parts[(int)$i] : null;
+    }
+
+    /**
+     * Get message parts
+     *
+     * @return array
+     */
+    public function getParts()
+    {
+        return $this->parts;
+    }
+
+    /**
      * Set message MIME boundary
      *
      * @param  string $boundary
@@ -400,6 +441,17 @@ class Message extends Message\AbstractMessage
     public function render()
     {
         return $this->getHeadersAsString() . self::CRLF . $this->getBody();
+    }
+
+    /**
+     * Save message to file on disk
+     *
+     * @param  string $to
+     * @return void
+     */
+    public function save($to)
+    {
+        file_put_contents($to, $this->render());
     }
 
     /**
@@ -440,6 +492,151 @@ class Message extends Message\AbstractMessage
     }
 
     /**
+     * Parse message from string
+     *
+     * @param  string $stream
+     * @throws Exception
+     * @return Message
+     */
+    public static function parse($stream)
+    {
+
+        if (strpos($stream, 'Subject:') === false) {
+            throw new Exception('Error: There is no subject in the message contents');
+        }
+
+        if (strpos($stream, 'To:') === false) {
+            throw new Exception('Error: There is no recipient in the message contents');
+        }
+
+        $headers = trim(substr($stream, 0, strpos($stream, Message::CRLF . Message::CRLF)));
+        $body    = trim(str_replace($headers, '', $stream));
+        $headers = imap_rfc822_parse_headers($headers);
+        $subject = substr($stream, (strpos($stream, 'Subject: ') + 9));
+        $subject = substr($subject, 0, strpos($subject, Message::CRLF));
+
+        $message = new self($subject);
+
+        foreach ($headers as $header => $value) {
+            switch ($header) {
+                case 'to':
+                    $message->setTo($value);
+                    break;
+                case 'cc':
+                    $message->setCc($value);
+                    break;
+                case 'bcc':
+                    $message->setBcc($value);
+                    break;
+                case 'from':
+                    $message->setFrom($value);
+                    break;
+                case 'reply_to':
+                    $message->setReplyTo($value);
+                    break;
+                case 'sender':
+                    $message->setSender($value);
+                    break;
+                case 'return_path':
+                    $message->setReturnPath($value);
+                    break;
+                default:
+                    if (substr($header, -7) != 'address') {
+                        $header = ((strpos($header, '-') != false) || (strpos($header, '_') != false)) ?
+                            str_replace(' ', '-', ucwords(str_replace(['-', '_'], [' ', ' '], strtolower($header)))) :
+                            ucfirst(strtolower($header));
+                        $message->addHeader($header, $value);
+                    }
+            }
+        }
+
+        if (substr($body, 0, 2) == '--') {
+            $boundary = substr($body, 2);
+            $boundary = trim(substr($boundary, 0, strpos($boundary, Message::CRLF)));
+            $parts    = (strpos($body, $boundary) !== false) ?
+                explode($boundary, $body) : [$body];
+        } else {
+            $parts = [$body];
+        }
+
+        $parts = self::parseMessageParts($parts);
+
+        foreach ($parts as $part) {
+            if ($part->attachment) {
+                $message->addPart(new Message\Attachment($part->content, $part->type, $part->basename));
+            } else if (stripos($part->type, 'html') !== false) {
+                $message->addPart(new Message\Html($part->content));
+            } else if (stripos($part->type, 'text') !== false) {
+                $message->addPart(new Message\Text($part->content));
+            } else {
+                $message->addPart(new Message\Simple($part->content));
+            }
+        }
+
+        return $message;
+    }
+
+    /**
+     * Parse message parts from string
+     *
+     * @param  array $parts
+     * @throws Exception
+     * @return array
+     */
+    public static function parseMessageParts($parts)
+    {
+        foreach ($parts as $i => $part) {
+            $part = trim($part);
+            if (($part == '--') || empty($part)) {
+                unset($parts[$i]);
+            } else {
+                $headers    = substr($part, 0, strpos($part, "\r\n\r\n"));
+                $headers    = explode("\r\n", $headers);
+                $headersAry = [];
+                $part       = trim(substr($part, (strpos($part, "\r\n\r\n") + 4)));
+                foreach ($headers as $header) {
+                    $name  = trim(substr($header, 0, strpos($header, ':')));
+                    $value = trim(substr($header, (strpos($header, ': ') + 2)));
+                    $headersAry[$name] = $value;
+                }
+
+                if (substr($part, -2) == '--') {
+                    $part = trim(substr($part, 0, -2));
+                }
+
+                if (isset($headersAry['Content-Transfer-Encoding'])) {
+                    switch (strtolower($headersAry['Content-Transfer-Encoding'])) {
+                        case 'quoted-printable':
+                            $part = quoted_printable_decode($part);
+                            break;
+                        case 'base64':
+                            $part = base64_decode($part);
+                            break;
+                    }
+                }
+
+                $type = null;
+                if (isset($headersAry['Content-Type'])) {
+                    $type = $headersAry['Content-Type'];
+                    if (strpos($type, ';') !== false) {
+                        $type = trim(substr($type, 0, strpos($type, ';')));
+                    }
+                }
+
+                $parts[$i] = new \ArrayObject([
+                    'headers'    => $headersAry,
+                    'type'       => $type,
+                    'attachment' => (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'attachment') !== false)),
+                    'basename'   => (isset($headersAry['Content-Description'])) ? $headersAry['Content-Description'] : null,
+                    'content'    => $part
+                ], \ArrayObject::ARRAY_AS_PROPS);
+            }
+        }
+
+        return array_values($parts);
+    }
+
+    /**
      * Parse addresses
      *
      * @param  mixed   $addresses
@@ -453,30 +650,44 @@ class Message extends Message\AbstractMessage
 
         if (is_array($addresses)) {
             foreach ($addresses as $key => $value) {
-                // $key is email
-                if (strpos($key, '@') !== false) {
-                    if (!empty($value)) {
-                        $formatted[]  = '"' . $value . '" <' . $key . '>';
-                        $emails[$key] = $value;
+                if ($value instanceof \stdClass) {
+                    $formatted[]    = $value->mailbox . '@' . $value->host;
+                    $emails[$value->mailbox . '@' . $value->host] = null;
+                } else {
+                    // $key is email
+                    if (strpos($key, '@') !== false) {
+                        if (!empty($value)) {
+                            $formatted[]  = '"' . $value . '" <' . $key . '>';
+                            $emails[$key] = $value;
 
-                    } else {
-                        $formatted[]  = $key;
-                        $emails[$key] = null;
-                    }
-                // $value is email
-                } else if (strpos($value, '@') !== false) {
-                    if (!empty($key)) {
-                        $formatted[]    = '"' . $key . '" <' . $value . '>';
-                        $emails[$value] = $key;
-                    } else {
-                        $formatted[]    = $value;
-                        $emails[$value] = null;
+                        } else {
+                            $formatted[]  = $key;
+                            $emails[$key] = null;
+                        }
+                    // $value is email
+                    } else if (strpos($value, '@') !== false) {
+                        if (!empty($key)) {
+                            $formatted[]    = '"' . $key . '" <' . $value . '>';
+                            $emails[$value] = $key;
+                        } else {
+                            $formatted[]    = $value;
+                            $emails[$value] = null;
+                        }
                     }
                 }
             }
         } else if (is_string($addresses) && (strpos($addresses, '@') !== false)) {
             $formatted          = [$addresses];
-            $emails[$addresses] = null;
+            if (strpos($addresses, ',') !== false) {
+                $addresses = explode(',', $addresses);
+                foreach ($addresses as $address) {
+                    $address = $this->parseNameAndEmail(trim($address));
+                    $emails[$address['email']] = $address['name'];
+                }
+            } else {
+                $address = $this->parseNameAndEmail(trim($addresses));
+                $emails[$address['email']] = $address['name'];
+            }
         }
 
         return ($asArray) ? $emails : implode(', ', $formatted);
@@ -517,6 +728,41 @@ class Message extends Message\AbstractMessage
                 'This is a multi-part message in MIME format.'
             );
             $this->setCharSet('');
+        }
+    }
+
+    /**
+     * Parse a name and email from an address string
+     *
+     * @param  string $address
+     * @return array
+     */
+    protected function parseNameAndEmail($address)
+    {
+        $name  = null;
+        $email = null;
+
+        if ((strpos($address, '<') !== false) && (strpos($address, '>') !== false)) {
+            $name  = trim(substr($address, 0, strpos($address, '<')));
+            $email = substr($address, (strpos($address, '<') + 1));
+            $email = trim(substr($email, 0, -1));
+        } else if (strpos($address, '@') !== false) {
+            $email = trim($address);
+        }
+
+        return ['name' => $name, 'email' => $email];
+    }
+
+    /**
+     * Perform a "deep" clone of a message object
+     *
+     * @return void
+     */
+    public function __clone() {
+        foreach($this as $key => $val) {
+            if (is_object($val) || (is_array($val))) {
+                $this->{$key} = unserialize(serialize($val));
+            }
         }
     }
 

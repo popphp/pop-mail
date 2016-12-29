@@ -55,4 +55,51 @@ class Mailer
         return $this->transport->send($message);
     }
 
+    /**
+     * Send messages from mail queue
+     *
+     * @param  Queue $queue
+     * @throws Exception
+     * @return int
+     */
+    public function sendFromQueue(Queue $queue)
+    {
+        $sent     = 0;
+        $messages = $queue->prepare();
+
+        foreach ($messages as $message) {
+            $this->transport->send($message);
+            $sent++;
+        }
+
+        return $sent;
+    }
+
+    /**
+     * Send messages from email messages saved to disk in a directory
+     *
+     * @param  string $dir
+     * @throws Exception
+     * @return int
+     */
+    public function sendFromDir($dir)
+    {
+        if (!file_exists($dir)) {
+            throw new Exception('Error: That directory does not exist');
+        }
+
+        $sent  = 0;
+        $files = scandir($dir);
+
+        foreach ($files as $file) {
+            if (($file != '.') && ($file != '..')) {
+                $message = Message::load($dir . DIRECTORY_SEPARATOR . $file);
+                $this->transport->send($message);
+                $sent++;
+            }
+        }
+
+        return $sent;
+    }
+
 }

@@ -50,7 +50,7 @@ class Attachment extends AbstractPart
      */
     public function __construct($file, $contentType = 'file', $basename = 'file.tmp')
     {
-        if (file_exists($file)) {
+        if (@file_exists($file)) {
             $this->stream   = file_get_contents($file);
             $this->basename = basename($file);
         } else {
