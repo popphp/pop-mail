@@ -259,7 +259,9 @@ abstract class AbstractClient implements ClientInterface
      */
     public function getMessageIds($criteria = 'ALL', $options = SE_UID, $charset = null)
     {
-        return imap_search($this->connection, $criteria, $options, $charset);
+        return (null !== $charset) ?
+            imap_search($this->connection, $criteria, $options, $charset) :
+            imap_search($this->connection, $criteria, $options);
     }
 
     /**
@@ -273,7 +275,7 @@ abstract class AbstractClient implements ClientInterface
     public function getMessageHeaders($criteria = 'ALL', $options = SE_UID, $charset = null)
     {
         $headers = [];
-        $ids     = imap_search($this->connection, $criteria, $options, $charset);
+        $ids     = $this->getMessageIds($criteria, $options, $charset);
 
         foreach ($ids as $id) {
             $headers[$id] =  imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
@@ -402,6 +404,94 @@ abstract class AbstractClient implements ClientInterface
         }
 
         return array_values($parts);
+    }
+
+    /**
+     * Mark a message or messages as read
+     *
+     * @param  mixed $ids
+     * @param  int   $options
+     * @return AbstractClient
+     */
+    public function markAsRead($ids, $options = ST_UID)
+    {
+        return $this->setMessageFlags($ids, "\\Seen", $options);
+    }
+
+    /**
+     * Mark a message or messages as unread
+     *
+     * @param  mixed $ids
+     * @param  int   $options
+     * @return AbstractClient
+     */
+    public function markAsUnread($ids, $options = ST_UID)
+    {
+        return $this->clearMessageFlags($ids, "\\Seen", $options);
+    }
+
+    /**
+     * Mark a message or messages as read
+     *
+     * @param  mixed  $ids
+     * @param  string $flags
+     * @param  int    $options
+     * @return AbstractClient
+     */
+    public function setMessageFlags($ids, $flags, $options = ST_UID)
+    {
+        if (is_array($ids)) {
+            $ids = implode(',', $ids);
+        }
+        imap_setflag_full($this->connection, $ids, $flags, $options);
+
+        return $this;
+    }
+
+    /**
+     * Mark a message or messages as unread
+     *
+     * @param  mixed  $ids
+     * @param  string $flags
+     * @param  int    $options
+     * @return AbstractClient
+     */
+    public function clearMessageFlags($ids, $flags, $options = ST_UID)
+    {
+        if (is_array($ids)) {
+            $ids = implode(',', $ids);
+        }
+        imap_clearflag_full($this->connection, $ids, $flags, $options);
+
+        return $this;
+    }
+
+    /**
+     * Delete message
+     *
+     * @param  int $id
+     * @param  int $options
+     * @return AbstractClient
+     */
+    public function deleteMessage($id, $options = FT_UID)
+    {
+        imap_delete($this->connection, $id, $options);
+        return $this;
+    }
+
+    /**
+     * Delete message
+     *
+     * @param  string $mailbox
+     * @return AbstractClient
+     */
+    public function deleteMailbox($mailbox = null)
+    {
+        if (null === $mailbox) {
+            $mailbox = $this->connectionString;
+        }
+        imap_deletemailbox($this->connection, $mailbox);
+        return $this;
     }
 
     /**
