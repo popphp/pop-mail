@@ -69,16 +69,16 @@ class Imap extends AbstractClient
             $this->connectionString .= $flags;
         }
 
-        $this->connectionString .= '}' . $this->folder;
+        $this->connectionString .= '}';
 
         if ((null !== $options) && (null !== $retries) && (null !== $params)) {
-            $this->connection = imap_open($this->connectionString, $this->username, $this->password, $options, $retries, $params);
+            $this->connection = imap_open($this->connectionString . $this->folder, $this->username, $this->password, $options, $retries, $params);
         } else if ((null !== $options) && (null !== $retries)) {
-            $this->connection = imap_open($this->connectionString, $this->username, $this->password, $options, $retries);
+            $this->connection = imap_open($this->connectionString . $this->folder, $this->username, $this->password, $options, $retries);
         } else if (null !== $options) {
-            $this->connection = imap_open($this->connectionString, $this->username, $this->password, $options);
+            $this->connection = imap_open($this->connectionString . $this->folder, $this->username, $this->password, $options);
         } else {
-            $this->connection = imap_open($this->connectionString, $this->username, $this->password);
+            $this->connection = imap_open($this->connectionString . $this->folder, $this->username, $this->password);
         }
 
         return $this;
@@ -122,7 +122,63 @@ class Imap extends AbstractClient
      */
     public function listMailboxes($pattern = '*')
     {
-        return imap_list($this->connection, $this->connectionString, $pattern);
+        return imap_list($this->connection, $this->connectionString . $this->folder, $pattern);
+    }
+
+    /**
+     * Get mailbox status
+     *
+     * @return \stdClass
+     */
+    public function getStatus()
+    {
+        return imap_status($this->connection, $this->connectionString . $this->folder, SA_ALL);
+
+    }
+
+    /**
+     * Get total number of messages
+     *
+     * @return int
+     */
+    public function getNumberOfMessages()
+    {
+        return imap_num_msg($this->connection);
+    }
+
+    /**
+     * Get total number of read messages
+     *
+     * @return int
+     */
+    public function getNumberOfReadMessages()
+    {
+        return abs($this->getNumberOfMessages() - $this->getStatus()->unseen);
+    }
+
+    /**
+     * Get total number of unread messages
+     *
+     * @return int
+     */
+    public function getNumberOfUnreadMessages()
+    {
+        return $this->getStatus()->unseen;
+    }
+
+    /**
+     * Get message overviews
+     *
+     * @param  mixed  $ids
+     * @param  int    $options
+     * @return array
+     */
+    public function getOverview($ids, $options = FT_UID)
+    {
+        if (is_array($ids)) {
+            $ids = implode(',', $ids);
+        }
+        return imap_fetch_overview($this->connection, $ids, $options);
     }
 
     /**
@@ -141,6 +197,22 @@ class Imap extends AbstractClient
     }
 
     /**
+     * Get message IDs from a mailbox by a sort criteria
+     *
+     * @param  int     $criteria
+     * @param  boolean $reverse
+     * @param  int     $options
+     * @param  string  $charset
+     * @return array
+     */
+    public function getMessageIdsBy($criteria = SORTDATE, $reverse = true, $options = SE_UID, $charset = null)
+    {
+        return (null !== $charset) ?
+            imap_sort($this->connection, $criteria, (int)$reverse, $options, $charset) :
+            imap_sort($this->connection, $criteria, (int)$reverse, $options);
+    }
+
+    /**
      * Get message headers from a mailbox
      *
      * @param  string $criteria
@@ -152,6 +224,27 @@ class Imap extends AbstractClient
     {
         $headers = [];
         $ids     = $this->getMessageIds($criteria, $options, $charset);
+
+        foreach ($ids as $id) {
+            $headers[$id] =  imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Get message headers from a mailbox
+     *
+     * @param  int     $criteria
+     * @param  boolean $reverse
+     * @param  int     $options
+     * @param  string  $charset
+     * @return array
+     */
+    public function getMessageHeadersBy($criteria = SORTDATE, $reverse = true, $options = SE_UID, $charset = null)
+    {
+        $headers = [];
+        $ids     = $this->getMessageIdsBy($criteria, $reverse, $options, $charset);
 
         foreach ($ids as $id) {
             $headers[$id] =  imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
@@ -279,6 +372,48 @@ class Imap extends AbstractClient
     }
 
     /**
+     * Copy messages to another mailbox
+     *
+     * @param  mixed  $ids
+     * @param  string $to
+     * @param  int    $options
+     * @return Imap
+     */
+    public function copyMessage($ids, $to, $options = CP_UID)
+    {
+        if (is_array($ids)) {
+            $ids = implode(',', $ids);
+        }
+        if (strpos($to, $this->connectionString) === false) {
+            $to = $this->connectionString . $to;
+        }
+
+        imap_mail_copy($this->connection, $ids, $to, $options);
+        return $this;
+    }
+
+    /**
+     * Move messages to another mailbox
+     *
+     * @param  mixed  $ids
+     * @param  string $to
+     * @param  int    $options
+     * @return Imap
+     */
+    public function moveMessage($ids, $to, $options = CP_UID)
+    {
+        if (is_array($ids)) {
+            $ids = implode(',', $ids);
+        }
+        if (strpos($to, $this->connectionString) === false) {
+            $to = $this->connectionString . $to;
+        }
+
+        imap_mail_move($this->connection, $ids, $to, $options);
+        return $this;
+    }
+
+    /**
      * Mark a message or messages as read
      *
      * @param  mixed $ids
@@ -352,17 +487,61 @@ class Imap extends AbstractClient
     }
 
     /**
-     * Delete message
+     * Create mailbox
+     *
+     * @param  string $new
+     * @return Imap
+     */
+    public function createMailbox($new)
+    {
+        if (strpos($new, $this->connectionString) === false) {
+            $new = $this->connectionString . $new;
+        }
+        imap_createmailbox($this->connection, $new);
+        return $this;
+    }
+
+    /**
+     * Rename mailbox
+     *
+     * @param  string $new
+     * @param  string $old
+     * @return Imap
+     */
+    public function renameMailbox($new, $old = null)
+    {
+        if (null === $old) {
+            $old = $this->connectionString . $this->folder;
+        } else if (strpos($old, $this->connectionString) === false) {
+            $old = $this->connectionString . $old;
+        }
+
+        if (strpos($new, $this->connectionString) === false) {
+            $new = $this->connectionString . $new;
+        }
+
+        imap_renamemailbox($this->connection, $old, $new);
+        return $this;
+    }
+
+    /**
+     * Delete mailbox
      *
      * @param  string $mailbox
+     * @throws Exception
      * @return Imap
      */
     public function deleteMailbox($mailbox = null)
     {
         if (null === $mailbox) {
-            $mailbox = $this->connectionString;
+            $mailbox = $this->folder;
         }
-        imap_deletemailbox($this->connection, $mailbox);
+
+        if (empty($mailbox)) {
+            throw new Exception('Error: The mailbox is not set.');
+        }
+
+        imap_deletemailbox($this->connection, $this->connectionString . $mailbox);
         return $this;
     }
 
