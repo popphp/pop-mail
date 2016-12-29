@@ -69,6 +69,30 @@ interface ClientInterface
     public function getFolder();
 
     /**
+     * Set mail client host
+     *
+     * @param  string $host
+     * @return ClientInterface
+     */
+    public function setHost($host);
+
+    /**
+     * Set mail client port
+     *
+     * @param  int $port
+     * @return ClientInterface
+     */
+    public function setPort($port);
+
+    /**
+     * Set mail client service
+     *
+     * @param  string $service
+     * @return ClientInterface
+     */
+    public function setService($service);
+
+    /**
      * Set username
      *
      * @param  string $username

@@ -23,7 +23,7 @@ namespace Pop\Mail\Client;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-class Pop3 extends AbstractClient
+class Pop3 extends Imap
 {
 
     /**
@@ -33,10 +33,11 @@ class Pop3 extends AbstractClient
      *
      * @param string $host
      * @param int    $port
+     * @param string $service
      */
-    public function __construct($host, $port)
+    public function __construct($host, $port, $service = 'pop3')
     {
-        parent::__construct($host, $port, 'pop3');
+        parent::__construct($host, $port, $service);
     }
 
 }
