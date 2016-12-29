@@ -14,7 +14,7 @@
 namespace Pop\Mail\Client;
 
 /**
- * Mail client POP3 class
+ * Mail client POP class
  *
  * @category   Pop
  * @package    Pop\Mail
@@ -23,13 +23,13 @@ namespace Pop\Mail\Client;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    3.0.0
  */
-class Pop3 extends Imap
+class Pop extends Imap
 {
 
     /**
      * Constructor
      *
-     * Instantiate the POP3 mail client object
+     * Instantiate the POP mail client object
      *
      * @param string $host
      * @param int    $port
