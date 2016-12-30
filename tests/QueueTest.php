@@ -13,7 +13,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
         $queue1 = new Queue([
             'email'   => 'me@domain.com',
             'name'    => 'My Name',
-            'company' => "My Company"
+            'company' => 'My Company'
         ], new Message('Hello World'));
         $this->assertInstanceOf('Pop\Mail\Queue', $queue1);
         $this->assertEquals(1, count($queue1->getMessages()));
@@ -22,7 +22,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
         $queue2 = new Queue([[
             'email'   => 'another@domain.com',
             'name'    => 'Another Name',
-            'company' => "Another Company"
+            'company' => 'Another Company'
         ]]);
         $this->assertEquals(1, count($queue2->getRecipients()));
         $this->assertEquals(0, count($queue2->getPreparedMessages()));
@@ -34,12 +34,12 @@ class QueueTest extends \PHPUnit_Framework_TestCase
         $queue->addRecipient([
             'email'   => 'me@domain.com',
             'name'    => 'My Name',
-            'company' => "My Company"
+            'company' => 'My Company'
         ]);
         $queue->addRecipients([[
             'email'   => 'another@domain.com',
             'name'    => 'Another Name',
-            'company' => "Another Company"
+            'company' => 'Another Company'
         ]]);
         $this->assertEquals(2, count($queue->getRecipients()));
     }
@@ -58,18 +58,18 @@ class QueueTest extends \PHPUnit_Framework_TestCase
         $queue->addRecipient([
             'email'   => 'me@domain.com',
             'name'    => 'My Name',
-            'company' => "My Company"
+            'company' => 'My Company'
         ]);
         $queue->addRecipients([[
             'email'   => 'another@domain.com',
             'name'    => 'Another Name',
-            'company' => "Another Company"
+            'company' => 'Another Company'
         ]]);
 
         $queue->setRecipients([[
             'email'   => 'me@domain.com',
             'name'    => 'My Name',
-            'company' => "My Company"
+            'company' => 'My Company'
         ]]);
         $this->assertEquals(1, count($queue->getRecipients()));
     }
@@ -80,7 +80,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
         $queue = new Queue();
         $queue->addRecipient([
             'name'    => 'My Name',
-            'company' => "My Company"
+            'company' => 'My Company'
         ]);
     }
 
@@ -100,12 +100,12 @@ class QueueTest extends \PHPUnit_Framework_TestCase
         $queue->addRecipient([
             'email'   => 'me@domain.com',
             'name'    => 'My Name',
-            'company' => "My Company"
+            'company' => 'My Company'
         ]);
         $queue->addRecipient([
             'email'   => 'another@domain.com',
             'name'    => 'Another Name',
-            'company' => "Another Company"
+            'company' => 'Another Company'
         ]);
 
         $message = new Message('Hello [{name}]!');
