@@ -45,6 +45,16 @@ class Mailer
     }
 
     /**
+     * Get the transport object
+     *
+     * @return Transport\TransportInterface
+     */
+    public function transport()
+    {
+        return $this->transport;
+    }
+
+    /**
      * Send message
      *
      * @param  Message $message
