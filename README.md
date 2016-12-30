@@ -8,6 +8,7 @@ OVERVIEW
 * Send to email via sendmail, SMTP or any custom-written mail transport adapters
 * Send emails to a queue of recipients, with individual message customization
 * Save emails to be sent later
+* Retrieve and manage emails from email mailboxes.
 
 `pop-mail` is a component of the [Pop PHP Framework](http://www.popphp.org/).
 
@@ -169,4 +170,27 @@ $message->save(__DIR__ . '/mailqueue/test.msg');
 
 $mailer = new Mail\Mailer(new Mail\Transport\Sendmail());
 $mailer->sendFromDir(__DIR__ . '/mailqueue');
+```
+
+### Retrieving emails from a client
+
+```php
+use Pop\Mail\Client;
+
+$imap = new Client\Imap('imap.gmail.com', 993);
+$imap->setUsername('me@domain.com')
+     ->setPassword('password');
+
+$imap->setFolder('INBOX');
+$imap->open('/ssl');
+
+// Sorted by date, reverse order (newest first)
+$ids     = $imap->getMessageIdsBy(SORTDATE, true);
+$headers = $imap->getMessageHeadersById($ids[0]);
+$parts   = $imap->getMessageParts($ids[0]);
+
+// Assuming the first part is an image attachement, display image
+header('Content-Type: image/jpeg');
+header('Content-Length: ' . strlen($parts[0]->content));
+echo $parts[0]->content;
 ```
