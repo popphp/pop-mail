@@ -204,14 +204,15 @@ class Imap extends AbstractClient
      * @param  int     $criteria
      * @param  boolean $reverse
      * @param  int     $options
+     * @param  string  $search
      * @param  string  $charset
      * @return array
      */
-    public function getMessageIdsBy($criteria = SORTDATE, $reverse = true, $options = SE_UID, $charset = null)
+    public function getMessageIdsBy($criteria = SORTDATE, $reverse = true, $options = SE_UID, $search = 'ALL', $charset = null)
     {
         return (null !== $charset) ?
-            imap_sort($this->connection, $criteria, (int)$reverse, $options, $charset) :
-            imap_sort($this->connection, $criteria, (int)$reverse, $options);
+            imap_sort($this->connection, $criteria, (int)$reverse, $options, $search, $charset) :
+            imap_sort($this->connection, $criteria, (int)$reverse, $options, $search);
     }
 
     /**
@@ -240,13 +241,14 @@ class Imap extends AbstractClient
      * @param  int     $criteria
      * @param  boolean $reverse
      * @param  int     $options
+     * @param  string  $search
      * @param  string  $charset
      * @return array
      */
-    public function getMessageHeadersBy($criteria = SORTDATE, $reverse = true, $options = SE_UID, $charset = null)
+    public function getMessageHeadersBy($criteria = SORTDATE, $reverse = true, $options = SE_UID, $search = 'ALL', $charset = null)
     {
         $headers = [];
-        $ids     = $this->getMessageIdsBy($criteria, $reverse, $options, $charset);
+        $ids     = $this->getMessageIdsBy($criteria, $reverse, $options, $search, $charset);
 
         foreach ($ids as $id) {
             $headers[$id] =  imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
