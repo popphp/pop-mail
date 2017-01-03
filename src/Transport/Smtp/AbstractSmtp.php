@@ -306,16 +306,16 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      */
     protected function getReversePath(Message $message)
     {
-        $return = $message->getHeader('Return-Path');
-        $sender = $message->getHeader('Sender');
-        $from   = $message->getHeader('From');
-        $path   = null;
-        if (!empty($return)) {
-            $path = $return;
-        } elseif (!empty($sender)) {
-            $path = $sender;
-        } elseif (!empty($from)) {
-            $path = $from;
+        $returnKeys = array_keys($message->getReturnPath());
+        $senderKeys = array_keys($message->getSender());
+        $fromKeys   = array_keys($message->getFrom());
+        $path       = null;
+        if (isset($returnKeys[0]) && !empty($returnKeys[0])) {
+            $path = $returnKeys[0];
+        } elseif (isset($senderKeys[0]) && !empty($senderKeys[0])) {
+            $path = $senderKeys[0];
+        } elseif (isset($fromKeys[0]) && !empty($fromKeys[0])) {
+            $path = $fromKeys[0];
         }
 
         return $path;
