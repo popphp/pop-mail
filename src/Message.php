@@ -595,9 +595,23 @@ class Message extends Message\AbstractMessage
                 $headersAry = [];
                 $part       = trim(substr($part, (strpos($part, "\r\n\r\n") + 4)));
                 foreach ($headers as $header) {
-                    $name  = trim(substr($header, 0, strpos($header, ':')));
-                    $value = trim(substr($header, (strpos($header, ': ') + 2)));
-                    $headersAry[$name] = $value;
+                    if (strpos($header, ':') !== false) {
+                        $name  = trim(substr($header, 0, strpos($header, ':')));
+                        $value = trim(substr($header, (strpos($header, ': ') + 2)));
+                    } else if (strpos($header, '=') !== false) {
+                        $name  = trim(substr($header, 0, strpos($header, '=')));
+                        $value = trim(substr($header, (strpos($header, '=') + 1)));
+                    } else {
+                        $name  = null;
+                        $value = null;
+                    }
+                    if ((null !== $name) && (null !== $value)) {
+                        if ((substr($value, 0, 1) == '"') && (substr($value, -1) == '"')) {
+                            $value = substr($value, 1);
+                            $value = substr($value, 0, -1);
+                        }
+                        $headersAry[$name] = $value;
+                    }
                 }
 
                 if (substr($part, -2) == '--') {
@@ -606,12 +620,11 @@ class Message extends Message\AbstractMessage
 
                 if (isset($headersAry['Content-Transfer-Encoding'])) {
                     switch (strtolower($headersAry['Content-Transfer-Encoding'])) {
-                        case 'quoted-printable':
-                            $part = quoted_printable_decode($part);
-                            break;
                         case 'base64':
                             $part = base64_decode($part);
                             break;
+                        default:
+                            $part = quoted_printable_decode($part);
                     }
                 }
 
@@ -623,11 +636,28 @@ class Message extends Message\AbstractMessage
                     }
                 }
 
+                $basename = null;
+                if (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'filename=') !== false)) {
+                    $basename = substr($headersAry['Content-Disposition'], (stripos($headersAry['Content-Disposition'], 'filename=') + 9));
+                    if (strpos($basename, ';') !== false) {
+                        $basename = substr($basename, 0, strpos($basename, ';'));
+                    }
+                } else if (isset($headersAry['Content-Description'])) {
+                    $basename = $headersAry['Content-Description'];
+                } else if (isset($headersAry['name'])) {
+                    $basename = $headersAry['name'];
+                }
+
+                if ((substr($basename, 0, 1) == '"') && (substr($basename, -1) == '"')) {
+                    $basename = substr($basename, 1);
+                    $basename = substr($basename, 0, -1);
+                }
+
                 $parts[$i] = new \ArrayObject([
                     'headers'    => $headersAry,
                     'type'       => $type,
                     'attachment' => (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'attachment') !== false)),
-                    'basename'   => (isset($headersAry['Content-Description'])) ? $headersAry['Content-Description'] : null,
+                    'basename'   => $basename,
                     'content'    => $part
                 ], \ArrayObject::ARRAY_AS_PROPS);
             }
