@@ -590,6 +590,8 @@ class Message extends Message\AbstractMessage
             if (($part == '--') || empty($part)) {
                 unset($parts[$i]);
             } else {
+                $type       = null;
+                $basename   = null;
                 $headersAry = [];
                 if (strpos($part, "\r\n\r\n") !== false) {
                     $headers    = substr($part, 0, strpos($part, "\r\n\r\n"));
@@ -621,27 +623,28 @@ class Message extends Message\AbstractMessage
                     $part = trim(substr($part, 0, -2));
                 }
 
-                if (isset($headersAry['Content-Transfer-Encoding'])) {
-                    switch (strtolower($headersAry['Content-Transfer-Encoding'])) {
-                        case 'base64':
-                            $part = base64_decode($part);
-                            break;
-                        default:
-                            $part = quoted_printable_decode($part);
-                    }
-                } else {
-                    $part = quoted_printable_decode($part);
-                }
+                $part = (isset($headersAry['Content-Transfer-Encoding']) && (strtolower($headersAry['Content-Transfer-Encoding']) == 'base64')) ?
+                    base64_decode($part) : quoted_printable_decode($part);
 
-                $type = null;
+
                 if (isset($headersAry['Content-Type'])) {
-                    $type = $headersAry['Content-Type'];
-                    if (strpos($type, ';') !== false) {
-                        $type = trim(substr($type, 0, strpos($type, ';')));
+                    if ((stripos($headersAry['Content-Type'], 'multipart/') !== false) && isset($headersAry['boundary'])) {
+                        $subBody  = (strpos($part, $headersAry['boundary']) !== false) ?
+                            explode($headersAry['boundary'], $part) : [$part];
+                        $subParts = self::parseMessageParts($subBody);
+                        foreach ($subParts as $subPart) {
+                            $parts[] = $subPart;
+                        }
+                    } else {
+                        $type = $headersAry['Content-Type'];
+                        if (strpos($type, ';') !== false) {
+                            $type = trim(substr($type, 0, strpos($type, ';')));
+                        }
                     }
                 }
 
-                $basename = null;
+                $attachment = (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'attachment') !== false));
+
                 if (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'name=') !== false)) {
                     $basename = substr($headersAry['Content-Disposition'], (stripos($headersAry['Content-Disposition'], 'name=') + 5));
                     if (strpos($basename, ';') !== false) {
@@ -652,6 +655,7 @@ class Message extends Message\AbstractMessage
                     if (strpos($basename, ';') !== false) {
                         $basename = substr($basename, 0, strpos($basename, ';'));
                     }
+                    $attachment = true;
                 } else if (isset($headersAry['Content-Description'])) {
                     $basename = $headersAry['Content-Description'];
                 } else if (isset($headersAry['name'])) {
@@ -666,7 +670,7 @@ class Message extends Message\AbstractMessage
                 $parts[$i] = new \ArrayObject([
                     'headers'    => $headersAry,
                     'type'       => $type,
-                    'attachment' => (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'attachment') !== false)),
+                    'attachment' => $attachment,
                     'basename'   => $basename,
                     'content'    => $part
                 ], \ArrayObject::ARRAY_AS_PROPS);
