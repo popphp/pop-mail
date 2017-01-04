@@ -590,27 +590,30 @@ class Message extends Message\AbstractMessage
             if (($part == '--') || empty($part)) {
                 unset($parts[$i]);
             } else {
-                $headers    = substr($part, 0, strpos($part, "\r\n\r\n"));
-                $headers    = explode("\r\n", $headers);
                 $headersAry = [];
-                $part       = trim(substr($part, (strpos($part, "\r\n\r\n") + 4)));
-                foreach ($headers as $header) {
-                    if (strpos($header, ':') !== false) {
-                        $name  = trim(substr($header, 0, strpos($header, ':')));
-                        $value = trim(substr($header, (strpos($header, ': ') + 2)));
-                    } else if (strpos($header, '=') !== false) {
-                        $name  = trim(substr($header, 0, strpos($header, '=')));
-                        $value = trim(substr($header, (strpos($header, '=') + 1)));
-                    } else {
-                        $name  = null;
-                        $value = null;
-                    }
-                    if ((null !== $name) && (null !== $value)) {
-                        if ((substr($value, 0, 1) == '"') && (substr($value, -1) == '"')) {
-                            $value = substr($value, 1);
-                            $value = substr($value, 0, -1);
+                if (strpos($part, "\r\n\r\n") !== false) {
+                    $headers    = substr($part, 0, strpos($part, "\r\n\r\n"));
+                    $headers    = explode("\r\n", $headers);
+                    $headersAry = [];
+                    $part       = trim(substr($part, (strpos($part, "\r\n\r\n") + 4)));
+                    foreach ($headers as $header) {
+                        if (strpos($header, ':') !== false) {
+                            $name  = trim(substr($header, 0, strpos($header, ':')));
+                            $value = trim(substr($header, (strpos($header, ': ') + 2)));
+                        } else if (strpos($header, '=') !== false) {
+                            $name  = trim(substr($header, 0, strpos($header, '=')));
+                            $value = trim(substr($header, (strpos($header, '=') + 1)));
+                        } else {
+                            $name  = null;
+                            $value = null;
                         }
-                        $headersAry[$name] = $value;
+                        if ((null !== $name) && (null !== $value)) {
+                            if ((substr($value, 0, 1) == '"') && (substr($value, -1) == '"')) {
+                                $value = substr($value, 1);
+                                $value = substr($value, 0, -1);
+                            }
+                            $headersAry[$name] = $value;
+                        }
                     }
                 }
 
@@ -626,6 +629,8 @@ class Message extends Message\AbstractMessage
                         default:
                             $part = quoted_printable_decode($part);
                     }
+                } else {
+                    $part = quoted_printable_decode($part);
                 }
 
                 $type = null;
