@@ -637,8 +637,13 @@ class Message extends Message\AbstractMessage
                 }
 
                 $basename = null;
-                if (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'filename=') !== false)) {
-                    $basename = substr($headersAry['Content-Disposition'], (stripos($headersAry['Content-Disposition'], 'filename=') + 9));
+                if (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'name=') !== false)) {
+                    $basename = substr($headersAry['Content-Disposition'], (stripos($headersAry['Content-Disposition'], 'name=') + 5));
+                    if (strpos($basename, ';') !== false) {
+                        $basename = substr($basename, 0, strpos($basename, ';'));
+                    }
+                } else if (isset($headersAry['Content-Type']) && (stripos($headersAry['Content-Type'], 'name=') !== false)) {
+                    $basename = substr($headersAry['Content-Type'], (stripos($headersAry['Content-Type'], 'name=') + 5));
                     if (strpos($basename, ';') !== false) {
                         $basename = substr($basename, 0, strpos($basename, ';'));
                     }
