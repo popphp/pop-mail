@@ -626,12 +626,12 @@ class Message extends Message\AbstractMessage
                 $part = (isset($headersAry['Content-Transfer-Encoding']) && (strtolower($headersAry['Content-Transfer-Encoding']) == 'base64')) ?
                     base64_decode($part) : quoted_printable_decode($part);
 
-
                 if (isset($headersAry['Content-Type'])) {
                     if ((stripos($headersAry['Content-Type'], 'multipart/') !== false) && isset($headersAry['boundary'])) {
                         $subBody  = (strpos($part, $headersAry['boundary']) !== false) ?
                             explode($headersAry['boundary'], $part) : [$part];
                         $subParts = self::parseMessageParts($subBody);
+                        unset($parts[$i]);
                         foreach ($subParts as $subPart) {
                             $parts[] = $subPart;
                         }
@@ -643,13 +643,15 @@ class Message extends Message\AbstractMessage
                     }
                 }
 
-                $attachment = (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'attachment') !== false));
+                $attachment = (isset($headersAry['Content-Disposition']) &&
+                    ((stripos($headersAry['Content-Disposition'], 'attachment') !== false) || (stripos($headersAry['Content-Disposition'], 'name=') !== false)));
 
                 if (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'name=') !== false)) {
                     $basename = substr($headersAry['Content-Disposition'], (stripos($headersAry['Content-Disposition'], 'name=') + 5));
                     if (strpos($basename, ';') !== false) {
                         $basename = substr($basename, 0, strpos($basename, ';'));
                     }
+                    $attachment = true;
                 } else if (isset($headersAry['Content-Type']) && (stripos($headersAry['Content-Type'], 'name=') !== false)) {
                     $basename = substr($headersAry['Content-Type'], (stripos($headersAry['Content-Type'], 'name=') + 5));
                     if (strpos($basename, ';') !== false) {
@@ -657,9 +659,11 @@ class Message extends Message\AbstractMessage
                     }
                     $attachment = true;
                 } else if (isset($headersAry['Content-Description'])) {
-                    $basename = $headersAry['Content-Description'];
+                    $basename   = $headersAry['Content-Description'];
+                    $attachment = true;
                 } else if (isset($headersAry['name'])) {
-                    $basename = $headersAry['name'];
+                    $basename   = $headersAry['name'];
+                    $attachment = true;
                 }
 
                 if ((substr($basename, 0, 1) == '"') && (substr($basename, -1) == '"')) {
