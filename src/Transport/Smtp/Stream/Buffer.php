@@ -193,7 +193,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
             $line = fgets($this->out);
             if (strlen($line) == 0) {
                 $metas = stream_get_meta_data($this->out);
-                if ($metas['timedout']) {
+                if (isset($metas['timedout']) && ($metas['timedout'])) {
                     throw new Exception('Connection to ' . $this->getReadConnectionDescription() . ' Timed Out');
                 }
             }
