@@ -1,6 +1,9 @@
 pop-mail
 ========
 
+[![Build Status](https://travis-ci.org/popphp/pop-mail.svg?branch=master)](https://travis-ci.org/popphp/pop-mail)
+[![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-mail)](http://cc.popphp.org/pop-mail/)
+
 OVERVIEW
 --------
 `pop-mail` is a component for managing and sending email messages. It has a full feature set that supports:
