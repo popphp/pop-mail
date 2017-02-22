@@ -62,7 +62,10 @@ class XOAuth2Authenticator implements AuthInterface
     /**
      * Construct the auth parameter
      *
-     * @see https://developers.google.com/google-apps/gmail/xoauth2_protocol#the_sasl_xoauth2_mechanism
+     * @param  string $email
+     * @param  string $token
+     * @see    https://developers.google.com/google-apps/gmail/xoauth2_protocol#the_sasl_xoauth2_mechanism
+     * @return string
      */
     protected function constructXOAuth2Params($email, $token)
     {

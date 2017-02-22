@@ -82,6 +82,8 @@ class NTLMAuthenticator implements AuthInterface
     }
 
     /**
+     * si2bin method
+     *
      * @param  mixed $si
      * @param  int   $bits
      * @return null|string
@@ -277,6 +279,8 @@ class NTLMAuthenticator implements AuthInterface
     }
 
     /**
+     * Create blob method
+     *
      * @param string $timestamp  Epoch timestamp in microseconds
      * @param string $client     Random bytes
      * @param string $targetInfo
