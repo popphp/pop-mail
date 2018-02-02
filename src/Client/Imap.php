@@ -332,18 +332,15 @@ class Imap extends AbstractClient
     /**
      * Copy messages to another mailbox
      *
-     * @param  mixed  $ids
-     * @param  string $to
-     * @param  int    $options
+     * @param  mixed        $ids
+     * @param  string|array $to
+     * @param  int          $options
      * @return Imap
      */
     public function copyMessage($ids, $to, $options = CP_UID)
     {
         if (is_array($ids)) {
             $ids = implode(',', $ids);
-        }
-        if (strpos($to, $this->connectionString) === false) {
-            $to = $this->connectionString . $to;
         }
 
         imap_mail_copy($this->connection, $ids, $to, $options);
@@ -353,18 +350,15 @@ class Imap extends AbstractClient
     /**
      * Move messages to another mailbox
      *
-     * @param  mixed  $ids
-     * @param  string $to
-     * @param  int    $options
+     * @param  mixed        $ids
+     * @param  string|array $to
+     * @param  int          $options
      * @return Imap
      */
     public function moveMessage($ids, $to, $options = CP_UID)
     {
         if (is_array($ids)) {
             $ids = implode(',', $ids);
-        }
-        if (strpos($to, $this->connectionString) === false) {
-            $to = $this->connectionString . $to;
         }
 
         imap_mail_move($this->connection, $ids, $to, $options);
