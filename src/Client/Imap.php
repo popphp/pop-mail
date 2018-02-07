@@ -139,6 +139,16 @@ class Imap extends AbstractClient
     }
 
     /**
+     * Get mailbox info
+     *
+     * @return \stdClass
+     */
+    public function getInfo()
+    {
+        return imap_mailboxmsginfo($this->connection);
+
+    }
+    /**
      * Get total number of messages
      *
      * @return int
