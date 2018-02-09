@@ -599,7 +599,7 @@ class Message extends Message\AbstractMessage
                 $type       = null;
                 $basename   = null;
                 $headersAry = [];
-                if (strpos($part, "\r\n\r\n") !== false) {
+                if ((strpos($part, "\r\n\r\n") !== false) && (substr($part, 0, 1) != '<')) {
                     $headers    = substr($part, 0, strpos($part, "\r\n\r\n"));
                     $headers    = explode("\r\n", $headers);
                     $headersAry = [];
