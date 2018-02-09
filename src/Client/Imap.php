@@ -239,7 +239,7 @@ class Imap extends AbstractClient
         $ids     = $this->getMessageIds($criteria, $options, $charset);
 
         foreach ($ids as $id) {
-            $headers[$id] =  imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
+            $headers[$id] =  $this->getMessageHeadersById($id);
         }
 
         return $headers;
@@ -261,7 +261,7 @@ class Imap extends AbstractClient
         $ids     = $this->getMessageIdsBy($criteria, $reverse, $options, $search, $charset);
 
         foreach ($ids as $id) {
-            $headers[$id] =  imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
+            $headers[$id] =  $this->getMessageHeadersById($id);
         }
 
         return $headers;
@@ -275,7 +275,22 @@ class Imap extends AbstractClient
      */
     public function getMessageHeadersById($id)
     {
-        return imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
+        $headers        = imap_fetchheader($this->connection, $id, FT_UID);
+        $parsedHeaders  = imap_rfc822_parse_headers($headers);
+        $contentHeaders = [];
+
+        preg_match_all('/^Content\-(.*)$/m', $headers, $contentHeaders);
+
+        if (isset($contentHeaders[0]) && isset($contentHeaders[0][0])) {
+            foreach ($contentHeaders[0] as $contentHeaderString) {
+                $contentHeader      = trim(substr($contentHeaderString, 0, strpos($contentHeaderString, ':')));
+                $contentHeaderValue = trim(substr($contentHeaderString, (strpos($contentHeaderString, ':') + 1)));
+
+                $parsedHeaders->{$contentHeader} = $contentHeaderValue;
+            }
+        }
+
+        return $parsedHeaders;
     }
 
     /**
@@ -505,6 +520,17 @@ class Imap extends AbstractClient
 
         imap_deletemailbox($this->connection, $this->connectionString . $mailbox);
         return $this;
+    }
+
+    /**
+     * Decode text
+     *
+     * @param  string $text
+     * @return string
+     */
+    public  function decodeText($text)
+    {
+        return Message::decodeText($text);
     }
 
     /**

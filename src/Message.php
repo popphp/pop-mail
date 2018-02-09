@@ -579,14 +579,20 @@ class Message extends Message\AbstractMessage
     /**
      * Parse message parts from string
      *
-     * @param  array $parts
+     * @param  array  $parts
+     * @param  string $encoding
      * @throws Exception
      * @return array
      */
-    public static function parseMessageParts($parts)
+    public static function parseMessageParts($parts, $encoding = null)
     {
         foreach ($parts as $i => $part) {
             $part = trim($part);
+            if (strtolower($encoding) == 'base64') {
+                $part = base64_decode($part);
+            } else if (strtolower($encoding) == 'quoted-printable') {
+                $part = quoted_printable_decode($part);
+            }
             if (($part == '--') || empty($part)) {
                 unset($parts[$i]);
             } else {
@@ -671,17 +677,36 @@ class Message extends Message\AbstractMessage
                     $basename = substr($basename, 0, -1);
                 }
 
-                $parts[$i] = new \ArrayObject([
-                    'headers'    => $headersAry,
-                    'type'       => $type,
-                    'attachment' => $attachment,
-                    'basename'   => $basename,
-                    'content'    => $part
-                ], \ArrayObject::ARRAY_AS_PROPS);
+                $currentPart             = new \stdClass();
+                $currentPart->headers    = $headersAry;
+                $currentPart->type       = $type;
+                $currentPart->attachment = $attachment;
+                $currentPart->basename   = $basename;
+                $currentPart->content    = $part;
+
+                $parts[$i] = $currentPart;
             }
         }
 
         return array_values($parts);
+    }
+
+    /**
+     * Decode text
+     *
+     * @param  string $text
+     * @return string
+     */
+    public static function decodeText($text)
+    {
+        $decodedValues = imap_mime_header_decode($text);
+        $decoded       = '';
+
+        foreach ($decodedValues as $string) {
+            $decoded .= $string->text;
+        }
+
+        return $decoded;
     }
 
     /**
