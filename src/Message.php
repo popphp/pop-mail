@@ -677,14 +677,13 @@ class Message extends Message\AbstractMessage
                     $basename = substr($basename, 0, -1);
                 }
 
-                $currentPart             = new \stdClass();
-                $currentPart->headers    = $headersAry;
-                $currentPart->type       = $type;
-                $currentPart->attachment = $attachment;
-                $currentPart->basename   = $basename;
-                $currentPart->content    = $part;
-
-                $parts[$i] = $currentPart;
+                $parts[$i] = new \ArrayObject([
+                    'headers'    => $headersAry,
+                    'type'       => $type,
+                    'attachment' => $attachment,
+                    'basename'   => $basename,
+                    'content'    => $part
+                ], \ArrayObject::ARRAY_AS_PROPS);
             }
         }
 
