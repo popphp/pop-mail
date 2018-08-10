@@ -67,10 +67,13 @@ class Message extends Message\AbstractMessage
      *
      * @param  string $subject
      */
-    public function __construct($subject)
+    public function __construct($subject = null)
     {
         parent::__construct();
-        $this->setSubject($subject);
+
+        if (null !== $subject) {
+            $this->setSubject($subject);
+        }
     }
 
     /**
@@ -95,7 +98,7 @@ class Message extends Message\AbstractMessage
      * Set Subject
      *
      * @param  string $subject
-     * @return Message
+     * @return Message\AbstractMessage
      */
     public function setSubject($subject)
     {
@@ -106,7 +109,7 @@ class Message extends Message\AbstractMessage
      * Set To
      *
      * @param  string $to
-     * @return Message
+     * @return Message\AbstractMessage
      */
     public function setTo($to)
     {
@@ -118,7 +121,7 @@ class Message extends Message\AbstractMessage
      * Set CC
      *
      * @param  string $cc
-     * @return Message
+     * @return Message\AbstractMessage
      */
     public function setCc($cc)
     {
@@ -130,7 +133,7 @@ class Message extends Message\AbstractMessage
      * Set BCC
      *
      * @param  string $bcc
-     * @return Message
+     * @return Message\AbstractMessage
      */
     public function setBcc($bcc)
     {
@@ -142,7 +145,7 @@ class Message extends Message\AbstractMessage
      * Set From
      *
      * @param  string $from
-     * @return Message
+     * @return Message\AbstractMessage
      */
     public function setFrom($from)
     {
@@ -154,7 +157,7 @@ class Message extends Message\AbstractMessage
      * Set Reply-To
      *
      * @param  string $replyTo
-     * @return Message
+     * @return Message\AbstractMessage
      */
     public function setReplyTo($replyTo)
     {
@@ -166,7 +169,7 @@ class Message extends Message\AbstractMessage
      * Set Sender
      *
      * @param  mixed $sender
-     * @return Message
+     * @return Message\AbstractMessage
      */
     public function setSender($sender)
     {
@@ -178,7 +181,7 @@ class Message extends Message\AbstractMessage
      * Set Return-Path
      *
      * @param  mixed $returnPath
-     * @return Message
+     * @return Message\AbstractMessage
      */
     public function setReturnPath($returnPath)
     {
