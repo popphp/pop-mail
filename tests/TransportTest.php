@@ -3,8 +3,9 @@
 namespace Pop\Mail\Test;
 
 use Pop\Mail\Transport;
+use PHPUnit\Framework\TestCase;
 
-class TransportTest extends \PHPUnit_Framework_TestCase
+class TransportTest extends TestCase
 {
 
     public function testSendmail()

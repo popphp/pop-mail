@@ -4,8 +4,9 @@ namespace Pop\Mail\Test;
 
 use Pop\Mail\Queue;
 use Pop\Mail\Message;
+use PHPUnit\Framework\TestCase;
 
-class QueueTest extends \PHPUnit_Framework_TestCase
+class QueueTest extends TestCase
 {
 
     public function testConstructor()
