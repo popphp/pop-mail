@@ -44,18 +44,22 @@ class Attachment extends AbstractPart
      *
      * Instantiate the mail attachment object
      *
-     * @param  string $file
-     * @param  string $contentType
-     * @param  string $basename
+     * @param  string  $file
+     * @param  string  $contentType
+     * @param  string  $basename
+     * @param  boolean $isStream
+     * @throws Exception
      */
-    public function __construct($file, $contentType = 'file', $basename = 'file.tmp')
+    public function __construct($file, $contentType = 'file', $basename = 'file.tmp', $isStream = false)
     {
-        if (@file_exists($file)) {
-            $this->stream   = file_get_contents($file);
-            $this->basename = basename($file);
-        } else {
+        if ($isStream) {
             $this->stream   = $file;
             $this->basename = $basename;
+        } else if (!file_exists($file)) {
+            throw new Exception('Error: That file does not exist.');
+        } else {
+            $this->stream   = file_get_contents($file);
+            $this->basename = basename($file);
         }
 
         parent::__construct(

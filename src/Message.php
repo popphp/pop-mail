@@ -239,9 +239,23 @@ class Message extends Message\AbstractMessage
      */
     public function attachFile($file)
     {
-        if (!($file instanceof Message\Attachment) && is_string($file)) {
+        if (!($file instanceof Message\Attachment)) {
             $file = new Message\Attachment($file);
         }
+        return $this->addPart($file);
+    }
+
+    /**
+     * Attach file message part from stream
+     *
+     * @param  mixed  $fileContents
+     * @param  string $contentType
+     * @param  string $basename
+     * @return Message
+     */
+    public function attachFileFromStream($fileContents, $contentType = 'file', $basename = 'file.tmp')
+    {
+        $file = new Message\Attachment($fileContents, $contentType, $basename, true);
         return $this->addPart($file);
     }
 
