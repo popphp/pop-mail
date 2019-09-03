@@ -29,22 +29,64 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
 {
 
     /**
+     * Encoding constants
+     * @var string
+     */
+    const BASE64           = 'BASE64';
+    const QUOTED_PRINTABLE = 'QUOTED_PRINTABLE';
+    const BINARY           = 'BINARY';
+    const _8BIT            = '_8BIT';
+    const _7BIT            = '_7BIT';
+
+    /**
      * Message part content
      * @var string
      */
     protected $content = null;
 
     /**
+     * Message part encoding
+     * @var string
+     */
+    protected $encoding = null;
+
+    /**
      * Constructor
      *
      * Instantiate the message part object
      *
-     * @param  string $content
-     * @param  string $contentType
+     * @param string $content
+     * @param string $contentType
+     * @param string $encoding
      */
-    public function __construct($content, $contentType = 'text/plain')
+    public function __construct($content, $contentType = 'text/plain', $encoding = null)
     {
         parent::__construct();
+
+        if (null !== $encoding) {
+            $this->setEncoding($encoding);
+
+            switch ($this->encoding) {
+                case self::BASE64:
+                    $content = base64_encode($content);
+                    $this->addHeader('Content-Transfer-Encoding', 'base64');
+                    break;
+                case self::QUOTED_PRINTABLE:
+                    $content = quoted_printable_encode($content);
+                    $this->addHeader('Content-Transfer-Encoding', 'quoted-printable');
+                    break;
+                case self::BINARY:
+                    $this->addHeader('Content-Transfer-Encoding', 'binary');
+                    break;
+                case self::_7BIT:
+                    $this->addHeader('Content-Transfer-Encoding', '7bit');
+                    break;
+                case self::_8BIT:
+                    $this->addHeader('Content-Transfer-Encoding', '8bit');
+                    break;
+            }
+        }
+
         $this->setContent($content);
         $this->setContentType($contentType);
     }
@@ -72,6 +114,38 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     }
 
     /**
+     * Get message part encoding
+     *
+     * @return string
+     */
+    public function getEncoding()
+    {
+        return $this->encoding;
+    }
+
+    /**
+     * Set message part encoding
+     *
+     * @param  string $encoding
+     * @return AbstractPart
+     */
+    public function setEncoding($encoding)
+    {
+        $this->encoding = $encoding;
+        return $this;
+    }
+
+    /**
+     * Check if encoding in base-64
+     *
+     * @return string
+     */
+    public function isBase64()
+    {
+        return ($this->encoding == self::BASE64);
+    }
+
+    /**
      * Get message body
      *
      * @return string
@@ -84,23 +158,25 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     /**
      * Render message
      *
+     * @param  array $omitHeaders
      * @return string
      */
-    public function render()
+    public function render(array $omitHeaders = [])
     {
-        return $this->getHeadersAsString() . Message::CRLF . $this->getBody() . Message::CRLF . Message::CRLF;
+        return $this->getHeadersAsString($omitHeaders) . Message::CRLF . $this->getBody() . Message::CRLF . Message::CRLF;
     }
 
     /**
      * Render as an array of lines
      *
+     * @param  array $omitHeaders
      * @return array
      */
-    public function renderAsLines()
+    public function renderAsLines(array $omitHeaders = [])
     {
         $lines = [];
 
-        $headers = explode(Message::CRLF, $this->getHeadersAsString() . Message::CRLF);
+        $headers = explode(Message::CRLF, $this->getHeadersAsString($omitHeaders) . Message::CRLF);
         $body    = explode("\n", $this->getContent());
 
         foreach ($headers as $header) {

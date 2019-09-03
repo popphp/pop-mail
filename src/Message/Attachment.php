@@ -32,7 +32,6 @@ class Attachment extends AbstractPart
      */
     protected $basename = null;
 
-
     /**
      * File attachment original stream content
      * @var string
@@ -47,10 +46,11 @@ class Attachment extends AbstractPart
      * @param  string  $file
      * @param  string  $contentType
      * @param  string  $basename
+     * @param  string  $encoding
      * @param  boolean $isStream
      * @throws Exception
      */
-    public function __construct($file, $contentType = 'file', $basename = 'file.tmp', $isStream = false)
+    public function __construct($file, $contentType = 'file', $basename = 'file.tmp', $encoding = AbstractPart::BASE64, $isStream = false)
     {
         if ($isStream) {
             $this->stream   = $file;
@@ -62,15 +62,11 @@ class Attachment extends AbstractPart
             $this->basename = basename($file);
         }
 
-        parent::__construct(
-            chunk_split(base64_encode($this->stream)),
-            $contentType . '; name="' . $this->basename . '"'
-        );
+        parent::__construct($this->stream, $contentType . '; name="' . $this->basename . '"', $encoding);
 
-        $this->addHeader('Content-Transfer-Encoding', 'base64')
-             ->addHeader('Content-Description', $this->basename)
+        $this->addHeader('Content-Description', $this->basename)
              ->addHeader('Content-Disposition', 'attachment; filename="' . $this->basename . '"')
-             ->setCharSet('');
+             ->setCharSet(null);
     }
 
     /**

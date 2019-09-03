@@ -58,7 +58,6 @@ abstract class AbstractMessage implements MessageInterface
      */
     protected $idHeader = null;
 
-
     /**
      * Instantiate the message object
      *
@@ -165,7 +164,7 @@ abstract class AbstractMessage implements MessageInterface
      * @param  string $charSet
      * @return AbstractMessage
      */
-    public function setCharSet($charSet)
+    public function setCharSet($charSet = null)
     {
         $this->charSet = $charSet;
         return $this;
@@ -185,15 +184,15 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * Get all message headers as string
      *
-     * @param  array $omit
+     * @param  array $omitHeaders
      * @return string
      */
-    public function getHeadersAsString(array $omit = [])
+    public function getHeadersAsString(array $omitHeaders = [])
     {
         $headers = null;
 
         foreach ($this->headers as $header => $value) {
-            if (!in_array($header, $omit) && !empty($value)) {
+            if (!in_array($header, $omitHeaders) && !empty($value)) {
                 $headers .= $header . ': ' . $value . Message::CRLF;
             }
         }
@@ -202,10 +201,13 @@ abstract class AbstractMessage implements MessageInterface
             if (null === $this->idHeader) {
                 $this->setIdHeader((($this instanceof Message) ? 'Message-ID' : 'Content-ID'));
             }
-            $headers .= $this->idHeader . ': ' . $this->id . Message::CRLF;
+
+            if (!in_array($this->idHeader, $omitHeaders)) {
+                $headers .= $this->idHeader . ': ' . $this->id . Message::CRLF;
+            }
         }
 
-        if ((null !== $this->contentType) && !in_array('Content-Type', $omit)) {
+        if ((null !== $this->contentType) && !in_array('Content-Type', $omitHeaders)) {
             $headers .= 'Content-Type: ' . $this->contentType;
             if (!empty($this->charSet)) {
                 $headers .= '; charset="' . $this->charSet . '"';

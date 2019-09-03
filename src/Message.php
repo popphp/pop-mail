@@ -13,7 +13,7 @@
  */
 namespace Pop\Mail;
 
-
+use Pop\Mail\Message\AbstractPart;
 
 /**
  * Message class
@@ -88,7 +88,7 @@ class Message extends Message\AbstractMessage
         if (is_string($message) && (strpos($message, 'Subject:') !== false)) {
             return self::parse($message);
         } else if (file_exists($message)) {
-            return self::parse(file_get_contents($message));
+            return self::parseFromFile($message);
         } else {
             throw new Exception('Error: Unable to parse message content');
         }
@@ -234,13 +234,16 @@ class Message extends Message\AbstractMessage
     /**
      * Attach file message part
      *
-     * @param  mixed $file
+     * @param  mixed  $file
+     * @param  string $contentType
+     * @param  string $basename
+     * @param  string $encoding
      * @return Message
      */
-    public function attachFile($file)
+    public function attachFile($file, $contentType = 'file', $basename = 'file.tmp', $encoding = AbstractPart::BASE64)
     {
         if (!($file instanceof Message\Attachment)) {
-            $file = new Message\Attachment($file);
+            $file = new Message\Attachment($file, $contentType, $basename, $encoding);
         }
         return $this->addPart($file);
     }
@@ -251,11 +254,12 @@ class Message extends Message\AbstractMessage
      * @param  mixed  $fileContents
      * @param  string $contentType
      * @param  string $basename
+     * @param  string $encoding
      * @return Message
      */
-    public function attachFileFromStream($fileContents, $contentType = 'file', $basename = 'file.tmp')
+    public function attachFileFromStream($fileContents, $contentType = 'file', $basename = 'file.tmp', $encoding = AbstractPart::BASE64)
     {
-        $file = new Message\Attachment($fileContents, $contentType, $basename, true);
+        $file = new Message\Attachment($fileContents, $contentType, $basename, $encoding, true);
         return $this->addPart($file);
     }
 
@@ -453,34 +457,37 @@ class Message extends Message\AbstractMessage
     /**
      * Render message
      *
+     * @param  array $omitHeaders
      * @return string
      */
-    public function render()
+    public function render(array $omitHeaders = [])
     {
-        return $this->getHeadersAsString() . self::CRLF . $this->getBody();
+        return $this->getHeadersAsString($omitHeaders) . self::CRLF . $this->getBody();
     }
 
     /**
      * Save message to file on disk
      *
      * @param  string $to
+     * @param  array  $omitHeaders
      * @return void
      */
-    public function save($to)
+    public function save($to, array $omitHeaders = [])
     {
-        file_put_contents($to, $this->render());
+        file_put_contents($to, $this->render($omitHeaders));
     }
 
     /**
      * Render as an array of lines
      *
+     * @param  array $omitHeaders
      * @return array
      */
-    public function renderAsLines()
+    public function renderAsLines(array $omitHeaders = [])
     {
         $lines = [];
 
-        $headers = explode(Message::CRLF, $this->getHeadersAsString() . Message::CRLF);
+        $headers = explode(Message::CRLF, $this->getHeadersAsString($omitHeaders) . Message::CRLF);
         $body    = explode("\n", $this->getBody());
 
         foreach ($headers as $header) {
@@ -498,14 +505,31 @@ class Message extends Message\AbstractMessage
      * Write this entire entity to a buffer
      *
      * @param Transport\Smtp\Stream\BufferInterface $is
+     * @param  array $omitHeaders
      */
-    public function toByteStream(Transport\Smtp\Stream\BufferInterface $is)
+    public function toByteStream(Transport\Smtp\Stream\BufferInterface $is, array $omitHeaders = [])
     {
-        $lines = $this->renderAsLines();
+        $lines = $this->renderAsLines($omitHeaders);
         foreach ($lines as $line) {
             $is->write($line . self::CRLF);
         }
         $is->commit();
+    }
+
+    /**
+     * Parse message from file
+     *
+     * @param  string $file
+     * @throws Exception
+     * @return Message
+     */
+    public static function parseFromFile($file)
+    {
+        if (!file_exists($file)) {
+            throw new Exception("Error: The file '" . $file . "' does not exist.");
+        }
+
+        return self::parse(file_get_contents($file));
     }
 
     /**
@@ -576,7 +600,7 @@ class Message extends Message\AbstractMessage
             $parts = [$body];
         }
 
-        $parts = self::parseMessageParts($parts);
+        $parts = Message\Part::parse($parts);
 
         foreach ($parts as $part) {
             if ($part->attachment) {
@@ -591,120 +615,6 @@ class Message extends Message\AbstractMessage
         }
 
         return $message;
-    }
-
-    /**
-     * Parse message parts from string
-     *
-     * @param  array  $parts
-     * @param  string $encoding
-     * @throws Exception
-     * @return array
-     */
-    public static function parseMessageParts($parts, $encoding = null)
-    {
-        foreach ($parts as $i => $part) {
-            $part = trim($part);
-            if (strtolower($encoding) == 'base64') {
-                $part = base64_decode($part);
-            } else if (strtolower($encoding) == 'quoted-printable') {
-                $part = quoted_printable_decode($part);
-            }
-            if (($part == '--') || empty($part)) {
-                unset($parts[$i]);
-            } else {
-                $type       = null;
-                $basename   = null;
-                $headersAry = [];
-                if ((strpos($part, "\r\n\r\n") !== false) && (substr($part, 0, 1) != '<')) {
-                    $headers    = substr($part, 0, strpos($part, "\r\n\r\n"));
-                    $headers    = explode("\r\n", $headers);
-                    $headersAry = [];
-                    $part       = trim(substr($part, (strpos($part, "\r\n\r\n") + 4)));
-                    foreach ($headers as $header) {
-                        if (strpos($header, ':') !== false) {
-                            $name  = trim(substr($header, 0, strpos($header, ':')));
-                            $value = trim(substr($header, (strpos($header, ': ') + 2)));
-                        } else if (strpos($header, '=') !== false) {
-                            $name  = trim(substr($header, 0, strpos($header, '=')));
-                            $value = trim(substr($header, (strpos($header, '=') + 1)));
-                        } else {
-                            $name  = null;
-                            $value = null;
-                        }
-                        if ((null !== $name) && (null !== $value)) {
-                            if ((substr($value, 0, 1) == '"') && (substr($value, -1) == '"')) {
-                                $value = substr($value, 1);
-                                $value = substr($value, 0, -1);
-                            }
-                            $headersAry[$name] = $value;
-                        }
-                    }
-                }
-
-                if (substr($part, -2) == '--') {
-                    $part = trim(substr($part, 0, -2));
-                }
-
-                $part = (isset($headersAry['Content-Transfer-Encoding']) && (strtolower($headersAry['Content-Transfer-Encoding']) == 'base64')) ?
-                    base64_decode($part) : quoted_printable_decode($part);
-
-                if (isset($headersAry['Content-Type'])) {
-                    if ((stripos($headersAry['Content-Type'], 'multipart/') !== false) && isset($headersAry['boundary'])) {
-                        $subBody  = (strpos($part, $headersAry['boundary']) !== false) ?
-                            explode($headersAry['boundary'], $part) : [$part];
-                        $subParts = self::parseMessageParts($subBody);
-                        unset($parts[$i]);
-                        foreach ($subParts as $subPart) {
-                            $parts[] = $subPart;
-                        }
-                    } else {
-                        $type = $headersAry['Content-Type'];
-                        if (strpos($type, ';') !== false) {
-                            $type = trim(substr($type, 0, strpos($type, ';')));
-                        }
-                    }
-                }
-
-                $attachment = (isset($headersAry['Content-Disposition']) &&
-                    ((stripos($headersAry['Content-Disposition'], 'attachment') !== false) || (stripos($headersAry['Content-Disposition'], 'name=') !== false)));
-
-                if (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'name=') !== false)) {
-                    $basename = substr($headersAry['Content-Disposition'], (stripos($headersAry['Content-Disposition'], 'name=') + 5));
-                    if (strpos($basename, ';') !== false) {
-                        $basename = substr($basename, 0, strpos($basename, ';'));
-                    }
-                    $attachment = true;
-                } else if (isset($headersAry['Content-Type']) && (stripos($headersAry['Content-Type'], 'name=') !== false)) {
-                    $basename = substr($headersAry['Content-Type'], (stripos($headersAry['Content-Type'], 'name=') + 5));
-                    if (strpos($basename, ';') !== false) {
-                        $basename = substr($basename, 0, strpos($basename, ';'));
-                    }
-                    $attachment = true;
-                } else if (isset($headersAry['Content-Description'])) {
-                    $basename   = $headersAry['Content-Description'];
-                    $attachment = true;
-                } else if (isset($headersAry['name'])) {
-                    $basename   = $headersAry['name'];
-                    $attachment = true;
-                }
-
-                if ((substr($basename, 0, 1) == '"') && (substr($basename, -1) == '"')) {
-                    $basename = substr($basename, 1);
-                    $basename = substr($basename, 0, -1);
-                }
-
-                $parts[$i] = new \ArrayObject([
-                    'headers'    => $headersAry,
-                    'type'       => $type,
-                    'attachment' => $attachment,
-                    'basename'   => $basename,
-                    'content'    => $part
-                ], \ArrayObject::ARRAY_AS_PROPS);
-            }
-        }
-
-        return array_values($parts);
     }
 
     /**
@@ -732,7 +642,7 @@ class Message extends Message\AbstractMessage
      * @param  boolean $asArray
      * @return string
      */
-    protected function parseAddresses($addresses, $asArray = false)
+    public function parseAddresses($addresses, $asArray = false)
     {
         $formatted = [];
         $emails    = [];
@@ -783,6 +693,28 @@ class Message extends Message\AbstractMessage
     }
 
     /**
+     * Parse a name and email from an address string
+     *
+     * @param  string $address
+     * @return array
+     */
+    public function parseNameAndEmail($address)
+    {
+        $name  = null;
+        $email = null;
+
+        if ((strpos($address, '<') !== false) && (strpos($address, '>') !== false)) {
+            $name  = trim(substr($address, 0, strpos($address, '<')));
+            $email = substr($address, (strpos($address, '<') + 1));
+            $email = trim(substr($email, 0, -1));
+        } else if (strpos($address, '@') !== false) {
+            $email = trim($address);
+        }
+
+        return ['name' => $name, 'email' => $email];
+    }
+
+    /**
      * Validate content type based on message parts added to the message
      *
      * @return void
@@ -818,28 +750,6 @@ class Message extends Message\AbstractMessage
             );
             $this->setCharSet('');
         }
-    }
-
-    /**
-     * Parse a name and email from an address string
-     *
-     * @param  string $address
-     * @return array
-     */
-    protected function parseNameAndEmail($address)
-    {
-        $name  = null;
-        $email = null;
-
-        if ((strpos($address, '<') !== false) && (strpos($address, '>') !== false)) {
-            $name  = trim(substr($address, 0, strpos($address, '<')));
-            $email = substr($address, (strpos($address, '<') + 1));
-            $email = trim(substr($email, 0, -1));
-        } else if (strpos($address, '@') !== false) {
-            $email = trim($address);
-        }
-
-        return ['name' => $name, 'email' => $email];
     }
 
     /**

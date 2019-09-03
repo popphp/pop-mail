@@ -352,7 +352,7 @@ class Imap extends AbstractClient
         $parts    = (strpos($body, $boundary) !== false) ?
             explode($boundary, $body) : [$body];
 
-        return Message::parseMessageParts($parts, $encoding);
+        return Message\Part::parse($parts, $encoding);
     }
 
     /**
