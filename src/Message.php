@@ -578,9 +578,6 @@ class Message extends Message\AbstractMessage
                 case 'sender':
                     $message->setSender($value);
                     break;
-                case 'return_path':
-                    $message->setReturnPath($value);
-                    break;
                 default:
                     if (substr($header, -7) != 'address') {
                         $header = ((strpos($header, '-') != false) || (strpos($header, '_') != false)) ?
@@ -588,6 +585,12 @@ class Message extends Message\AbstractMessage
                             ucfirst(strtolower($header));
                         $message->addHeader($header, $value);
                     }
+            }
+
+            if (stripos($stream, 'Return-Path: ') !== false) {
+                $returnPath = substr($stream, (strpos($stream, 'Return-Path: ') + 13));
+                $returnPath = substr($returnPath, 0, strpos($returnPath, Message::CRLF));
+                $message->setReturnPath($returnPath);
             }
         }
 

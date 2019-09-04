@@ -108,6 +108,13 @@ class MessageTest extends TestCase
         $this->assertEquals('test.txt', $message->getPart(0)->getBasename());
     }
 
+    public function testAttachFileFromStream()
+    {
+        $message = new Message('Hello World');
+        $message->attachFileFromStream(file_get_contents(__DIR__ . '/tmp/test.txt'), 'text/plain', 'test1.txt');
+        $this->assertEquals('test1.txt', $message->getPart(0)->getBasename());
+    }
+
     public function testGetBodyText()
     {
         $message = new Message('Hello World');
@@ -156,6 +163,40 @@ class MessageTest extends TestCase
         $message->setIdHeader('Message-ID');
         $this->assertEquals('abcdef', $message->getId());
         $this->assertEquals('Message-ID', $message->getIdHeader());
+    }
+
+    public function testParseNameAndEmail()
+    {
+        $message = new Message('Hello World');
+        $emailAry = $message->parseNameAndEmail('John Doe <john@doe.com>');
+        $this->assertTrue(isset($emailAry['name']));
+        $this->assertTrue(isset($emailAry['email']));
+        $this->assertEquals('John Doe', $emailAry['name']);
+        $this->assertEquals('john@doe.com', $emailAry['email']);
+    }
+
+    public function testParseStreamNoSubjectException()
+    {
+        $this->expectException('Pop\Mail\Exception');
+        $message = Message::parse('some bad content');
+    }
+
+    public function testParseStreamNoToException()
+    {
+        $this->expectException('Pop\Mail\Exception');
+        $message = Message::parse("Subject: This is a subject\nsome other bad content.");
+    }
+
+    public function testParseFromFileException()
+    {
+        $this->expectException('Pop\Mail\Exception');
+        $message = Message::parseFromFile('bad-file.msg');
+    }
+
+    public function testDecodeText()
+    {
+        $str = "=?ISO-8859-1?Q?John_D=F8e?= <john@doe.com>";
+        $this->assertContains('<john@doe.com>', Message::decodeText($str));
     }
 
     public function testRenderPartAsLines()
