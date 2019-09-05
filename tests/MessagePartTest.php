@@ -61,10 +61,9 @@ class MessagePartTest extends TestCase
         $this->assertEquals('bar', $partObject['foo']);
         $this->assertEquals('bar', $str);
         $this->assertTrue(isset($partObject['foo']));
+        $this->assertTrue(is_array($partObject->toArray()));
         unset($partObject['foo']);
         $this->assertFalse(isset($partObject['foo']));
-
     }
-
 
 }

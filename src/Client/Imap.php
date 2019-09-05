@@ -356,6 +356,32 @@ class Imap extends AbstractClient
     }
 
     /**
+     * Get message parts by message ID
+     *
+     * @param  int    $id
+     * @param  string $encoding
+     * @return array
+     */
+    public function getMessageAttachments($id, $encoding = null)
+    {
+        return array_filter($this->getMessageParts($id, $encoding), function($part){
+            return $part->attachment;
+        });
+    }
+
+    /**
+     * Get message parts by message ID
+     *
+     * @param  int    $id
+     * @param  string $encoding
+     * @return boolean
+     */
+    public function hasMessageAttachments($id, $encoding = null)
+    {
+        return (count($this->getMessageAttachments($id, $encoding)) > 0);
+    }
+
+    /**
      * Copy messages to another mailbox
      *
      * @param  mixed        $ids
