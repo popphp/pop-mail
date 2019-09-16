@@ -268,29 +268,82 @@ class Imap extends AbstractClient
     }
 
     /**
-     * Get message headers by message ID
+     * Get message number from UID
      *
      * @param  int $id
-     * @return \stdClass
+     * @return int
      */
-    public function getMessageHeadersById($id)
+    public function getMessageNumber($id)
     {
-        $headers        = imap_fetchheader($this->connection, $id, FT_UID);
-        $parsedHeaders  = imap_rfc822_parse_headers($headers);
-        $contentHeaders = [];
+        return imap_msgno($this->connection, $id);
+    }
 
-        preg_match_all('/^Content\-(.*)$/m', $headers, $contentHeaders);
+    /**
+     * Get raw message headers by message ID
+     *
+     * @param  int $id
+     * @return array
+     */
+    public function getMessageHeaderInfoById($id)
+    {
+        $headers = imap_headerinfo($this->connection, imap_msgno($this->connection, $id));
+        return ($headers !== false) ? (array)$headers : [];
+    }
 
-        if (isset($contentHeaders[0]) && isset($contentHeaders[0][0])) {
-            foreach ($contentHeaders[0] as $contentHeaderString) {
-                $contentHeader      = trim(substr($contentHeaderString, 0, strpos($contentHeaderString, ':')));
-                $contentHeaderValue = trim(substr($contentHeaderString, (strpos($contentHeaderString, ':') + 1)));
+    /**
+     * Get raw message headers by message ID
+     *
+     * @param  int $id
+     * @return array
+     */
+    public function getMessageRawHeadersById($id)
+    {
+        $headers       = explode("\r\n", imap_fetchheader($this->connection, $id, FT_UID));
+        $parsedHeaders = [];
+        $name          = null;
 
-                $parsedHeaders->{$contentHeader} = $contentHeaderValue;
+        foreach ($headers as $header) {
+            if (((substr($header, 0, 1) == ' ') || (substr($header, 0, 1) == "\t")) && (null !== $name) && isset($parsedHeaders[$name])) {
+                if (is_array($parsedHeaders[$name])) {
+                    $parsedHeaders[$name][key($parsedHeaders[$name])] .= $header;
+                } else {
+                    $parsedHeaders[$name] .= $header;
+                }
+            } else if (!empty($header) && (strpos($header, ':') !== false)) {
+                $name  = substr($header, 0, strpos($header, ':'));
+                $value = (strpos($header, ':') < (strlen($header) - 1)) ? substr($header, (strpos($header, ': ') + 2)) : '';
+
+                if (isset($parsedHeaders[$name])) {
+                    if (!is_array($parsedHeaders[$name])) {
+                        $parsedHeaders[$name] = [$parsedHeaders[$name]];
+                    }
+                    $parsedHeaders[$name][] = $value;
+                    end($parsedHeaders[$name]);
+                } else {
+                    $parsedHeaders[$name] = $value;
+                }
             }
         }
 
-        return $parsedHeaders;
+        return array_map(function($value) {
+            if (is_array($value)) {
+                return array_map('trim', $value);
+            } else {
+                return trim($value);
+            }
+        }, $parsedHeaders);
+    }
+
+    /**
+     * Get message headers by message ID
+     *
+     * @param  int $id
+     * @return array
+     */
+    public function getMessageHeadersById($id)
+    {
+        $headers = imap_fetchheader($this->connection, $id, FT_UID);
+        return (array)$headers;
     }
 
     /**
