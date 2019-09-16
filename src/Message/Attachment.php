@@ -78,9 +78,10 @@ class Attachment extends AbstractPart
      * @param  string  $basename
      * @param  string  $encoding
      * @param  boolean $isStream
+     * @param  boolean $chunk
      * @throws Exception
      */
-    public function __construct($file, $contentType = 'file', $basename = 'file.tmp', $encoding = AbstractPart::BASE64, $isStream = false)
+    public function __construct($file, $contentType = 'file', $basename = 'file.tmp', $encoding = AbstractPart::BASE64, $isStream = false, $chunk = true)
     {
         if ($isStream) {
             $this->stream   = $file;
@@ -99,7 +100,7 @@ class Attachment extends AbstractPart
                 $this->contentTypes[$ext] : 'application/octet-stream';
         }
 
-        parent::__construct($this->stream, $contentType . '; name="' . $this->basename . '"', $encoding);
+        parent::__construct($this->stream, $contentType . '; name="' . $this->basename . '"', $encoding, $chunk);
 
         $this->addHeader('Content-Description', $this->basename)
              ->addHeader('Content-Disposition', 'attachment; filename="' . $this->basename . '"')

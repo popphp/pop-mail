@@ -55,11 +55,12 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
      *
      * Instantiate the message part object
      *
-     * @param string $content
-     * @param string $contentType
-     * @param string $encoding
+     * @param string  $content
+     * @param string  $contentType
+     * @param string  $encoding
+     * @param boolean $chunk
      */
-    public function __construct($content, $contentType = 'text/plain', $encoding = null)
+    public function __construct($content, $contentType = 'text/plain', $encoding = null, $chunk = false)
     {
         parent::__construct();
 
@@ -85,6 +86,10 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
                     $this->addHeader('Content-Transfer-Encoding', '8bit');
                     break;
             }
+        }
+
+        if ($chunk) {
+            $content = chunk_split($content);
         }
 
         $this->setContent($content);
