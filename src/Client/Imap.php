@@ -55,6 +55,35 @@ class Imap extends AbstractClient
     }
 
     /**
+     * Connect to an IMAP mailbox
+     *
+     * @param array  $creds
+     * @param string $flags
+     * @param int    $options
+     * @param int    $retries
+     * @param array  $params
+     * @return Imap
+     */
+    public static function connect(array $creds, $flags = null, $options = null, $retries = null, array $params = null)
+    {
+        if (!isset($creds['host']) || !isset($creds['port']) || !isset($creds['username']) || !isset($creds['password'])) {
+            throw new Exception(
+                "Error: The credentials were incomplete. They must contain 'host', 'port', 'username' and 'password'."
+            );
+        }
+
+        $imap = new static($creds['host'], $creds['port']);
+        $imap->setUsername($creds['username'])
+             ->setPassword($creds['password']);
+
+        if (isset($creds['folder'])) {
+            $imap->setFolder($creds['folder']);
+        }
+
+        return $imap->open($flags, $options, $retries, $params);
+    }
+
+    /**
      * Open mailbox connection
      *
      * @param string $flags
@@ -74,13 +103,21 @@ class Imap extends AbstractClient
         $this->connectionString .= '}';
 
         if ((null !== $options) && (null !== $retries) && (null !== $params)) {
-            $this->connection = imap_open($this->connectionString . $this->folder, $this->username, $this->password, $options, $retries, $params);
+            $this->connection = imap_open(
+                $this->connectionString . $this->folder, $this->username, $this->password, $options, $retries, $params
+            );
         } else if ((null !== $options) && (null !== $retries)) {
-            $this->connection = imap_open($this->connectionString . $this->folder, $this->username, $this->password, $options, $retries);
+            $this->connection = imap_open(
+                $this->connectionString . $this->folder, $this->username, $this->password, $options, $retries
+            );
         } else if (null !== $options) {
-            $this->connection = imap_open($this->connectionString . $this->folder, $this->username, $this->password, $options);
+            $this->connection = imap_open(
+                $this->connectionString . $this->folder, $this->username, $this->password, $options
+            );
         } else {
-            $this->connection = imap_open($this->connectionString . $this->folder, $this->username, $this->password);
+            $this->connection = imap_open(
+                $this->connectionString . $this->folder, $this->username, $this->password
+            );
         }
 
         return $this;
@@ -287,7 +324,7 @@ class Imap extends AbstractClient
     public function getMessageHeaderInfoById($id)
     {
         $headers = imap_headerinfo($this->connection, imap_msgno($this->connection, $id));
-        return ($headers !== false) ? (array)$headers : [];
+        return ($headers !== false) ? json_decode(json_encode($headers), true) : [];
     }
 
     /**
@@ -303,7 +340,8 @@ class Imap extends AbstractClient
         $name          = null;
 
         foreach ($headers as $header) {
-            if (((substr($header, 0, 1) == ' ') || (substr($header, 0, 1) == "\t")) && (null !== $name) && isset($parsedHeaders[$name])) {
+            if (((substr($header, 0, 1) == ' ') || (substr($header, 0, 1) == "\t")) &&
+                (null !== $name) && isset($parsedHeaders[$name])) {
                 if (is_array($parsedHeaders[$name])) {
                     $parsedHeaders[$name][key($parsedHeaders[$name])] .= $header;
                 } else {
@@ -342,8 +380,8 @@ class Imap extends AbstractClient
      */
     public function getMessageHeadersById($id)
     {
-        $headers = imap_fetchheader($this->connection, $id, FT_UID);
-        return (array)$headers;
+        $headers = imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
+        return json_decode(json_encode($headers), true);
     }
 
     /**
