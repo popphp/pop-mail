@@ -187,7 +187,15 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                 $basename   = null;
                 $headersAry = [];
                 if ((strpos($part, "\r\n\r\n") !== false) && (substr($part, 0, 1) != '<')) {
-                    $headers    = substr($part, 0, strpos($part, "\r\n\r\n"));
+                    $headers = substr($part, 0, strpos($part, "\r\n\r\n"));
+                    $matches = [];
+                    preg_match_all('/("[^"\n]*)\r?\n(?!(([^"]*"){2})*[^"]*$)/mi', $headers, $matches);
+
+                    // Check for newlines inside header values
+                    if (isset($matches[0]) && isset($matches[0][0])) {
+                        $headers = str_replace($matches[0][0], trim($matches[0][0]), $headers);
+                    }
+
                     $headers    = explode("\r\n", $headers);
                     $headersAry = [];
                     $part       = trim(substr($part, (strpos($part, "\r\n\r\n") + 4)));
