@@ -272,6 +272,17 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                     $basename = substr($basename, 0, -1);
                 }
 
+                if (($attachment) && empty($basename) && isset($headersAry['filename'])) {
+                    $basename = $headersAry['filename'];
+                    if ((strpos($basename, 'UTF') !== false) || (strpos($basename, '?') !== false) ||
+                        (strpos($basename, '=') !== false)) {
+                        $basenameAry = imap_mime_header_decode($basename);
+                        if (isset($basenameAry[0]) && isset($basenameAry[0]->text)) {
+                            $basename = $basenameAry[0]->text;
+                        }
+                    }
+                }
+
                 $parts[$i] = new static([
                     'headers'    => $headersAry,
                     'type'       => $type,
