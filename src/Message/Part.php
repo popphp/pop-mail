@@ -215,6 +215,11 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                                 $value = substr($value, 1);
                                 $value = substr($value, 0, -1);
                             }
+
+                            $name = implode('-', array_map(function($value) {
+                                return ucfirst(strtolower($value));
+                            }, explode('-', $name)));
+
                             $headersAry[$name] = $value;
                         }
                     }
