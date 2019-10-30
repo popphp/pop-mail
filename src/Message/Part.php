@@ -188,6 +188,12 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                 $headersAry = [];
                 if ((strpos($part, "\r\n\r\n") !== false) && (substr($part, 0, 1) != '<')) {
                     $headers = substr($part, 0, strpos($part, "\r\n\r\n"));
+                    if (strpos($headers, "\r\n\t") !== false) {
+                        $headers = str_replace("\r\n\t", " ", $headers);
+                    }
+                    if (strpos($headers, "\n\t") !== false) {
+                        $headers = str_replace("\n\t", " ", $headers);
+                    }
                     $matches = [];
                     preg_match_all('/("[^"\n]*)\r?\n(?!(([^"]*"){2})*[^"]*$)/mi', $headers, $matches);
 
