@@ -194,6 +194,12 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                     if (strpos($headers, "\n\t") !== false) {
                         $headers = str_replace("\n\t", " ", $headers);
                     }
+                    if (strpos($part, "\r\n\t") !== false) {
+                        $part = str_replace("\r\n\t", " ", $part);
+                    }
+                    if (strpos($part, "\n\t") !== false) {
+                        $part = str_replace("\n\t", " ", $part);
+                    }
                     $matches = [];
                     preg_match_all('/("[^"\n]*)\r?\n(?!(([^"]*"){2})*[^"]*$)/mi', $headers, $matches);
 
@@ -225,6 +231,22 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                             $name = implode('-', array_map(function($value) {
                                 return ucfirst(strtolower($value));
                             }, explode('-', $name)));
+
+                            if (strpos($value, ';') !== false) {
+                                $subheaders = explode(';', str_replace('; ', ';', $value));
+                                $value = $subheaders[0];
+                                unset($subheaders[0]);
+                                foreach ($subheaders as $subheader) {
+                                    if (strpos($subheader, '=') !== false) {
+                                        [$subheaderName, $subheaderValue] = explode('=', $subheader);
+                                        if ((substr($subheaderValue, 0, 1) == '"') && (substr($subheaderValue, -1) == '"')) {
+                                            $subheaderValue = substr($subheaderValue, 1);
+                                            $subheaderValue = substr($subheaderValue, 0, -1);
+                                        }
+                                        $headersAry[$subheaderName] = $subheaderValue;
+                                    }
+                                }
+                            }
 
                             $headersAry[$name] = $value;
                         }
