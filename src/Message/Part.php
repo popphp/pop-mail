@@ -243,6 +243,11 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                                             $subheaderValue = substr($subheaderValue, 1);
                                             $subheaderValue = substr($subheaderValue, 0, -1);
                                         }
+
+                                        $subheaderName = implode('-', array_map(function($value) {
+                                            return ucfirst(strtolower($value));
+                                        }, explode('-', $subheaderName)));
+
                                         $headersAry[$subheaderName] = $subheaderValue;
                                     }
                                 }
@@ -295,8 +300,8 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                 } else if (isset($headersAry['Content-Description'])) {
                     $basename   = $headersAry['Content-Description'];
                     $attachment = true;
-                } else if (isset($headersAry['name'])) {
-                    $basename   = $headersAry['name'];
+                } else if (isset($headersAry['Name'])) {
+                    $basename   = $headersAry['Name'];
                     $attachment = true;
                 }
 
