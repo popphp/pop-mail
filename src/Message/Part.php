@@ -238,7 +238,8 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                                 unset($subheaders[0]);
                                 foreach ($subheaders as $subheader) {
                                     if (strpos($subheader, '=') !== false) {
-                                        [$subheaderName, $subheaderValue] = explode('=', $subheader);
+                                        [$subheaderName, $subheaderValue] = array_map('trim', explode('=', $subheader));
+                                        $subheaderName = strtolower($subheaderName);
                                         if ((substr($subheaderValue, 0, 1) == '"') && (substr($subheaderValue, -1) == '"')) {
                                             $subheaderValue = substr($subheaderValue, 1);
                                             $subheaderValue = substr($subheaderValue, 0, -1);
