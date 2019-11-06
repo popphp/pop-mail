@@ -239,7 +239,6 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                                 foreach ($subheaders as $subheader) {
                                     if (strpos($subheader, '=') !== false) {
                                         [$subheaderName, $subheaderValue] = array_map('trim', explode('=', $subheader));
-                                        $subheaderName = strtolower($subheaderName);
                                         if ((substr($subheaderValue, 0, 1) == '"') && (substr($subheaderValue, -1) == '"')) {
                                             $subheaderValue = substr($subheaderValue, 1);
                                             $subheaderValue = substr($subheaderValue, 0, -1);
@@ -267,9 +266,11 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                     base64_decode($part) : quoted_printable_decode($part);
 
                 if (isset($headersAry['Content-Type'])) {
-                    if ((stripos($headersAry['Content-Type'], 'multipart/') !== false) && isset($headersAry['boundary'])) {
-                        $subBody  = (strpos($part, $headersAry['boundary']) !== false) ?
-                            explode($headersAry['boundary'], $part) : [$part];
+                    if ((stripos($headersAry['Content-Type'], 'multipart/') !== false) &&
+                        (isset($headersAry['boundary']) || isset($headersAry['Boundary']))) {
+                        $boundaryKey = (isset($headersAry['Boundary'])) ? 'Boundary' : 'boundary';
+                        $subBody     = (strpos($part, $headersAry[$boundaryKey]) !== false) ?
+                            explode($headersAry[$boundaryKey], $part) : [$part];
                         $subParts = self::parse($subBody);
                         unset($parts[$i]);
                         foreach ($subParts as $subPart) {
