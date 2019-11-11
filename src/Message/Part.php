@@ -305,6 +305,9 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
                 } else if (isset($headersAry['Name'])) {
                     $basename   = $headersAry['Name'];
                     $attachment = true;
+                } else if (isset($headersAry['Filename'])) {
+                    $basename   = $headersAry['Filename'];
+                    $attachment = true;
                 }
 
                 if ((substr($basename, 0, 1) == '"') && (substr($basename, -1) == '"')) {
