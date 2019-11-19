@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2019 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2020 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace Pop\Mail\Message;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2019 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2020 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.1.0
+ * @version    3.5.0
  */
 class Attachment extends AbstractPart
 {
@@ -39,7 +39,7 @@ class Attachment extends AbstractPart
     protected $stream = null;
 
     /**
-     * Content-types for auto-detection
+     * Common content types for auto-detection
      * @var array
      */
     protected $contentTypes = [
@@ -74,26 +74,51 @@ class Attachment extends AbstractPart
      * Instantiate the mail attachment object
      *
      * @param  string  $file
-     * @param  string  $contentType
-     * @param  string  $basename
-     * @param  string  $encoding
-     * @param  boolean $isStream
-     * @param  boolean $chunk
+     * @param  string  $stream
+     * @param  array   $options  ['contentType', 'basename', 'encoding', 'chunk']
      * @throws Exception
      */
-    public function __construct($file, $contentType = 'file', $basename = 'file.tmp', $encoding = AbstractPart::BASE64, $isStream = false, $chunk = true)
+    public function __construct($file = null, $stream = null, array $options = [])
     {
-        if ($isStream) {
-            $this->stream   = $file;
-            $this->basename = $basename;
-        } else if (!file_exists($file)) {
-            throw new Exception('Error: That file does not exist.');
-        } else {
-            $this->stream   = file_get_contents($file);
-            $this->basename = basename($file);
+        if (null !== $stream) {
+            $this->stream   = $stream;
+            $this->basename = $options['basename'] ?? 'file.tmp';
+        } else if (null !== $file) {
+            if (!file_exists($file)) {
+                throw new Exception("Error: The file '" . $file . "' does not exist.");
+            } else {
+                $this->stream   = file_get_contents($file);
+                $this->basename = basename($file);
+            }
         }
 
-        if (($contentType == 'file') && (strpos($this->basename, '.') !== false)) {
+        $chunk       = (isset($options['chunk'])) ? (bool)$options['chunk'] : false;
+        $contentType = null;
+        $encoding    = null;
+
+        // Set encoding
+        if (isset($options['encoding'])) {
+            switch (strtoupper($options['encoding'])) {
+                case self::BASE64:
+                case self::QUOTED_PRINTABLE:
+                case self::BINARY:
+                case self::_8BIT:
+                case self::_7BIT:
+                    $encoding = strtoupper($options['encoding']);
+            }
+        }
+
+        // Set content type
+        foreach ($options as $key => $value) {
+            $key = strtolower($key);
+            if (($key == 'content-type') || ($key == 'contenttype') ||
+                ($key == 'mime-type') || ($key == 'mimetype') || ($key == 'mime')) {
+                $contentType = $value;
+            }
+        }
+
+        // Fallback content type detection
+        if ((null === $contentType) && (strpos($this->basename, '.') !== false)) {
             $pathInfo    = pathinfo($this->basename);
             $ext         = strtolower($pathInfo['extension']);
             $contentType = (array_key_exists($ext, $this->contentTypes)) ?
@@ -105,6 +130,30 @@ class Attachment extends AbstractPart
         $this->addHeader('Content-Description', $this->basename)
              ->addHeader('Content-Disposition', 'attachment; filename="' . $this->basename . '"')
              ->setCharSet(null);
+    }
+
+    /**
+     * Create attachment from file
+     *
+     * @param  string  $file
+     * @param  array   $options  ['contentType', 'basename', 'encoding', 'chunk']
+     * @return self
+     */
+    public static function createFromFile($file, array $options = [])
+    {
+        return new self($file, null, $options);
+    }
+
+    /**
+     * Create attachment from stream
+     *
+     * @param  string  $stream
+     * @param  array   $options  ['contentType', 'basename', 'encoding', 'chunk']
+     * @return self
+     */
+    public static function createFromStream($stream, array $options = [])
+    {
+        return new self(null, $stream, $options);
     }
 
     /**

@@ -153,7 +153,7 @@ class MessageTest extends TestCase
     public function testAttachFileFromStream()
     {
         $message = new Message('Hello World');
-        $message->attachFileFromStream(file_get_contents(__DIR__ . '/tmp/test.txt'), 'text/plain', 'test1.txt');
+        $message->attachFileFromStream(file_get_contents(__DIR__ . '/tmp/test.txt'), 'test1.txt');
         $this->assertEquals('test1.txt', $message->getPart(0)->getBasename());
     }
 

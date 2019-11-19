@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2019 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2020 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -22,7 +22,7 @@ use Pop\Mail\Transport\Smtp\AgentInterface;
  * @package    Pop\Mail
  * @author     xu.li & Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @see        https://developers.google.com/google-apps/gmail/xoauth2_protocol
- * @version    3.1.0
+ * @version    3.5.0
  */
 class XOAuth2Authenticator implements AuthInterface
 {

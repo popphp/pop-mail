@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2019 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2020 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Mail\Message\AbstractPart;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2019 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2020 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.1.0
+ * @version    3.5.0
  */
 class Message extends Message\AbstractMessage
 {
@@ -234,16 +234,18 @@ class Message extends Message\AbstractMessage
     /**
      * Attach file message part
      *
-     * @param  mixed  $file
-     * @param  string $contentType
-     * @param  string $basename
+     * @param  string $file
      * @param  string $encoding
      * @return Message
      */
-    public function attachFile($file, $contentType = 'file', $basename = 'file.tmp', $encoding = AbstractPart::BASE64)
+    public function attachFile($file, $encoding = AbstractPart::BASE64)
     {
         if (!($file instanceof Message\Attachment)) {
-            $file = new Message\Attachment($file, $contentType, $basename, $encoding);
+            $options = [
+                'encoding' => $encoding,
+                'chunk'    => true
+            ];
+            $file = Message\Attachment::createFromFile($file, $options);
         }
         return $this->addPart($file);
     }
@@ -251,15 +253,19 @@ class Message extends Message\AbstractMessage
     /**
      * Attach file message part from stream
      *
-     * @param  mixed  $fileContents
-     * @param  string $contentType
+     * @param  string $stream
      * @param  string $basename
      * @param  string $encoding
      * @return Message
      */
-    public function attachFileFromStream($fileContents, $contentType = 'file', $basename = 'file.tmp', $encoding = AbstractPart::BASE64)
+    public function attachFileFromStream($stream, $basename = 'file.tmp', $encoding = AbstractPart::BASE64)
     {
-        $file = new Message\Attachment($fileContents, $contentType, $basename, $encoding, true);
+        $options = [
+            'basename' => $basename,
+            'encoding' => $encoding,
+            'chunk'    => true
+        ];
+        $file = Message\Attachment::createFromStream($stream, $options);
         return $this->addPart($file);
     }
 
@@ -591,7 +597,13 @@ class Message extends Message\AbstractMessage
 
             foreach ($parts as $part) {
                 if ($part->attachment) {
-                    $message->addPart(new Message\Attachment($part->content, $part->type, $part->basename, AbstractPart::BASE64, true));
+                    $options = [
+                        'contentType' => $part->type,
+                        'basename'    => $part->basename,
+                        'encoding'    => AbstractPart::BASE64,
+                        'chunk'       => true
+                    ];
+                    $message->addPart(Message\Attachment::createFromStream($part->content, $options));
                 } else if (stripos($part->type, 'html') !== false) {
                     $message->addPart(new Message\Html($part->content));
                 } else if (stripos($part->type, 'text') !== false) {
