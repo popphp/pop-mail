@@ -167,176 +167,47 @@ class Part implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Parse message parts from string
      *
-     * @param  array  $parts
-     * @param  string $encoding
+     * @param  mixed $body
+     * @param  string $boundary
      * @return array
      */
-    public static function parse(array $parts, $encoding = null)
+    public static function parse($body, $boundary = null)
     {
-        foreach ($parts as $i => $part) {
-            $part = trim($part);
-            if (strtolower($encoding) == 'base64') {
-                $part = base64_decode($part);
-            } else if (strtolower($encoding) == 'quoted-printable') {
-                $part = quoted_printable_decode($part);
-            }
-            if (($part == '--') || empty($part)) {
-                unset($parts[$i]);
+        $partStrings = \Pop\Mime\Message::parseBody($body, $boundary);
+        $parts       = [];
+
+        foreach ($partStrings as $partString) {
+            $parts[] = \Pop\Mime\Message::parsePart($partString);
+        }
+
+        return self::parseParts($parts);
+    }
+
+    /**
+     * Parse message parts from array of parts
+     *
+     * @param  array $parts
+     * @return array
+     */
+    public static function parseParts(array $parts)
+    {
+        $flattenedParts = [];
+
+        foreach ($parts as $part) {
+            if (is_array($part)) {
+                $flattenedParts = array_merge($flattenedParts, self::parseParts($part));
             } else {
-                $type       = null;
-                $basename   = null;
-                $headersAry = [];
-                if ((strpos($part, "\r\n\r\n") !== false) && (substr($part, 0, 1) != '<')) {
-                    $headers = substr($part, 0, strpos($part, "\r\n\r\n"));
-                    if (strpos($headers, "\r\n\t") !== false) {
-                        $headers = str_replace("\r\n\t", " ", $headers);
-                    }
-                    if (strpos($headers, "\n\t") !== false) {
-                        $headers = str_replace("\n\t", " ", $headers);
-                    }
-                    if (strpos($part, "\r\n\t") !== false) {
-                        $part = str_replace("\r\n\t", " ", $part);
-                    }
-                    if (strpos($part, "\n\t") !== false) {
-                        $part = str_replace("\n\t", " ", $part);
-                    }
-                    $matches = [];
-                    preg_match_all('/("[^"\n]*)\r?\n(?!(([^"]*"){2})*[^"]*$)/mi', $headers, $matches);
-
-                    // Check for newlines inside header values
-                    if (isset($matches[0]) && isset($matches[0][0])) {
-                        $headers = str_replace($matches[0][0], trim($matches[0][0]), $headers);
-                    }
-
-                    $headers    = explode("\r\n", $headers);
-                    $headersAry = [];
-                    $part       = trim(substr($part, (strpos($part, "\r\n\r\n") + 4)));
-                    foreach ($headers as $header) {
-                        if (strpos($header, ':') !== false) {
-                            $name  = trim(substr($header, 0, strpos($header, ':')));
-                            $value = trim(substr($header, (strpos($header, ': ') + 2)));
-                        } else if (strpos($header, '=') !== false) {
-                            $name  = trim(substr($header, 0, strpos($header, '=')));
-                            $value = trim(substr($header, (strpos($header, '=') + 1)));
-                        } else {
-                            $name  = null;
-                            $value = null;
-                        }
-                        if ((null !== $name) && (null !== $value)) {
-                            if ((substr($value, 0, 1) == '"') && (substr($value, -1) == '"')) {
-                                $value = substr($value, 1);
-                                $value = substr($value, 0, -1);
-                            }
-
-                            $name = implode('-', array_map(function($value) {
-                                return ucfirst(strtolower($value));
-                            }, explode('-', $name)));
-
-                            if (strpos($value, ';') !== false) {
-                                $subheaders = explode(';', str_replace('; ', ';', $value));
-                                $value = $subheaders[0];
-                                unset($subheaders[0]);
-                                foreach ($subheaders as $subheader) {
-                                    if (strpos($subheader, '=') !== false) {
-                                        [$subheaderName, $subheaderValue] = array_map('trim', explode('=', $subheader));
-                                        if ((substr($subheaderValue, 0, 1) == '"') && (substr($subheaderValue, -1) == '"')) {
-                                            $subheaderValue = substr($subheaderValue, 1);
-                                            $subheaderValue = substr($subheaderValue, 0, -1);
-                                        }
-
-                                        $subheaderName = implode('-', array_map(function($value) {
-                                            return ucfirst(strtolower($value));
-                                        }, explode('-', $subheaderName)));
-
-                                        $headersAry[$subheaderName] = $subheaderValue;
-                                    }
-                                }
-                            }
-
-                            $headersAry[$name] = $value;
-                        }
-                    }
-                }
-
-                if (substr($part, -2) == '--') {
-                    $part = trim(substr($part, 0, -2));
-                }
-
-                $part = (isset($headersAry['Content-Transfer-Encoding']) && (strtolower($headersAry['Content-Transfer-Encoding']) == 'base64')) ?
-                    base64_decode($part) : quoted_printable_decode($part);
-
-                if (isset($headersAry['Content-Type'])) {
-                    if ((stripos($headersAry['Content-Type'], 'multipart/') !== false) &&
-                        (isset($headersAry['boundary']) || isset($headersAry['Boundary']))) {
-                        $boundaryKey = (isset($headersAry['Boundary'])) ? 'Boundary' : 'boundary';
-                        $subBody     = (strpos($part, $headersAry[$boundaryKey]) !== false) ?
-                            explode($headersAry[$boundaryKey], $part) : [$part];
-                        $subParts = self::parse($subBody);
-                        unset($parts[$i]);
-                        foreach ($subParts as $subPart) {
-                            $parts[] = $subPart;
-                        }
-                    } else {
-                        $type = $headersAry['Content-Type'];
-                        if (strpos($type, ';') !== false) {
-                            $type = trim(substr($type, 0, strpos($type, ';')));
-                        }
-                    }
-                }
-
-                $attachment = (isset($headersAry['Content-Disposition']) &&
-                    ((stripos($headersAry['Content-Disposition'], 'attachment') !== false) || (stripos($headersAry['Content-Disposition'], 'name=') !== false)));
-
-                if (isset($headersAry['Content-Disposition']) && (stripos($headersAry['Content-Disposition'], 'name=') !== false)) {
-                    $basename = substr($headersAry['Content-Disposition'], (stripos($headersAry['Content-Disposition'], 'name=') + 5));
-                    if (strpos($basename, ';') !== false) {
-                        $basename = substr($basename, 0, strpos($basename, ';'));
-                    }
-                    $attachment = true;
-                } else if (isset($headersAry['Content-Type']) && (stripos($headersAry['Content-Type'], 'name=') !== false)) {
-                    $basename = substr($headersAry['Content-Type'], (stripos($headersAry['Content-Type'], 'name=') + 5));
-                    if (strpos($basename, ';') !== false) {
-                        $basename = substr($basename, 0, strpos($basename, ';'));
-                    }
-                    $attachment = true;
-                } else if (isset($headersAry['Content-Description'])) {
-                    $basename   = $headersAry['Content-Description'];
-                    $attachment = true;
-                } else if (isset($headersAry['Name'])) {
-                    $basename   = $headersAry['Name'];
-                    $attachment = true;
-                } else if (isset($headersAry['Filename'])) {
-                    $basename   = $headersAry['Filename'];
-                    $attachment = true;
-                }
-
-                if ((substr($basename, 0, 1) == '"') && (substr($basename, -1) == '"')) {
-                    $basename = substr($basename, 1);
-                    $basename = substr($basename, 0, -1);
-                }
-
-                if (($attachment) && empty($basename) && isset($headersAry['filename'])) {
-                    $basename = $headersAry['filename'];
-                    if ((strpos($basename, 'UTF') !== false) || (strpos($basename, '?') !== false) ||
-                        (strpos($basename, '=') !== false)) {
-                        $basenameAry = imap_mime_header_decode($basename);
-                        if (isset($basenameAry[0]) && isset($basenameAry[0]->text)) {
-                            $basename = $basenameAry[0]->text;
-                        }
-                    }
-                }
-
-                $parts[$i] = new static([
-                    'headers'    => $headersAry,
-                    'type'       => $type,
-                    'attachment' => $attachment,
-                    'basename'   => $basename,
-                    'content'    => $part
+                $flattenedParts[] = new static([
+                    'headers'    => $part->getHeadersAsArray(),
+                    'type'       => ($part->hasHeader('Content-Type')) ? $part->getHeader('Content-Type')->getValue() : null,
+                    'attachment' => (($part->hasBody()) && ($part->getBody()->isFile())),
+                    'basename'   => $part->getFilename(),
+                    'content'    => $part->getContents()
                 ]);
             }
         }
 
-        return array_values($parts);
+        return $flattenedParts;
     }
 
 }

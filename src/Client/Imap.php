@@ -433,17 +433,13 @@ class Imap extends AbstractClient
      * Get message parts by message ID
      *
      * @param  int $id
-     * @param  string $encoding
      * @return array
      */
-    public function getMessageParts($id, $encoding = null)
+    public function getMessageParts($id)
     {
         $boundary = $this->getMessageBoundary($id);
         $body     = $this->getMessageBody($id);
-        $parts    = (strpos($body, $boundary) !== false) ?
-            explode($boundary, $body) : [$body];
-
-        return Message\Part::parse($parts, $encoding);
+        return Message\Part::parse($body, $boundary);
     }
 
     /**
