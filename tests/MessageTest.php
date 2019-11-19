@@ -32,10 +32,52 @@ class MessageTest extends TestCase
         $this->assertEquals('Hello World', $message->getSubject());
     }
 
-    public function testLoadException()
+    public function testParseMultipleParts()
+    {
+        $message = new \Pop\Mime\Message();
+        $message->addHeaders([
+            'Subject'      => 'Hello World',
+            'To'           => 'test@test.com',
+            'Date'         => date('m/d/Y g:i A'),
+            'MIME-Version' => '1.0'
+        ]);
+
+        $message->setSubType('mixed');
+
+        $html = new \Pop\Mime\Part();
+        $html->addHeader('Content-Type', 'text/html');
+        $html->setBody('<html><body><h1>This is the text message.</h1></body></html>');
+
+        $text = new \Pop\Mime\Part();
+        $text->addHeader('Content-Type', 'text/plain');
+        $text->setBody('This is the text message.');
+
+        $file = new \Pop\Mime\Part();
+        $file->addHeader('Content-Type', 'application/octet-stream');
+        $file->addFile(__DIR__ . '/tmp/test.pdf');
+
+        $message->addParts([$html, $text, $file]);
+
+        $mailMessage = Message::parse($message->render());
+
+        $this->assertInstanceOf('Pop\Mail\Message', $mailMessage);
+        $this->assertEquals(3, count($mailMessage->getParts()));
+        $this->assertInstanceOf('Pop\Mail\Message\Html', $mailMessage->getParts()[0]);
+        $this->assertInstanceOf('Pop\Mail\Message\Text', $mailMessage->getParts()[1]);
+        $this->assertInstanceOf('Pop\Mail\Message\Attachment', $mailMessage->getParts()[2]);
+    }
+
+    public function testLoadExceptionNoSubject()
     {
         $this->expectException('Pop\Mail\Exception');
         $message = Message::load('----');
+    }
+
+    public function testLoadExceptionNoTo()
+    {
+        $msg = "Subject: Hello\r\n\r\nWhat is up?";
+        $this->expectException('Pop\Mail\Exception');
+        $message = Message::load($msg);
     }
 
     public function testSetAndGetTo()
@@ -173,6 +215,47 @@ class MessageTest extends TestCase
         $this->assertTrue(isset($emailAry['email']));
         $this->assertEquals('John Doe', $emailAry['name']);
         $this->assertEquals('john@doe.com', $emailAry['email']);
+    }
+
+    public function testParseAddresses1()
+    {
+        $address = new \stdClass();
+        $address->mailbox = 'test';
+        $address->host    = 'test.com';
+        $message = new Message();
+        $emails  = $message->parseAddresses([$address], true);
+        $this->assertTrue(array_key_exists('test@test.com', $emails));
+    }
+
+    public function testParseAddresses2()
+    {
+        $message = new Message();
+        $emails  = $message->parseAddresses(['test@test.com' => null], true);
+        $this->assertTrue(array_key_exists('test@test.com', $emails));
+    }
+
+    public function testParseAddresses3()
+    {
+        $message = new Message();
+        $emails  = $message->parseAddresses(['Test Person' => 'test@test.com'], true);
+        $this->assertTrue(array_key_exists('test@test.com', $emails));
+        $this->assertEquals('Test Person', $emails['test@test.com']);
+    }
+
+    public function testParseAddresses4()
+    {
+        $message = new Message();
+        $emails  = $message->parseAddresses(['' => 'test@test.com'], true);
+        $this->assertTrue(array_key_exists('test@test.com', $emails));
+    }
+
+    public function testParseAddresses5()
+    {
+        $message = new Message();
+        $emails  = $message->parseAddresses('John Doe <john@doe.com>, Jane Doe <jane@doe.com>', true);
+        $this->assertEquals(2, count($emails));
+        $this->assertEquals('John Doe', $emails['john@doe.com']);
+        $this->assertEquals('Jane Doe', $emails['jane@doe.com']);
     }
 
     public function testParseStreamNoSubjectException()
