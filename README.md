@@ -101,7 +101,7 @@ $message->setFrom('me@domain.com');
 
 $fileData = file_get_contents($fileData);
 
-$message->attachFile($fileData, 'image/jpeg', 'myimage.jpg');
+$message->attachFileFromStream($fileData, 'image.jpg');
 $message->setBody('Hello World! This is a test!');
 
 $mailer->send($message);
@@ -192,7 +192,7 @@ $ids     = $imap->getMessageIdsBy(SORTDATE, true);
 $headers = $imap->getMessageHeadersById($ids[0]);
 $parts   = $imap->getMessageParts($ids[0]);
 
-// Assuming the first part is an image attachement, display image
+// Assuming the first part is an image attachment, display image
 header('Content-Type: image/jpeg');
 header('Content-Length: ' . strlen($parts[0]->content));
 echo $parts[0]->content;
