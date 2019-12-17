@@ -38,7 +38,7 @@ abstract class AbstractMessage implements MessageInterface
      * Content type
      * @var string
      */
-    protected $contentType = 'text/plain';
+    protected $contentType = null;
 
     /**
      * Character set
@@ -213,6 +213,13 @@ abstract class AbstractMessage implements MessageInterface
                 $headers .= '; charset="' . $this->charSet . '"';
             }
             $headers .= Message::CRLF;
+        }
+
+        if ((strpos($headers, 'Content-Type') === false) && (count($this->parts) == 1)) {
+            $contentType = $this->parts[0]->getContentType();
+            if (null !== $contentType) {
+                $headers .= 'Content-Type: ' . $contentType . Message::CRLF;
+            }
         }
 
         return $headers;

@@ -391,8 +391,8 @@ class Message extends Message\AbstractMessage
             }
             $body .= '--' . $this->getBoundary() . '--' . self::CRLF . self::CRLF;
         } else if (count($this->parts) == 1) {
-            $part = $this->parts[0];
-            if ($part instanceof Message\Text) {
+            $part  = $this->parts[0];
+            if (($part instanceof Message\Text) || ($part instanceof Message\Html)) {
                 $body .= $part->getBody() . self::CRLF . self::CRLF;
             } else {
                 $body .= '--' . $this->getBoundary() . self::CRLF . $part;
@@ -491,8 +491,7 @@ class Message extends Message\AbstractMessage
      */
     public function renderAsLines(array $omitHeaders = [])
     {
-        $lines = [];
-
+        $lines   = [];
         $headers = explode(Message::CRLF, $this->getHeadersAsString($omitHeaders) . Message::CRLF);
         $body    = explode("\n", $this->getBody());
 
