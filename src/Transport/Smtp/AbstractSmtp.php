@@ -367,7 +367,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
             do {
                 $line = $this->buffer->readLine($seq);
                 $response .= $line;
-            } while (null !== $line && false !== $line && ' ' != $line{3});
+            } while (null !== $line && false !== $line && ' ' != $line[3]);
         } catch (Exception $e) {
             $this->throwException($e);
         }
