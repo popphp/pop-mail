@@ -161,14 +161,14 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->addText('Hello World');
-        $this->assertContains('Hello World', $message->getBody());
+        $this->assertStringContainsString('Hello World', $message->getBody());
     }
 
     public function testGetBodyHtml()
     {
         $message = new Message('Hello World');
         $message->addHtml('<h1>Hello World</h1>');
-        $this->assertContains('<h1>Hello World</h1>', $message->getBody());
+        $this->assertStringContainsString('<h1>Hello World</h1>', $message->getBody());
     }
 
     public function testGetMultipartBody()
@@ -176,8 +176,8 @@ class MessageTest extends TestCase
         $message = new Message('Hello World');
         $message->addText('Hello World');
         $message->addHtml('<h1>Hello World</h1>');
-        $this->assertContains('Hello World', $message->getBody());
-        $this->assertContains('<h1>Hello World</h1>', $message->getBody());
+        $this->assertStringContainsString('Hello World', $message->getBody());
+        $this->assertStringContainsString('<h1>Hello World</h1>', $message->getBody());
     }
 
     public function testAddHeaders()
@@ -279,7 +279,7 @@ class MessageTest extends TestCase
     public function testDecodeText()
     {
         $str = "=?ISO-8859-1?Q?John_D=F8e?= <john@doe.com>";
-        $this->assertContains('<john@doe.com>', Message::decodeText($str));
+        $this->assertStringContainsString('<john@doe.com>', Message::decodeText($str));
     }
 
     public function testRenderPartAsLines()
@@ -293,8 +293,8 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->addText('Hello World');
-        $this->assertContains('Subject: Hello World', $message->render());
-        $this->assertContains('Hello World', $message->render());
+        $this->assertStringContainsString('Subject: Hello World', $message->render());
+        $this->assertStringContainsString('Hello World', $message->render());
     }
 
     public function testRenderAsLines()
@@ -310,8 +310,8 @@ class MessageTest extends TestCase
         $message->addText('Hello World');
         $message->save(__DIR__ . '/tmp/save.msg');
         $this->assertFileExists(__DIR__ . '/tmp/save.msg');
-        $this->assertContains('Subject: Hello World', file_get_contents(__DIR__ . '/tmp/save.msg'));
-        $this->assertContains('Hello World', file_get_contents(__DIR__ . '/tmp/save.msg'));
+        $this->assertStringContainsString('Subject: Hello World', file_get_contents(__DIR__ . '/tmp/save.msg'));
+        $this->assertStringContainsString('Hello World', file_get_contents(__DIR__ . '/tmp/save.msg'));
 
         if (file_exists(__DIR__ . '/tmp/save.msg')) {
             unlink(__DIR__ . '/tmp/save.msg');

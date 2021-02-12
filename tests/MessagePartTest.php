@@ -86,7 +86,7 @@ class MessagePartTest extends TestCase
     public function testFileGetStream()
     {
         $part = new Message\Attachment(__DIR__ . '/tmp/test.txt');
-        $this->assertContains('Hello World', $part->getStream());
+        $this->assertStringContainsString('Hello World', $part->getStream());
 
     }
 

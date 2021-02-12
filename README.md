@@ -1,7 +1,7 @@
 pop-mail
 ========
 
-[![Build Status](https://travis-ci.org/popphp/pop-mail.svg?branch=master)](https://travis-ci.org/popphp/pop-mail)
+[![Build Status](https://github.com/popphp/pop-mail/workflows/phpunit/badge.svg)](https://github.com/popphp/pop-mail/actions)
 [![Coverage Status](http://cc.popphp.org/coverage.php?comp=pop-mail)](http://cc.popphp.org/pop-mail/)
 
 OVERVIEW
