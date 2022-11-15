@@ -603,9 +603,9 @@ class Message extends Message\AbstractMessage
                         'chunk'       => true
                     ];
                     $message->addPart(Message\Attachment::createFromStream($part->content, $options));
-                } else if (stripos($part->type, 'html') !== false) {
+                } else if (!empty($part->type) && (stripos($part->type, 'html') !== false)) {
                     $message->addPart(new Message\Html($part->content));
-                } else if (stripos($part->type, 'text') !== false) {
+                } else if (!empty($part->type) && (stripos($part->type, 'text') !== false)) {
                     $message->addPart(new Message\Text($part->content));
                 } else {
                     $message->addPart(new Message\Simple($part->content));
