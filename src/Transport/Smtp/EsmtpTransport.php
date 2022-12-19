@@ -152,7 +152,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      */
     public function setEncryption($encryption)
     {
-        $encryption = strtolower($encryption);
+        $encryption = strtolower((string)$encryption);
         if ('tls' == $encryption) {
             $this->params['protocol'] = 'tcp';
             $this->params['tls'] = true;
@@ -289,7 +289,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
             if (method_exists($handler, $method)) {
                 $return = call_user_func_array([$handler, $method], $args);
                 // Allow fluid method calls
-                if (is_null($return) && substr(strtolower($method), 0, 3) == 'set') {
+                if (is_null($return) && substr(strtolower((string)$method), 0, 3) == 'set') {
                     return $this;
                 } else {
                     return $return;

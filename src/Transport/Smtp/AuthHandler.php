@@ -175,7 +175,7 @@ class AuthHandler implements HandlerInterface
         if ($this->username) {
             $count = 0;
             foreach ($this->getAuthenticatorsForAgent() as $authenticator) {
-                if (in_array(strtolower($authenticator->getAuthKeyword()),
+                if (in_array(strtolower((string)$authenticator->getAuthKeyword()),
                     array_map('strtolower', $this->esmtpParams))) {
                     ++$count;
                     if ($authenticator->authenticate($agent, $this->username, $this->password)) {
@@ -246,12 +246,12 @@ class AuthHandler implements HandlerInterface
      */
     protected function getAuthenticatorsForAgent()
     {
-        if (!$mode = strtolower($this->authMode)) {
+        if (!$mode = strtolower((string)$this->authMode)) {
             return $this->authenticators;
         }
 
         foreach ($this->authenticators as $authenticator) {
-            if (strtolower($authenticator->getAuthKeyword()) == $mode) {
+            if (strtolower((string)$authenticator->getAuthKeyword()) == $mode) {
                 return [$authenticator];
             }
         }
