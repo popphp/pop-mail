@@ -265,24 +265,28 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * Generate a new ID
      *
+     * @string string $domain
      * @return string
      */
-    public function generateId()
+    public function generateId($domain = null)
     {
-        $this->setId($this->getRandomId());
+        $this->setId($this->getRandomId($domain));
         return $this->id;
     }
 
     /**
      * Returns a random ID
      *
+     * @string string $idRight
      * @return string
      */
-    protected function getRandomId()
+    protected function getRandomId($idRight = null)
     {
-        $idLeft  = md5(getmypid().'.'.time().'.'.uniqid(mt_rand(), true));
-        $idRight = !empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'popmail.generated';
-        return $idLeft . '@' . $idRight;
+        $idLeft = md5(getmypid().'.'.time().'.'.uniqid(mt_rand(), true));
+        if (null === $idRight) {
+            $idRight = !empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
+        }
+        return '<' . $idLeft . '@' . $idRight . '>';
     }
 
     /**

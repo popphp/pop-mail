@@ -158,10 +158,16 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         if (!$this->isStarted()) {
             $this->start();
         }
-        $sent = 0;
 
-        if (!$reversePath = $this->getReversePath($message)) {
+        $sent        = 0;
+        $reversePath = $this->getReversePath($message);
+        $domain      = null;
+
+        if (null === $reversePath) {
             $this->throwException(new Exception('Cannot send message without a sender address'));
+        } else {
+            $domain = substr($reversePath, (strpos($reversePath, '@') + 1));
+            $message->generateId($domain);
         }
 
         $to  = $message->getTo();
@@ -180,7 +186,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
         }
 
         $message->setBcc($bcc);
-        $message->generateId(); //Make sure a new Message ID is used
+        $message->generateId($domain); // Make sure a new Message ID is used
 
         return $sent;
     }
