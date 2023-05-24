@@ -386,17 +386,17 @@ class Message extends Message\AbstractMessage
         $body  = null;
 
         if (count($this->parts) > 1) {
-            foreach ($this->parts as $i => $part) {
-                $body .= '--' . $this->getBoundary() . self::CRLF . $part;
+            foreach ($this->parts as $part) {
+                $body .= '--' . $this->getBoundary() . self::CRLF . $part . self::CRLF;
             }
-            $body .= '--' . $this->getBoundary() . '--' . self::CRLF . self::CRLF;
+            $body .= '--' . $this->getBoundary() . '--';
         } else if (count($this->parts) == 1) {
             $part  = $this->parts[0];
             if (($part instanceof Message\Text) || ($part instanceof Message\Html)) {
-                $body .= $part->getBody() . self::CRLF . self::CRLF;
+                $body .= $part->getBody() . self::CRLF;
             } else {
-                $body .= '--' . $this->getBoundary() . self::CRLF . $part;
-                $body .= '--' . $this->getBoundary() . '--' . self::CRLF . self::CRLF;
+                $body .= '--' . $this->getBoundary() . self::CRLF . $part . self::CRLF;
+                $body .= '--' . $this->getBoundary() . '--';
             }
         }
 
@@ -493,7 +493,7 @@ class Message extends Message\AbstractMessage
     {
         $lines   = [];
         $headers = explode(Message::CRLF, $this->getHeadersAsString($omitHeaders) . Message::CRLF);
-        $body    = explode("\n", $this->getBody());
+        $body    = explode(Message::CRLF, $this->getBody());
 
         foreach ($headers as $header) {
             $lines[] = trim($header);

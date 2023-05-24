@@ -31,11 +31,14 @@ class Text extends AbstractPart
      *
      * Instantiate the message part object
      *
-     * @param  string $content
+     * @param string  $content
+     * @param string  $contentType
+     * @param string  $encoding
+     * @param boolean $chunk
      */
-    public function __construct($content)
+    public function __construct($content, $contentType = 'text/plain', $encoding = null, $chunk = false)
     {
-        parent::__construct($content, 'text/plain');
+        parent::__construct($content, $contentType, $encoding, $chunk);
     }
 
 }

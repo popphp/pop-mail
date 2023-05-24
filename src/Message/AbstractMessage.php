@@ -209,7 +209,7 @@ abstract class AbstractMessage implements MessageInterface
 
         if ((null !== $this->contentType) && !in_array('Content-Type', $omitHeaders)) {
             $headers .= 'Content-Type: ' . $this->contentType;
-            if (!empty($this->charSet)) {
+            if (!empty($this->charSet) && (stripos($this->contentType, 'charset') === false)) {
                 $headers .= '; charset="' . $this->charSet . '"';
             }
             $headers .= Message::CRLF;

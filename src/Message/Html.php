@@ -31,11 +31,14 @@ class Html extends AbstractPart
      *
      * Instantiate the message part object
      *
-     * @param  string $content
+     * @param string  $content
+     * @param string  $contentType
+     * @param string  $encoding
+     * @param boolean $chunk
      */
-    public function __construct($content)
+    public function __construct($content, $contentType = 'text/html', $encoding = null, $chunk = false)
     {
-        parent::__construct($content, 'text/html');
+        parent::__construct($content, $contentType, $encoding, $chunk);
     }
 
 }

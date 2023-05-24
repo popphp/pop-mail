@@ -141,13 +141,43 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     }
 
     /**
-     * Check if encoding in base-64
+     * Check if encoding is base64
      *
      * @return string
      */
     public function isBase64()
     {
         return ($this->encoding == self::BASE64);
+    }
+
+    /**
+     * Check if encoding is quoted printable
+     *
+     * @return string
+     */
+    public function isQuotedPrintable()
+    {
+        return ($this->encoding == self::QUOTED_PRINTABLE);
+    }
+
+    /**
+     * Check if encoding is 8-bit
+     *
+     * @return string
+     */
+    public function is8Bit()
+    {
+        return ($this->encoding == self::_8BIT);
+    }
+
+    /**
+     * Check if encoding is 7-bit
+     *
+     * @return string
+     */
+    public function is7Bit()
+    {
+        return ($this->encoding == self::_7BIT);
     }
 
     /**
@@ -182,7 +212,7 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
         $lines = [];
 
         $headers = explode(Message::CRLF, $this->getHeadersAsString($omitHeaders) . Message::CRLF);
-        $body    = explode("\n", $this->getContent());
+        $body    = explode(Message::CRLF, $this->getContent());
 
         foreach ($headers as $header) {
             $lines[] = trim($header);
