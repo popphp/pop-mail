@@ -10,9 +10,16 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         php-versions: [ '7.4', '8.0' ]
+
+    services:
+      httpd:
+        image: httpd
+        ports:
+          - 80:80
 
     steps:
       - uses: actions/checkout@v3
