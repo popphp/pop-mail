@@ -45,10 +45,9 @@ class TransportTest extends TestCase
     public function testSendgrid()
     {
         $transport = new Transport\Sendgrid('http://localhost', 'MY_API_KEY');
-        $mailer    = new Mail\Mailer($transport);
+        $mailer    = new Mail\Mailer($transport, 'root@localhost');
         $message   = new Mail\Message('Test Subject!');
         $message->setTo('root@localhost')
-            ->setFrom('root@localhost')
             ->addText('Hey, this is a test!')
             ->addHtml('<html><body><h3>Hey!</h3><p>This is a test!</p></body></html>')
             ->attachFile(__DIR__ . '/tmp/test.pdf');

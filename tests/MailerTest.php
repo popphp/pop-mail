@@ -16,4 +16,14 @@ class MailerTest extends TestCase
         $this->assertInstanceOf('Pop\Mail\Transport\Sendmail', $mailer->transport());
     }
 
+    public function testDefaultFrom()
+    {
+        $mailer = new Mailer(new Transport\Sendmail(), 'root@localhost');
+        $this->assertTrue($mailer->hasDefaultFrom());
+        $this->assertEquals('root@localhost', $mailer->getDefaultFrom());
+
+        $mailer->setDefaultFrom('other@localhost');
+        $this->assertEquals('other@localhost', $mailer->getDefaultFrom());
+    }
+
 }

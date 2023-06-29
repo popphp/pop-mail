@@ -32,6 +32,13 @@ class Mailer
      */
     protected $transport = null;
 
+
+    /**
+     * Default from address
+     * @var string
+     */
+    protected $defaultFrom = null;
+
     /**
      * Constructor
      *
@@ -39,9 +46,10 @@ class Mailer
      *
      * @param  Transport\TransportInterface $transport
      */
-    public function __construct(Transport\TransportInterface $transport)
+    public function __construct(Transport\TransportInterface $transport, $defaultFrom = null)
     {
-        $this->transport = $transport;
+        $this->transport   = $transport;
+        $this->defaultFrom = $defaultFrom;
     }
 
     /**
@@ -55,6 +63,37 @@ class Mailer
     }
 
     /**
+     * Set default from address
+     *
+     * @return Mailer
+     */
+    public function setDefaultFrom($from)
+    {
+        $this->defaultFrom = $from;
+        return $this;
+    }
+
+    /**
+     * Get default from address
+     *
+     * @return string
+     */
+    public function getDefaultFrom()
+    {
+        return $this->defaultFrom;
+    }
+
+    /**
+     * Has default from address
+     *
+     * @return boolean
+     */
+    public function hasDefaultFrom()
+    {
+        return (null !== $this->defaultFrom);
+    }
+
+    /**
      * Send message
      *
      * @param  Message $message
@@ -62,6 +101,10 @@ class Mailer
      */
     public function send(Message $message)
     {
+        if ((!$message->hasFrom()) && ($this->hasDefaultFrom())) {
+            $message->setFrom($this->defaultFrom);
+        }
+
         return $this->transport->send($message);
     }
 
