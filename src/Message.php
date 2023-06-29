@@ -120,7 +120,7 @@ class Message extends Message\AbstractMessage
     /**
      * Set CC
      *
-     * @param  string $cc
+     * @param  mixed $cc
      * @return Message\AbstractMessage
      */
     public function setCc($cc)
@@ -132,7 +132,7 @@ class Message extends Message\AbstractMessage
     /**
      * Set BCC
      *
-     * @param  string $bcc
+     * @param  mixed $bcc
      * @return Message\AbstractMessage
      */
     public function setBcc($bcc)
@@ -144,7 +144,7 @@ class Message extends Message\AbstractMessage
     /**
      * Set From
      *
-     * @param  string $from
+     * @param  mixed $from
      * @return Message\AbstractMessage
      */
     public function setFrom($from)
@@ -156,7 +156,7 @@ class Message extends Message\AbstractMessage
     /**
      * Set Reply-To
      *
-     * @param  string $replyTo
+     * @param  mixed $replyTo
      * @return Message\AbstractMessage
      */
     public function setReplyTo($replyTo)
