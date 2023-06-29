@@ -84,6 +84,7 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->setTo('test@domain.com');
+        $this->assertTrue($message->hasTo());
         $this->assertEquals(['test@domain.com' => null], $message->getTo());
     }
 
@@ -91,6 +92,7 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->setCc('test@domain.com');
+        $this->assertTrue($message->hasCc());
         $this->assertEquals(['test@domain.com' => null], $message->getCc());
     }
 
@@ -98,6 +100,7 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->setBcc('test@domain.com');
+        $this->assertTrue($message->hasBcc());
         $this->assertEquals(['test@domain.com' => null], $message->getBcc());
     }
 
@@ -105,6 +108,7 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->setFrom('test@domain.com');
+        $this->assertTrue($message->hasFrom());
         $this->assertEquals(['test@domain.com' => null], $message->getFrom());
     }
 
@@ -112,6 +116,7 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->setReplyTo('test@domain.com');
+        $this->assertTrue($message->hasReplyTo());
         $this->assertEquals(['test@domain.com' => null], $message->getReplyTo());
     }
 
@@ -119,6 +124,7 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->setSender('test@domain.com');
+        $this->assertTrue($message->hasSender());
         $this->assertEquals(['test@domain.com' => null], $message->getSender());
     }
 
@@ -126,6 +132,7 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->setReturnPath('test@domain.com');
+        $this->assertTrue($message->hasReturnPath());
         $this->assertEquals(['test@domain.com' => null], $message->getReturnPath());
     }
 

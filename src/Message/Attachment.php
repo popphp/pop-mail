@@ -27,6 +27,12 @@ class Attachment extends AbstractPart
 {
 
     /**
+     * File attachment
+     * @var string
+     */
+    protected $filename = null;
+
+    /**
      * File attachment basename
      * @var string
      */
@@ -87,6 +93,7 @@ class Attachment extends AbstractPart
             if (!file_exists($file)) {
                 throw new Exception("Error: The file '" . $file . "' does not exist.");
             } else {
+                $this->filename = $file;
                 $this->stream   = file_get_contents($file);
                 $this->basename = basename($file);
             }
@@ -154,6 +161,16 @@ class Attachment extends AbstractPart
     public static function createFromStream($stream, array $options = [])
     {
         return new self(null, $stream, $options);
+    }
+
+    /**
+     * Get attachment filename
+     *
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
     }
 
     /**

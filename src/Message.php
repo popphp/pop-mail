@@ -108,7 +108,7 @@ class Message extends Message\AbstractMessage
     /**
      * Set To
      *
-     * @param  string $to
+     * @param  mixed $to
      * @return Message\AbstractMessage
      */
     public function setTo($to)
@@ -377,6 +377,76 @@ class Message extends Message\AbstractMessage
     }
 
     /**
+     * Has To
+     *
+     * @return boolean
+     */
+    public function hasTo()
+    {
+        return !empty($this->addresses['To']);
+    }
+
+    /**
+     * Has CC
+     *
+     * @return boolean
+     */
+    public function hasCc()
+    {
+        return !empty($this->addresses['CC']);
+    }
+
+    /**
+     * Has BCC
+     *
+     * @return boolean
+     */
+    public function hasBcc()
+    {
+        return !empty($this->addresses['BCC']);
+    }
+
+    /**
+     * Has From
+     *
+     * @return boolean
+     */
+    public function hasFrom()
+    {
+        return !empty($this->addresses['From']);
+    }
+
+    /**
+     * Has Reply-To
+     *
+     * @return boolean
+     */
+    public function hasReplyTo()
+    {
+        return !empty($this->addresses['Reply-To']);
+    }
+
+    /**
+     * Has Sender
+     *
+     * @return boolean
+     */
+    public function hasSender()
+    {
+        return !empty($this->addresses['Sender']);
+    }
+
+    /**
+     * Has Return-Path
+     *
+     * @return boolean
+     */
+    public function hasReturnPath()
+    {
+        return !empty($this->addresses['Return-Path']);
+    }
+
+    /**
      * Get message body
      *
      * @return string
@@ -639,7 +709,7 @@ class Message extends Message\AbstractMessage
      *
      * @param  mixed   $addresses
      * @param  boolean $asArray
-     * @return string
+     * @return string|array
      */
     public function parseAddresses($addresses, $asArray = false)
     {
@@ -648,23 +718,22 @@ class Message extends Message\AbstractMessage
 
         if (is_array($addresses)) {
             foreach ($addresses as $key => $value) {
-                if ($value instanceof \stdClass) {
+                if (($value instanceof \stdClass) && isset($value->mailbox) && isset($value->host)) {
                     $formatted[]    = $value->mailbox . '@' . $value->host;
                     $emails[$value->mailbox . '@' . $value->host] = null;
                 } else {
                     // $key is email
                     if (strpos($key, '@') !== false) {
-                        if (!empty($value)) {
+                        if (!empty($value) && !is_numeric($value)) {
                             $formatted[]  = '"' . $value . '" <' . $key . '>';
                             $emails[$key] = $value;
-
                         } else {
                             $formatted[]  = $key;
                             $emails[$key] = null;
                         }
                     // $value is email
                     } else if (strpos($value, '@') !== false) {
-                        if (!empty($key)) {
+                        if (!empty($key) && !is_numeric($key)) {
                             $formatted[]    = '"' . $key . '" <' . $value . '>';
                             $emails[$value] = $key;
                         } else {
@@ -675,7 +744,7 @@ class Message extends Message\AbstractMessage
                 }
             }
         } else if (is_string($addresses) && (strpos($addresses, '@') !== false)) {
-            $formatted          = [$addresses];
+            $formatted = [$addresses];
             if (strpos($addresses, ',') !== false) {
                 $addresses = explode(',', $addresses);
                 foreach ($addresses as $address) {

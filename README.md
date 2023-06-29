@@ -6,9 +6,14 @@ pop-mail
 
 OVERVIEW
 --------
-`pop-mail` is a component for managing and sending email messages. It has a full feature set that supports:
+`pop-mail` is a component for sending, retrieving and managing email messages. It has a full feature set that supports:
 
-* Send to email via sendmail, SMTP or any custom-written mail transport adapters
+* Send to email in various ways:
+    - Sendmail
+    - SMTP
+    - Mailgun API
+    - Sendgrid API
+    - Any other custom-written mail transport adapters
 * Send emails to a queue of recipients, with individual message customization
 * Save emails to be sent later
 * Retrieve and manage emails from email mailboxes.
@@ -78,6 +83,23 @@ $transport->setUsername('me@mydomain.com')
     ->setPassword('password');
 
 $mailer = new Mail\Mailer($transport);
+
+$message = new Mail\Message('Hello World');
+$message->setTo('you@domain.com');
+$message->setFrom('me@domain.com');
+$message->attachFile(__DIR__ . '/image.jpg');
+$message->setBody('Hello World! This is a test!');
+
+$mailer->send($message);
+```
+
+### Sending a basic email via a mail API (Mailgun example)
+
+```php
+use Pop\Mail;
+
+$transport = new Mail\Transport\Mailgun('https://api.mailgun.net/v3/YOUR_DOMAIN_HERE/messages', 'YOUR_API_KEY');
+$mailer    = new Mail\Mailer($transport);
 
 $message = new Mail\Message('Hello World');
 $message->setTo('you@domain.com');
