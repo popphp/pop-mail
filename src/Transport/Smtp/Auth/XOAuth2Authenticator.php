@@ -22,7 +22,7 @@ use Pop\Mail\Transport\Smtp\AgentInterface;
  * @package    Pop\Mail
  * @author     xu.li & Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @see        https://developers.google.com/google-apps/gmail/xoauth2_protocol
- * @version    3.6.0
+ * @version    3.8.0
  */
 class XOAuth2Authenticator implements AuthInterface
 {

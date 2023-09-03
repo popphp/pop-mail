@@ -24,7 +24,7 @@ use Pop\Mail\Transport\Smtp\Stream\BufferInterface as BI;
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.6.0
+ * @version    3.8.0
  */
 class Smtp extends Smtp\EsmtpTransport implements TransportInterface
 {

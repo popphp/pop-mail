@@ -22,7 +22,7 @@ use Pop\Mail\Transport\TransportInterface;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
- * @version    3.6.0
+ * @version    3.8.0
  */
 abstract class AbstractSmtp implements SmtpInterface, TransportInterface
 {

@@ -19,7 +19,7 @@ namespace Pop\Mail\Transport\Smtp\Stream\Byte;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Romain-Geissler from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
- * @version    3.6.0
+ * @version    3.8.0
  */
 class TemporaryFileByteStream extends FileByteStream
 {
