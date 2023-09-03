@@ -63,7 +63,8 @@ class Part extends Utils\ArrayObject
             } else {
                 $flattenedParts[] = new static([
                     'headers'    => $part->getHeadersAsArray(),
-                    'type'       => ($part->hasHeader('Content-Type')) ? $part->getHeader('Content-Type')->getValue() : null,
+                    'type'       => (($part->hasHeader('Content-Type')) && (count($part->getHeader('Content-Type')->getValues()) == 1)) ?
+                        $part->getHeader('Content-Type')->getValue(0) : null,
                     'attachment' => (($part->hasBody()) && ($part->getBody()->isFile())),
                     'basename'   => $part->getFilename(),
                     'content'    => $part->getContents()

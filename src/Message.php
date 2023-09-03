@@ -14,6 +14,7 @@
 namespace Pop\Mail;
 
 use Pop\Mail\Message\AbstractPart;
+use Pop\Mime\Part\Header\Value;
 
 /**
  * Message class
@@ -113,6 +114,9 @@ class Message extends Message\AbstractMessage
      */
     public function setTo($to)
     {
+        if ($to instanceof Value) {
+            $to = (string)$to;
+        }
         $this->addresses['To'] = $this->parseAddresses($to, true);
         return $this->addHeader('To', $this->parseAddresses($to));
     }
@@ -125,6 +129,9 @@ class Message extends Message\AbstractMessage
      */
     public function setCc($cc)
     {
+        if ($cc instanceof Value) {
+            $cc = (string)$cc;
+        }
         $this->addresses['CC'] = $this->parseAddresses($cc, true);
         return $this->addHeader('CC', $this->parseAddresses($cc));
     }
@@ -137,6 +144,9 @@ class Message extends Message\AbstractMessage
      */
     public function setBcc($bcc)
     {
+        if ($bcc instanceof Value) {
+            $bcc = (string)$bcc;
+        }
         $this->addresses['BCC'] = $this->parseAddresses($bcc, true);
         return $this->addHeader('BCC', $this->parseAddresses($bcc));
     }
@@ -149,6 +159,9 @@ class Message extends Message\AbstractMessage
      */
     public function setFrom($from)
     {
+        if ($from instanceof Value) {
+            $from = (string)$from;
+        }
         $this->addresses['From'] = $this->parseAddresses($from, true);
         return $this->addHeader('From', $this->parseAddresses($from));
     }
@@ -161,6 +174,9 @@ class Message extends Message\AbstractMessage
      */
     public function setReplyTo($replyTo)
     {
+        if ($replyTo instanceof Value) {
+            $replyTo = (string)$replyTo;
+        }
         $this->addresses['Reply-To'] = $this->parseAddresses($replyTo, true);
         return $this->addHeader('Reply-To', $this->parseAddresses($replyTo));
     }
@@ -173,6 +189,9 @@ class Message extends Message\AbstractMessage
      */
     public function setSender($sender)
     {
+        if ($sender instanceof Value) {
+            $sender = (string)$sender;
+        }
         $this->addresses['Sender'] = $this->parseAddresses($sender, true);
         return $this->addHeader('Sender', $this->parseAddresses($sender));
     }
@@ -185,6 +204,9 @@ class Message extends Message\AbstractMessage
      */
     public function setReturnPath($returnPath)
     {
+        if ($returnPath instanceof Value) {
+            $returnPath = (string)$returnPath;
+        }
         $this->addresses['Return-Path'] = $this->parseAddresses($returnPath, true);
         return $this->addHeader('Return-Path', $this->parseAddresses($returnPath));
     }
@@ -622,33 +644,35 @@ class Message extends Message\AbstractMessage
         if ($parsedMessage->hasHeaders()) {
             $headers = $parsedMessage->getHeaders();
             foreach ($headers as $header => $value) {
-                switch (strtolower($header)) {
-                    case 'subject':
-                        $message->setSubject($value->getValue());
-                        break;
-                    case 'to':
-                        $message->setTo($value->getValue());
-                        break;
-                    case 'cc':
-                        $message->setCc($value->getValue());
-                        break;
-                    case 'bcc':
-                        $message->setBcc($value->getValue());
-                        break;
-                    case 'from':
-                        $message->setFrom($value->getValue());
-                        break;
-                    case 'reply-to':
-                        $message->setReplyTo($value->getValue());
-                        break;
-                    case 'sender':
-                        $message->setSender($value->getValue());
-                        break;
-                    case 'return-path':
-                        $message->setReturnPath($value->getValue());
-                        break;
-                    default:
-                        $message->addHeader($header, $value->getValue());
+                if (count($value->getValues()) == 1) {
+                    switch (strtolower($header)) {
+                        case 'subject':
+                            $message->setSubject($value->getValue(0));
+                            break;
+                        case 'to':
+                            $message->setTo($value->getValue(0));
+                            break;
+                        case 'cc':
+                            $message->setCc($value->getValue(0));
+                            break;
+                        case 'bcc':
+                            $message->setBcc($value->getValue(0));
+                            break;
+                        case 'from':
+                            $message->setFrom($value->getValue(0));
+                            break;
+                        case 'reply-to':
+                            $message->setReplyTo($value->getValue(0));
+                            break;
+                        case 'sender':
+                            $message->setSender($value->getValue(0));
+                            break;
+                        case 'return-path':
+                            $message->setReturnPath($value->getValue(0));
+                            break;
+                        default:
+                            $message->addHeader($header, $value->getValue(0));
+                    }
                 }
             }
         }
