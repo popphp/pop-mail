@@ -42,12 +42,34 @@ class TransportTest extends TestCase
         $this->assertInstanceOf('Pop\Http\Client', $transport->getClient());
     }
 
-    public function testSendgrid()
+    public function testSendgrid1()
     {
         $transport = new Transport\Sendgrid('http://localhost', 'MY_API_KEY');
         $mailer    = new Mail\Mailer($transport, 'root@localhost');
         $message   = new Mail\Message('Test Subject!');
         $message->setTo('root@localhost')
+            ->setCc('root@localhost')
+            ->setBcc('root@localhost')
+            ->setFrom('root@localhost')
+            ->setReplyTo('root@localhost')
+            ->addText('Hey, this is a test!')
+            ->addHtml('<html><body><h3>Hey!</h3><p>This is a test!</p></body></html>')
+            ->attachFile(__DIR__ . '/tmp/test.pdf');
+
+        $mailer->send($message);
+
+        $this->assertInstanceOf('Pop\Mail\Transport\Sendgrid', $transport);
+        $this->assertInstanceOf('Pop\Http\Client', $transport->getClient());
+    }
+
+    public function testSendgrid2()
+    {
+        $transport = new Transport\Sendgrid('http://localhost', 'MY_API_KEY');
+        $mailer    = new Mail\Mailer($transport, 'root@localhost');
+        $message   = new Mail\Message('Test Subject!');
+        $message->setTo(['root@localhost' => 'root'])
+            ->setCc(['root@localhost' => 'root'])
+            ->setBcc(['root@localhost' => 'root'])
             ->addText('Hey, this is a test!')
             ->addHtml('<html><body><h3>Hey!</h3><p>This is a test!</p></body></html>')
             ->attachFile(__DIR__ . '/tmp/test.pdf');
