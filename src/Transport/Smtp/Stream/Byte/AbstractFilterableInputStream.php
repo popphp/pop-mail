@@ -30,37 +30,37 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
      * Write sequence
      * @var int
      */
-    protected $sequence = 0;
+    protected int $sequence = 0;
 
     /**
      * StreamFilters
      * @var array
      */
-    private $filters = [];
+    private array $filters = [];
 
     /**
      * A buffer for writing
      * @var string
      */
-    private $writeBuffer = '';
+    private string $writeBuffer = '';
 
     /**
      * Bound streams
      * @var array
      */
-    private $mirrors = [];
+    private array $mirrors = [];
 
     /**
      * Commit the given bytes to the storage medium immediately
      *
      * @param string $bytes
      */
-    abstract protected function commitBytes($bytes);
+    abstract protected function commitBytes(string $bytes): void;
 
     /**
      * Flush any buffers/content with immediate effect
      */
-    abstract protected function flush();
+    abstract protected function flush(): void;
 
     /**
      * Add a StreamFilter to this InputByteStream
@@ -68,7 +68,7 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
      * @param FilterInterface $filter
      * @param string          $key
      */
-    public function addFilter(FilterInterface $filter, $key)
+    public function addFilter(FilterInterface $filter, string $key): void
     {
         $this->filters[$key] = $filter;
     }
@@ -76,9 +76,10 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
     /**
      * Remove an already present StreamFilter based on its $key
      *
-     * @param string $key
+     * @param  string $key
+     * @return void
      */
-    public function removeFilter($key)
+    public function removeFilter(string $key): void
     {
         unset($this->filters[$key]);
     }
@@ -86,10 +87,10 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
     /**
      * Writes $bytes to the end of the stream
      *
-     * @param string $bytes
-     * @return int
+     * @param  string $bytes
+     * @return mixed
      */
-    public function write($bytes)
+    public function write(string $bytes): mixed
     {
         $this->writeBuffer .= $bytes;
         foreach ($this->filters as $filter) {
@@ -106,7 +107,7 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
      * For any bytes that are currently buffered inside the stream,
      * force them off the buffer
      */
-    public function commit()
+    public function commit(): void
     {
         $this->doWrite($this->writeBuffer);
     }
@@ -119,7 +120,7 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
      *
      * @param InputInterface $is
      */
-    public function bind(InputInterface $is)
+    public function bind(InputInterface $is): void
     {
         $this->mirrors[] = $is;
     }
@@ -133,7 +134,7 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
      *
      * @param InputInterface $is
      */
-    public function unbind(InputInterface $is)
+    public function unbind(InputInterface $is): void
     {
         foreach ($this->mirrors as $k => $stream) {
             if ($is === $stream) {
@@ -149,7 +150,7 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
      * Flush the contents of the stream (empty it) and set the internal pointer
      * to the beginning.
      */
-    public function flushBuffers()
+    public function flushBuffers(): void
     {
         if ($this->writeBuffer !== '') {
             $this->doWrite($this->writeBuffer);
@@ -167,7 +168,7 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
      * @param  int $bytes
      * @return int
      */
-    private function filter($bytes)
+    private function filter(int $bytes): int
     {
         foreach ($this->filters as $filter) {
             $bytes = $filter->filter($bytes);
@@ -181,7 +182,7 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
      *
      * @param int $bytes
      */
-    private function doWrite($bytes)
+    private function doWrite(int $bytes): void
     {
         $this->commitBytes($this->filter($bytes));
 

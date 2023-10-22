@@ -29,16 +29,16 @@ class StringReplacementFactory implements ReplacementFactoryInterface
      * Lazy-loaded filters
      * @var array
      */
-    private $filters = [];
+    private array $filters = [];
 
     /**
      * Create a new StreamFilter to replace $search with $replace in a string
      *
-     * @param  string $search
-     * @param  string $replace
+     * @param  mixed $search
+     * @param  mixed $replace
      * @return FilterInterface
      */
-    public function createFilter($search, $replace)
+    public function createFilter(mixed $search, mixed $replace): FilterInterface
     {
         if (!isset($this->filters[$search][$replace])) {
             if (!isset($this->filters[$search])) {

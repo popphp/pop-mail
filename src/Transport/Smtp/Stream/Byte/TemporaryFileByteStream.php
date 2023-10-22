@@ -45,7 +45,7 @@ class TemporaryFileByteStream extends FileByteStream
      * @throws Exception
      * @return string
      */
-    public function getContent()
+    public function getContent(): string
     {
         if (($content = file_get_contents($this->getPath())) === false) {
             throw new Exception('Failed to get temporary file content.');

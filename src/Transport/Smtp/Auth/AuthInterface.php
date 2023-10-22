@@ -31,16 +31,16 @@ interface AuthInterface
      *
      * @return string
      */
-    public function getAuthKeyword();
+    public function getAuthKeyword(): string;
 
     /**
      * Try to authenticate the user with $username and $password
      *
-     * @param AgentInterface $agent
-     * @param string         $username
-     * @param string         $password
+     * @param  AgentInterface $agent
+     * @param  string         $username
+     * @param  string         $password
      * @return bool
      */
-    public function authenticate(AgentInterface $agent, $username, $password);
+    public function authenticate(AgentInterface $agent, string $username, string $password): bool;
 
 }

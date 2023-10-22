@@ -29,13 +29,13 @@ class StringReplacement implements FilterInterface
      * The needle(s) to search for
      * @var string|array
      */
-    private $search;
+    private string|array $search;
 
     /**
      * The replacement(s) to make
      * @var string|array
      */
-    private $replace;
+    private string|array $replace;
 
     /**
      * Create a new StringReplacementFilter with $search and $replace
@@ -43,7 +43,7 @@ class StringReplacement implements FilterInterface
      * @param string|array $search
      * @param string|array $replace
      */
-    public function __construct($search, $replace)
+    public function __construct(string|array $search, string|array $replace)
     {
         $this->search  = $search;
         $this->replace = $replace;
@@ -52,14 +52,14 @@ class StringReplacement implements FilterInterface
     /**
      * Returns true if based on the buffer passed more bytes should be buffered
      *
-     * @param  string $buffer
+     * @param  mixed $buffer
      * @return bool
      */
-    public function shouldBuffer($buffer)
+    public function shouldBuffer(mixed $buffer): bool
     {
         $endOfBuffer = substr($buffer, -1);
         foreach ((array) $this->search as $needle) {
-            if (false !== strpos($needle, $endOfBuffer)) {
+            if (str_contains($needle, $endOfBuffer)) {
                 return true;
             }
         }
@@ -70,10 +70,10 @@ class StringReplacement implements FilterInterface
     /**
      * Perform the actual replacements on $buffer and return the result
      *
-     * @param  string $buffer
+     * @param  mixed $buffer
      * @return string
      */
-    public function filter($buffer)
+    public function filter(mixed $buffer): string
     {
         return str_replace($this->search, $this->replace, $buffer);
     }

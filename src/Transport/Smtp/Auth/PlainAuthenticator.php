@@ -31,7 +31,7 @@ class PlainAuthenticator implements AuthInterface
      *
      * @return string
      */
-    public function getAuthKeyword()
+    public function getAuthKeyword(): string
     {
         return 'PLAIN';
     }
@@ -44,7 +44,7 @@ class PlainAuthenticator implements AuthInterface
      * @param  string         $password
      * @return bool
      */
-    public function authenticate(AgentInterface $agent, $username, $password)
+    public function authenticate(AgentInterface $agent, string $username, string $password): bool
     {
         try {
             $message = base64_encode($username . chr(0) . $username . chr(0) . $password);

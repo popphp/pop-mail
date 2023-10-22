@@ -26,39 +26,39 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
 
     /**
      * A primary socket
-     * @var resource
+     * @var mixed
      */
-    private $stream;
+    private mixed $stream;
 
     /**
      * The input stream
-     * @var resource
+     * @var mixed
      */
-    private $in;
+    private mixed $in;
 
     /**
      * The output stream
-     * @var resource
+     * @var mixed
      */
-    private $out;
+    private mixed $out;
 
     /**
      * Buffer initialization parameters
      * $var array
      */
-    private $params = [];
+    private array $params = [];
 
     /**
      * The ReplacementFilterFactory
      * @var Filter\ReplacementFactoryInterface
      */
-    private $replacementFactory;
+    private Filter\ReplacementFactoryInterface $replacementFactory;
 
     /**
      * Translations performed on data being streamed into the buffer
      * @var array
      */
-    private $translations = [];
+    private array $translations = [];
 
     /**
      * Create a new StreamBuffer using $replacementFactory for transformations.
@@ -77,7 +77,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
      *
      * @param array $params
      */
-    public function initialize(array $params)
+    public function initialize(array $params): void
     {
         $this->params = $params;
         switch ($params['type']) {
@@ -97,7 +97,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
      * @param string $param
      * @param mixed  $value
      */
-    public function setParam($param, $value)
+    public function setParam(string $param, mixed $value): void
     {
         if (isset($this->stream)) {
             switch ($param) {
@@ -122,7 +122,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
      *
      * @return bool
      */
-    public function startTls()
+    public function startTls(): bool
     {
         return stream_socket_enable_crypto($this->stream, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
     }
@@ -130,7 +130,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
     /**
      * Perform any shutdown logic needed
      */
-    public function terminate()
+    public function terminate(): void
     {
         if (isset($this->stream)) {
             switch ($this->params['type']) {
@@ -158,7 +158,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
      *
      * @param array $replacements
      */
-    public function setWriteTranslations(array $replacements)
+    public function setWriteTranslations(array $replacements): void
     {
         foreach ($this->translations as $search => $replace) {
             if (!isset($replacements[$search])) {
@@ -187,8 +187,10 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
      * @throws Exception
      * @return string
      */
-    public function readLine($sequence)
+    public function readLine(int $sequence): string
     {
+        $line = '';
+
         if (isset($this->out) && !feof($this->out)) {
             $line = fgets($this->out);
             if (strlen($line) == 0) {
@@ -197,9 +199,9 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
                     throw new Exception('Connection to ' . $this->getReadConnectionDescription() . ' Timed Out');
                 }
             }
-
-            return $line;
         }
+
+        return $line;
     }
 
     /**
@@ -213,8 +215,10 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
      * @throws Exception
      * @return string|bool
      */
-    public function read($length)
+    public function read(int $length): string|bool
     {
+        $ret = '';
+
         if (isset($this->out) && !feof($this->out)) {
             $ret = fread($this->out, $length);
             if (strlen($ret) == 0) {
@@ -223,9 +227,9 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
                     throw new Exception('Connection to ' . $this->getReadConnectionDescription() . ' Timed Out');
                 }
             }
-
-            return $ret;
         }
+
+        return $ret;
     }
 
     /**
@@ -234,14 +238,14 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
      * @param int $byteOffset
      * @return bool|void
      */
-    public function setReadPointer($byteOffset)
+    public function setReadPointer(int $byteOffset): bool
     {
     }
 
     /**
      * Flush the stream contents
      */
-    protected function flush()
+    protected function flush(): void
     {
         if (isset($this->in)) {
             fflush($this->in);
@@ -249,12 +253,12 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
     }
 
     /**
-     * Write this bytes to the stream
+     * Write bytes to the stream
      *
      * @param  string $bytes
      * @return int
      */
-    protected function commitBytes($bytes)
+    protected function commitBytes(string $bytes): int
     {
         if (isset($this->in)) {
             $bytesToWrite = strlen($bytes);
@@ -278,7 +282,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
     /**
      * Establishes a connection to a remote server
      */
-    private function establishSocketConnection()
+    private function establishSocketConnection(): void
     {
         $host = $this->params['host'];
         if (!empty($this->params['protocol'])) {
@@ -313,7 +317,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
     /**
      * Opens a process for input/output
      */
-    private function establishProcessConnection()
+    private function establishProcessConnection(): void
     {
         $command = $this->params['command'];
         $descriptorSpec = [
@@ -337,7 +341,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
      *
      * @return string
      */
-    private function getReadConnectionDescription()
+    private function getReadConnectionDescription(): string
     {
         switch ($this->params['type']) {
             case self::TYPE_PROCESS:

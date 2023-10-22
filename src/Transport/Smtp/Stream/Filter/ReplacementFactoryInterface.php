@@ -33,6 +33,6 @@ interface ReplacementFactoryInterface
      * @param  mixed $replace
      * @return FilterInterface
      */
-    public function createFilter($search, $replace);
+    public function createFilter(mixed $search, mixed  $replace): FilterInterface;
 
 }

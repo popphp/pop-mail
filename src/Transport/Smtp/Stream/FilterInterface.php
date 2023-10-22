@@ -30,7 +30,7 @@ interface FilterInterface
      * @param  mixed $buffer
      * @return bool
      */
-    public function shouldBuffer($buffer);
+    public function shouldBuffer(mixed $buffer): bool;
 
     /**
      * Filters $buffer and returns the changes.
@@ -38,6 +38,6 @@ interface FilterInterface
      * @param  mixed $buffer
      * @return mixed
      */
-    public function filter($buffer);
+    public function filter(mixed $buffer): mixed;
 
 }

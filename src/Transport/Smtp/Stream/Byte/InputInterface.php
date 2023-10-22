@@ -36,9 +36,9 @@ interface InputInterface
      *
      * @param  string $bytes
      * @throws Exception
-     * @return int
+     * @return mixed
      */
-    public function write($bytes);
+    public function write(string $bytes): mixed;
 
     /**
      * For any bytes that are currently buffered inside the stream, force them
@@ -46,7 +46,7 @@ interface InputInterface
      *
      * @throws Exception
      */
-    public function commit();
+    public function commit(): void;
 
     /**
      * Attach $is to this stream.
@@ -56,7 +56,7 @@ interface InputInterface
      *
      * @param InputInterface $is
      */
-    public function bind(InputInterface $is);
+    public function bind(InputInterface $is): void;
 
     /**
      * Remove an already bound stream.
@@ -67,7 +67,7 @@ interface InputInterface
      *
      * @param InputInterface $is
      */
-    public function unbind(InputInterface $is);
+    public function unbind(InputInterface $is): void;
 
     /**
      * Flush the contents of the stream (empty it) and set the internal pointer
@@ -75,6 +75,6 @@ interface InputInterface
      *
      * @throws Exception
      */
-    public function flushBuffers();
+    public function flushBuffers(): void;
 
 }

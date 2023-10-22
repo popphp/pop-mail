@@ -30,43 +30,43 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      * The internal pointer offset
      * @var int
      */
-    private $offset = 0;
+    private int $offset = 0;
 
     /**
      * The path to the file
      * @var string
      */
-    private $path;
+    private string $path;
 
     /**
      * The mode this file is opened in for writing
      * @var string
      */
-    private $mode;
+    private string $mode;
 
     /**
      * A lazy-loaded resource handle for reading the file
-     * @var resource
+     * @var mixed
      */
-    private $reader;
+    private mixed $reader;
 
     /**
      * A lazy-loaded resource handle for writing the file
-     * @var resource
+     * @var mixed
      */
-    private $writer;
+    private mixed $writer;
 
     /** If stream is seekable true/false, or null if not known */
-    private $seekable = null;
+    private mixed $seekable = null;
 
     /**
      * Create a new FileByteStream for $path.
      *
-     * @param string $path
-     * @param bool $writable if true
+     * @param  string $path
+     * @param  bool $writable if true
      * @throws Exception
      */
-    public function __construct($path, $writable = false)
+    public function __construct(string $path, bool $writable = false)
     {
         if (empty($path)) {
             throw new Exception('The path cannot be empty');
@@ -80,7 +80,7 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      *
      * @return string
      */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -97,7 +97,7 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      * @throws Exception
      * @return string|bool
      */
-    public function read($length)
+    public function read(int $length): string|bool
     {
         $fp = $this->getReadHandle();
         if (!feof($fp)) {
@@ -124,9 +124,9 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      * Move the internal read pointer to $byteOffset in the stream
      *
      * @param  int $byteOffset
-     * @return bool
+     * @return void
      */
-    public function setReadPointer($byteOffset)
+    public function setReadPointer(int $byteOffset): void
     {
         if (isset($this->reader)) {
             $this->seekReadStreamToPosition($byteOffset);
@@ -139,7 +139,7 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      *
      * @param string $bytes
      */
-    protected function commitBytes($bytes)
+    protected function commitBytes(string $bytes): void
     {
         fwrite($this->getWriteHandle(), $bytes);
         $this->resetReadHandle();
@@ -148,7 +148,7 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
     /**
      * Not used
      */
-    protected function flush()
+    protected function flush(): void
     {
     }
 
@@ -156,9 +156,9 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      * Get the resource for reading
      *
      * @throws Exception
-     * @return resource
+     * @return mixed
      */
-    private function getReadHandle()
+    private function getReadHandle(): mixed
     {
         if (!isset($this->reader)) {
             $pointer = @fopen($this->path, 'rb');
@@ -179,9 +179,9 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      * Get the resource for writing
      *
      * @throws Exception
-     * @return resource
+     * @return mixed
      */
-    private function getWriteHandle()
+    private function getWriteHandle(): mixed
     {
         if (!isset($this->writer)) {
             if (!$this->writer = fopen($this->path, $this->mode)) {
@@ -195,7 +195,7 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
     /**
      * Force a reload of the resource for reading
      */
-    private function resetReadHandle()
+    private function resetReadHandle(): void
     {
         if (isset($this->reader)) {
             fclose($this->reader);
@@ -206,7 +206,7 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
     /**
      * Check if ReadOnly Stream is seekable
      */
-    private function getReadStreamSeekableStatus()
+    private function getReadStreamSeekableStatus(): void
     {
         $metas = stream_get_meta_data($this->reader);
         $this->seekable = $metas['seekable'];
@@ -217,7 +217,7 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      *
      * @param int $offset
      */
-    private function seekReadStreamToPosition($offset)
+    private function seekReadStreamToPosition(int $offset): void
     {
         if ($this->seekable === null) {
             $this->getReadStreamSeekableStatus();
@@ -238,7 +238,7 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
     /**
      * Copy a readOnly Stream to ensure seekability
      */
-    private function copyReadStream()
+    private function copyReadStream(): void
     {
         if ($tmpFile = fopen('php://temp/maxmemory:4096', 'w+b')) {
             /* We have opened a php:// Stream Should work without problem */

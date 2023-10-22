@@ -41,14 +41,14 @@ interface BufferInterface
      *
      * @param array $params
      */
-    public function initialize(array $params);
+    public function initialize(array $params): void;
 
     /**
      * Start TLS
      *
      * @return bool
      */
-    public function startTls();
+    public function startTls(): bool;
 
     /**
      * Set an individual param on the buffer (e.g. switching to SSL).
@@ -56,12 +56,12 @@ interface BufferInterface
      * @param string $param
      * @param mixed  $value
      */
-    public function setParam($param, $value);
+    public function setParam(string $param, mixed $value): void;
 
     /**
      * Perform any shutdown logic needed.
      */
-    public function terminate();
+    public function terminate(): void;
 
     /**
      * Set an array of string replacements which should be made on data written
@@ -79,10 +79,10 @@ interface BufferInterface
      * The $sequence number comes from any writes and may or may not be used
      * depending upon the implementation.
      *
-     * @param int $sequence of last write to scan from
+     * @param  int $sequence of last write to scan from
      * @return string
      */
-    public function readLine($sequence);
+    public function readLine(int $sequence): string;
 
     /**
      * Writes $bytes to the end of the stream.
@@ -96,9 +96,9 @@ interface BufferInterface
      *
      * @param  string $bytes
      * @throws Exception
-     * @return int
+     * @return mixed
      */
-    public function write($bytes);
+    public function write(string $bytes): mixed;
 
     /**
      * For any bytes that are currently buffered inside the stream, force them
@@ -106,7 +106,7 @@ interface BufferInterface
      *
      * @throws Exception
      */
-    public function commit();
+    public function commit(): void;
 
     /**
      * Attach $is to this stream.
@@ -116,7 +116,7 @@ interface BufferInterface
      *
      * @param Byte\InputInterface $is
      */
-    public function bind(Byte\InputInterface $is);
+    public function bind(Byte\InputInterface $is): void;
 
     /**
      * Remove an already bound stream.
@@ -127,7 +127,7 @@ interface BufferInterface
      *
      * @param Byte\InputInterface $is
      */
-    public function unbind(Byte\InputInterface $is);
+    public function unbind(Byte\InputInterface $is): void;
 
     /**
      * Flush the contents of the stream (empty it) and set the internal pointer
@@ -135,7 +135,7 @@ interface BufferInterface
      *
      * @throws Exception
      */
-    public function flushBuffers();
+    public function flushBuffers(): void;
 
     /**
      * Reads $length bytes from the stream into a string and moves the pointer
@@ -148,7 +148,7 @@ interface BufferInterface
      * @throws Exception
      * @return string|bool
      */
-    public function read($length);
+    public function read(int $length): string|bool;
 
     /**
      * Move the internal read pointer to $byteOffset in the stream.
@@ -157,6 +157,6 @@ interface BufferInterface
      * @throws Exception
      * @return bool
      */
-    public function setReadPointer($byteOffset);
+    public function setReadPointer(int $byteOffset): bool;
 
 }

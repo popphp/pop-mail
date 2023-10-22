@@ -32,13 +32,13 @@ interface FilterableInterface
      * @param FilterInterface $filter
      * @param string                $key
      */
-    public function addFilter(FilterInterface $filter, $key);
+    public function addFilter(FilterInterface $filter, string $key): void;
 
     /**
      * Remove an existing filter using $key
      *
      * @param string $key
      */
-    public function removeFilter($key);
+    public function removeFilter(string $key): void;
 
 }

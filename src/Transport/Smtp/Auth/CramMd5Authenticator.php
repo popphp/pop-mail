@@ -31,7 +31,7 @@ class CramMd5Authenticator implements AuthInterface
      *
      * @return string
      */
-    public function getAuthKeyword()
+    public function getAuthKeyword(): string
     {
         return 'CRAM-MD5';
     }
@@ -44,7 +44,7 @@ class CramMd5Authenticator implements AuthInterface
      * @param  string          $password
      * @return bool
      */
-    public function authenticate(AgentInterface $agent, $username, $password)
+    public function authenticate(AgentInterface $agent, string $username, string $password): bool
     {
         try {
             $challenge = $agent->executeCommand("AUTH CRAM-MD5\r\n", [334]);
@@ -67,7 +67,7 @@ class CramMd5Authenticator implements AuthInterface
      * @param  string $challenge
      * @return string
      */
-    private function getResponse($secret, $challenge)
+    private function getResponse(string $secret, string $challenge): string
     {
         if (strlen($secret) > 64) {
             $secret = pack('H32', md5($secret));

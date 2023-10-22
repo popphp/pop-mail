@@ -32,7 +32,7 @@ class XOAuth2Authenticator implements AuthInterface
      *
      * @return string
      */
-    public function getAuthKeyword()
+    public function getAuthKeyword(): string
     {
         return 'XOAUTH2';
     }
@@ -45,10 +45,10 @@ class XOAuth2Authenticator implements AuthInterface
      * @param  string         $token
      * @return bool
      */
-    public function authenticate(AgentInterface $agent, $email, $token)
+    public function authenticate(AgentInterface $agent, string $username, string $password): bool
     {
         try {
-            $param = $this->constructXOAuth2Params($email, $token);
+            $param = $this->constructXOAuth2Params($username, $password);
             $agent->executeCommand('AUTH XOAUTH2 ' . $param . "\r\n", [235]);
 
             return true;
@@ -67,7 +67,7 @@ class XOAuth2Authenticator implements AuthInterface
      * @see    https://developers.google.com/google-apps/gmail/xoauth2_protocol#the_sasl_xoauth2_mechanism
      * @return string
      */
-    protected function constructXOAuth2Params($email, $token)
+    protected function constructXOAuth2Params(string $email, string $token): string
     {
         return base64_encode("user=$email\1auth=Bearer $token\1\1");
     }

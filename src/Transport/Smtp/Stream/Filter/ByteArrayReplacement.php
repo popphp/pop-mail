@@ -29,37 +29,37 @@ class ByteArrayReplacement implements FilterInterface
      * The needle(s) to search for
      * @var array
      */
-    private $search;
+    private array $search = [];
 
     /**
      * The replacement(s) to make
      * @var array
      */
-    private $replace;
+    private array $replace = [];
 
     /**
      * The Index for searching
-     * @var int
-     */
-    private $index;
-
-    /**
-     * The Search Tree
      * @var array
      */
-    private $tree = [];
-
-    /**
-     * Gives the size of the largest search
-     * @var int
-     */
-    private $treeMaxLen = 0;
+    private array $index = [];
 
     /**
      * Replace size
      * @var array
      */
-    private $repSize;
+    private array $repSize = [];
+
+    /**
+     * The Search Tree
+     * @var array
+     */
+    private array $tree = [];
+
+    /**
+     * Gives the size of the largest search
+     * @var int
+     */
+    private int $treeMaxLen = 0;
 
     /**
      * Create a new ByteArrayReplacementFilter with $search and $replace
@@ -67,17 +67,12 @@ class ByteArrayReplacement implements FilterInterface
      * @param array $search
      * @param array $replace
      */
-    public function __construct($search, $replace)
+    public function __construct(array $search, array $replace)
     {
         $this->search  = $search;
-        $this->index   = [];
-        $this->tree    = [];
-        $this->replace = [];
-        $this->repSize = [];
-
-        $tree     = null;
-        $i        = null;
-        $lastSize = $size = 0;
+        $tree          = null;
+        $i             = null;
+        $lastSize      = $size = 0;
 
         foreach ($search as $i => $search_element) {
             if ($tree !== null) {
@@ -125,10 +120,10 @@ class ByteArrayReplacement implements FilterInterface
     /**
      * Returns true if based on the buffer passed more bytes should be buffered
      *
-     * @param array $buffer
+     * @param  mixed $buffer
      * @return bool
      */
-    public function shouldBuffer($buffer)
+    public function shouldBuffer(mixed $buffer): bool
     {
         $endOfBuffer = end($buffer);
         return isset($this->index[$endOfBuffer]);
@@ -137,11 +132,11 @@ class ByteArrayReplacement implements FilterInterface
     /**
      * Perform the actual replacements on $buffer and return the result
      *
-     * @param  array $buffer
+     * @param  mixed $buffer
      * @param  int   $minReplaces
      * @return array
      */
-    public function filter($buffer, $minReplaces = -1)
+    public function filter(mixed $buffer, int $minReplaces = -1): array
     {
         if ($this->treeMaxLen == 0) {
             return $buffer;

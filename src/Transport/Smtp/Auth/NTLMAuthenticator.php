@@ -37,7 +37,7 @@ class NTLMAuthenticator implements AuthInterface
      *
      * @return string
      */
-    public function getAuthKeyword()
+    public function getAuthKeyword(): string
     {
         return 'NTLM';
     }
@@ -51,7 +51,7 @@ class NTLMAuthenticator implements AuthInterface
      * @throws \LogicException
      * @return bool
      */
-    public function authenticate(AgentInterface $agent, $username, $password)
+    public function authenticate(AgentInterface $agent, string $username, string $password): bool
     {
         if (!function_exists('openssl_random_pseudo_bytes') || !function_exists('openssl_encrypt')) {
             throw new \LogicException('The OpenSSL extension must be enabled to use the NTLM authenticator.');
@@ -88,7 +88,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  int   $bits
      * @return null|string
      */
-    protected function si2bin($si, $bits = 32)
+    protected function si2bin(mixed $si, int $bits = 32): null|string
     {
         $bin = null;
         if ($si >= -pow(2, $bits - 1) && ($si <= pow(2, $bits - 1))) {
@@ -120,7 +120,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  AgentInterface $agent
      * @return string SMTP Response
      */
-    protected function sendMessage1(AgentInterface $agent)
+    protected function sendMessage1(AgentInterface $agent): string
     {
         $message = $this->createMessage1();
         return $agent->executeCommand(sprintf("AUTH %s %s\r\n", $this->getAuthKeyword(), base64_encode($message)), [334]);
@@ -132,7 +132,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  string $response
      * @return array our response parsed
      */
-    protected function parseMessage2($response)
+    protected function parseMessage2(string $response): array
     {
         $responseHex     = bin2hex($response);
         $length          = floor(hexdec(substr($responseHex, 28, 4)) / 256) * 2;
@@ -163,12 +163,12 @@ class NTLMAuthenticator implements AuthInterface
     /**
      * Read the blob information in from message2
      *
-     * @param  $block
+     * @param  mixed $block
      * @return array
      */
-    protected function readSubBlock($block)
+    protected function readSubBlock(mixed $block): array
     {
-        // remove terminatorByte cause it's always the same
+        // remove terminatorByte because it's always the same
         $block  = substr($block, 0, -8);
         $length = strlen($block);
         $offset = 0;
@@ -204,7 +204,9 @@ class NTLMAuthenticator implements AuthInterface
      * @param  bool           $v2        Use version2 of the protocol
      * @return string
      */
-    protected function sendMessage3($response, $username, $password, $timestamp, $client, AgentInterface $agent, $v2 = true)
+    protected function sendMessage3(
+        string $response, string $username, string $password, string $timestamp, string $client, AgentInterface $agent, bool $v2 = true
+    ): string
     {
         list($domain, $username) = $this->getDomainAndUsername($username);
         //$challenge, $context, $targetInfoH, $targetName, $domainName, $workstation, $DNSDomainName, $DNSServerName, $blob, $ter
@@ -232,7 +234,7 @@ class NTLMAuthenticator implements AuthInterface
      *
      * @return string
      */
-    protected function createMessage1()
+    protected function createMessage1(): string
     {
         return self::NTLMSIG
             . $this->createByte('01') // Message 1
@@ -249,7 +251,9 @@ class NTLMAuthenticator implements AuthInterface
      * @param  string $ntlmResponse
      * @return string
      */
-    protected function createMessage3($domain, $username, $workstation, $lmResponse, $ntlmResponse)
+    protected function createMessage3(
+        string $domain, string $username, string $workstation, string $lmResponse, string $ntlmResponse
+    ): string
     {
         // Create security buffers
         $domainSec  = $this->createSecurityBuffer($domain, 64);
@@ -281,12 +285,12 @@ class NTLMAuthenticator implements AuthInterface
     /**
      * Create blob method
      *
-     * @param string $timestamp  Epoch timestamp in microseconds
-     * @param string $client     Random bytes
-     * @param string $targetInfo
+     * @param  string $timestamp  Epoch timestamp in microseconds
+     * @param  string $client     Random bytes
+     * @param  string $targetInfo
      * @return string
      */
-    protected function createBlob($timestamp, $client, $targetInfo)
+    protected function createBlob(string $timestamp, string $client, string $targetInfo): string
     {
         return $this->createByte('0101')
             . $this->createByte('00')
@@ -304,13 +308,13 @@ class NTLMAuthenticator implements AuthInterface
      * @param   string $name
      * @return  array
      */
-    protected function getDomainAndUsername($name)
+    protected function getDomainAndUsername(string $name): array
     {
-        if (strpos($name, '\\') !== false) {
+        if (str_contains($name, '\\')) {
             return explode('\\', $name);
         }
 
-        if (strpos($name, '@') !== false) {
+        if (str_contains($name, '@')) {
             list($user, $domain) = explode('@', $name);
         } else {
             $user   = $name;
@@ -327,7 +331,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param string $challenge
      * @return string
      */
-    protected function createLMPassword($password, $challenge)
+    protected function createLMPassword(string $password, string $challenge): string
     {
         // FIRST PART
         $password = $this->createByte(strtoupper($password), 14, false);
@@ -357,7 +361,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  string $challenge
      * @return string
      */
-    protected function createNTLMPassword($password, $challenge)
+    protected function createNTLMPassword(string $password, string $challenge): string
     {
         // FIRST PART
         $ntlmHash = $this->createByte($this->md4Encrypt($password), 21, false);
@@ -377,7 +381,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  string $time
      * @return string
      */
-    protected function getCorrectTimestamp($time)
+    protected function getCorrectTimestamp(string $time): string
     {
         // Get our timestamp (tricky!)
         bcscale(0);
@@ -405,7 +409,9 @@ class NTLMAuthenticator implements AuthInterface
      * @param  string $client    Random string
      * @return string
      */
-    protected function createLMv2Password($password, $username, $domain, $challenge, $client)
+    protected function createLMv2Password(
+        string $password, string $username, string $domain, string $challenge, string $client
+    ): string
     {
         $lmPass = '00'; // by default 00
         // if $password > 15 than we can't use this method
@@ -432,7 +438,9 @@ class NTLMAuthenticator implements AuthInterface
      *
      * @see http://davenport.sourceforge.net/ntlm.html#theNtlmResponse
      */
-    protected function createNTLMv2Hash($password, $username, $domain, $challenge, $targetInfo, $timestamp, $client)
+    protected function createNTLMv2Hash(
+        string $password, string $username, string $domain, string $challenge, string $targetInfo, string $timestamp, string $client
+    ): string
     {
         $ntlmHash  = $this->md4Encrypt($password);
         $ntml2Hash = $this->md5Encrypt($ntlmHash, $this->convertTo16bit(strtoupper($username) . $domain));
@@ -447,10 +455,10 @@ class NTLMAuthenticator implements AuthInterface
     /**
      * Create DES key
      *
-     * @param $key
+     * @param  mixed $key
      * @return string
      */
-    protected function createDesKey($key)
+    protected function createDesKey(mixed $key): string
     {
         $material = [bin2hex($key[0])];
         $len      = strlen($key);
@@ -489,7 +497,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  bool   $is16   Do we 16bit string or not?
      * @return string
      */
-    protected function createSecurityBuffer($value, $offset, $is16 = false)
+    protected function createSecurityBuffer(string $value, int $offset, bool $is16 = false): string
     {
         $length = strlen(bin2hex($value));
         $length = $is16 ? $length / 2 : $length;
@@ -504,7 +512,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  string $value Securitybuffer in hex
      * @return array array with length and offset
      */
-    protected function readSecurityBuffer($value)
+    protected function readSecurityBuffer(string $value): array
     {
         $length = floor(hexdec(substr($value, 0, 4)) / 256) * 2;
         $offset = floor(hexdec(substr($value, 8, 4)) / 256) * 2;
@@ -518,7 +526,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  int $v
      * @return int
      */
-    protected function castToByte($v)
+    protected function castToByte(int $v): int
     {
         return (($v + 128) % 256) - 128;
     }
@@ -531,7 +539,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  int $b
      * @return int
      */
-    protected function uRShift($a, $b)
+    protected function uRShift(int $a, int $b): int
     {
         if ($b == 0) {
             return $a;
@@ -548,7 +556,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  bool   $isHex Did we provided hex value
      * @return string
      */
-    protected function createByte($input, $bytes = 4, $isHex = true)
+    protected function createByte(string $input, int $bytes = 4, bool $isHex = true): string
     {
         if ($isHex) {
             $byte = $this->hex2bin(str_pad($input, $bytes * 2, '00'));
@@ -562,10 +570,10 @@ class NTLMAuthenticator implements AuthInterface
     /**
      * Create random bytes
      *
-     * @param  $length
+     * @param  mixed $length
      * @return string
      */
-    protected function getRandomBytes($length)
+    protected function getRandomBytes(mixed $length): string
     {
         $bytes = openssl_random_pseudo_bytes($length, $strong);
 
@@ -585,7 +593,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  string $key
      * @return string
      */
-    protected function desEncrypt($value, $key)
+    protected function desEncrypt(string $value, string $key): string
     {
         // 1 == OPENSSL_RAW_DATA - but constant is only available as of PHP 5.4.
         return substr(openssl_encrypt($value, 'DES-ECB', $key, 1), 0, 8);
@@ -598,7 +606,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  string $msg Message to encrypt
      * @return string
      */
-    protected function md5Encrypt($key, $msg)
+    protected function md5Encrypt(string $key, string $msg): string
     {
         $blocksize = 64;
         if (strlen($key) > $blocksize) {
@@ -619,7 +627,7 @@ class NTLMAuthenticator implements AuthInterface
      * @return string
      * @see    http://php.net/manual/en/ref.hash.php
      */
-    protected function md4Encrypt($input)
+    protected function md4Encrypt(string $input): string
     {
         $input = $this->convertTo16bit($input);
         return function_exists('hash') ? $this->hex2bin(hash('md4', $input)) : mhash(MHASH_MD4, $input);
@@ -631,7 +639,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  string $input
      * @return string
      */
-    protected function convertTo16bit($input)
+    protected function convertTo16bit(string $input): string
     {
         return iconv('UTF-8', 'UTF-16LE', $input);
     }
@@ -642,7 +650,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  string $hex
      * @return string Binary
      */
-    protected function hex2bin($hex)
+    protected function hex2bin(string $hex): string
     {
         return (function_exists('hex2bin')) ? hex2bin($hex): pack('H*', $hex);
     }
@@ -652,7 +660,7 @@ class NTLMAuthenticator implements AuthInterface
      *
      * @param string $message
      */
-    protected function debug($message)
+    protected function debug(string $message)
     {
         $message   = bin2hex($message);
         $messageId = substr($message, 16, 8);

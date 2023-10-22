@@ -35,15 +35,15 @@ interface OutputInterface
      * @throws Exception
      * @return string|bool
      */
-    public function read($length);
+    public function read(int $length): string|bool;
 
     /**
      * Move the internal read pointer to $byteOffset in the stream.
      *
      * @param  int $byteOffset
      * @throws Exception
-     * @return bool
+     * @return void
      */
-    public function setReadPointer($byteOffset);
+    public function setReadPointer(int $byteOffset): void;
 
 }

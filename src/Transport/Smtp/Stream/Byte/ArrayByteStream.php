@@ -27,25 +27,25 @@ class ArrayByteStream implements InputInterface, OutputInterface
      * The internal stack of bytes
      * @var array
      */
-    private $array = [];
+    private array $array = [];
 
     /**
      * The size of the stack
      * @var int
      */
-    private $arraySize = 0;
+    private int $arraySize = 0;
 
     /**
      * The internal pointer offset
      * @var int
      */
-    private $offset = 0;
+    private int $offset = 0;
 
     /**
      * Bound streams
      * @var array
      */
-    private $mirrors = [];
+    private array $mirrors = [];
 
     /**
      * Create a new ArrayByteStream.
@@ -54,7 +54,7 @@ class ArrayByteStream implements InputInterface, OutputInterface
      *
      * @param mixed $stack of bytes in string or array form, optional
      */
-    public function __construct($stack = null)
+    public function __construct(mixed $stack = null)
     {
         if (is_array($stack)) {
             $this->array = $stack;
@@ -75,9 +75,9 @@ class ArrayByteStream implements InputInterface, OutputInterface
      * false is returned.
      *
      * @param  int $length
-     * @return string
+     * @return string|bool
      */
-    public function read($length)
+    public function read(int $length): string|bool
     {
         if ($this->offset == $this->arraySize) {
             return false;
@@ -98,9 +98,9 @@ class ArrayByteStream implements InputInterface, OutputInterface
      * Writes $bytes to the end of the stream
      *
      * @param  string $bytes
-     * @return int|void
+     * @return mixed
      */
-    public function write($bytes)
+    public function write(string $bytes): mixed
     {
         $to_add = str_split($bytes);
         foreach ($to_add as $value) {
@@ -116,7 +116,7 @@ class ArrayByteStream implements InputInterface, OutputInterface
     /**
      * Not used
      */
-    public function commit()
+    public function commit(): void
     {
     }
 
@@ -128,7 +128,7 @@ class ArrayByteStream implements InputInterface, OutputInterface
      *
      * @param InputInterface $is
      */
-    public function bind(InputInterface $is)
+    public function bind(InputInterface $is): void
     {
         $this->mirrors[] = $is;
     }
@@ -142,7 +142,7 @@ class ArrayByteStream implements InputInterface, OutputInterface
      *
      * @param InputInterface $is
      */
-    public function unbind(InputInterface $is)
+    public function unbind(InputInterface $is): void
     {
         foreach ($this->mirrors as $k => $stream) {
             if ($is === $stream) {
@@ -157,7 +157,7 @@ class ArrayByteStream implements InputInterface, OutputInterface
      * @param  int $byteOffset
      * @return bool
      */
-    public function setReadPointer($byteOffset)
+    public function setReadPointer(int $byteOffset): void
     {
         if ($byteOffset > $this->arraySize) {
             $byteOffset = $this->arraySize;
@@ -172,7 +172,7 @@ class ArrayByteStream implements InputInterface, OutputInterface
      * Flush the contents of the stream (empty it) and set the internal pointer
      * to the beginning.
      */
-    public function flushBuffers()
+    public function flushBuffers(): void
     {
         $this->offset    = 0;
         $this->array     = [];
