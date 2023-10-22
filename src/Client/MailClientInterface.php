@@ -23,7 +23,7 @@ namespace Pop\Mail\Client;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    4.0.0
  */
-interface ClientInterface
+interface MailClientInterface
 {
 
     /**
@@ -72,48 +72,48 @@ interface ClientInterface
      * Set mail client host
      *
      * @param  string $host
-     * @return ClientInterface
+     * @return MailClientInterface
      */
-    public function setHost(string $host): ClientInterface;
+    public function setHost(string $host): MailClientInterface;
 
     /**
      * Set mail client port
      *
      * @param  int|string $port
-     * @return ClientInterface
+     * @return MailClientInterface
      */
-    public function setPort(int|string $port): ClientInterface;
+    public function setPort(int|string $port): MailClientInterface;
 
     /**
      * Set mail client service
      *
      * @param  string $service
-     * @return ClientInterface
+     * @return MailClientInterface
      */
-    public function setService(string $service): ClientInterface;
+    public function setService(string $service): MailClientInterface;
 
     /**
      * Set username
      *
      * @param  string $username
-     * @return ClientInterface
+     * @return MailClientInterface
      */
-    public function setUsername(string $username): ClientInterface;
+    public function setUsername(string $username): MailClientInterface;
 
     /**
      * Set password
      *
      * @param  string $password
-     * @return ClientInterface
+     * @return MailClientInterface
      */
-    public function setPassword(string $password): ClientInterface;
+    public function setPassword(string $password): MailClientInterface;
 
     /**
      * Set folder
      *
      * @param  string $folder
-     * @return ClientInterface
+     * @return MailClientInterface
      */
-    public function setFolder(string $folder): ClientInterface;
+    public function setFolder(string $folder): MailClientInterface;
 
 }
