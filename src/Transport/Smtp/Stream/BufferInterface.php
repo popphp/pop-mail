@@ -79,10 +79,10 @@ interface BufferInterface
      * The $sequence number comes from any writes and may or may not be used
      * depending upon the implementation.
      *
-     * @param  int $sequence of last write to scan from
+     * @param  int|string $sequence of last write to scan from
      * @return string
      */
-    public function readLine(int $sequence): string;
+    public function readLine(int|string $sequence): string;
 
     /**
      * Writes $bytes to the end of the stream.
@@ -144,19 +144,19 @@ interface BufferInterface
      * If less bytes exist than are requested the remaining bytes are given instead.
      * If no bytes are remaining at all, bool false is returned.
      *
-     * @param  int $length
+     * @param  int|string $length
      * @throws Exception
      * @return string|bool
      */
-    public function read(int $length): string|bool;
+    public function read(int|string $length): string|bool;
 
     /**
      * Move the internal read pointer to $byteOffset in the stream.
      *
-     * @param  int $byteOffset
+     * @param  int|string $byteOffset
      * @throws Exception
-     * @return bool
+     * @return void
      */
-    public function setReadPointer(int $byteOffset): bool;
+    public function setReadPointer(int|string $byteOffset): void;
 
 }

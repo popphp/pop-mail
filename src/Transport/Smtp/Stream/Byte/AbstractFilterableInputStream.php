@@ -54,8 +54,9 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
      * Commit the given bytes to the storage medium immediately
      *
      * @param string $bytes
+     * @return int
      */
-    abstract protected function commitBytes(string $bytes): void;
+    abstract protected function commitBytes(string $bytes): int;
 
     /**
      * Flush any buffers/content with immediate effect
@@ -95,7 +96,7 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
         $this->writeBuffer .= $bytes;
         foreach ($this->filters as $filter) {
             if ($filter->shouldBuffer($this->writeBuffer)) {
-                return;
+                return '';
             }
         }
         $this->doWrite($this->writeBuffer);
@@ -165,10 +166,10 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
     /**
      * Run $bytes through all filters
      *
-     * @param  int $bytes
-     * @return int
+     * @param  int|string $bytes
+     * @return mixed
      */
-    private function filter(int $bytes): int
+    private function filter(int|string $bytes): mixed
     {
         foreach ($this->filters as $filter) {
             $bytes = $filter->filter($bytes);
@@ -180,9 +181,9 @@ abstract class AbstractFilterableInputStream implements InputInterface, Filterab
     /**
      * Just write the bytes to the stream
      *
-     * @param int $bytes
+     * @param int|string $bytes
      */
-    private function doWrite(int $bytes): void
+    private function doWrite(int|string $bytes): void
     {
         $this->commitBytes($this->filter($bytes));
 

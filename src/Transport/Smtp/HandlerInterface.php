@@ -27,9 +27,9 @@ interface HandlerInterface
     /**
      * Get the name of the ESMTP extension this handles
      *
-     * @return bool
+     * @return string
      */
-    public function getHandledKeyword(): bool;
+    public function getHandledKeyword(): string;
 
     /**
      * Set the parameters which the EHLO greeting indicated

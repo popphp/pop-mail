@@ -526,7 +526,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  int $v
      * @return int
      */
-    protected function castToByte(int $v): int
+    protected function castToByte(int|string $v): int
     {
         return (($v + 128) % 256) - 128;
     }
@@ -539,7 +539,7 @@ class NTLMAuthenticator implements AuthInterface
      * @param  int $b
      * @return int
      */
-    protected function uRShift(int $a, int $b): int
+    protected function uRShift(int|string $a, int $b): int
     {
         if ($b == 0) {
             return $a;

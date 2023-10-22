@@ -93,11 +93,11 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      * remaining bytes are given instead. If no bytes are remaining at all, bool
      * false is returned.
      *
-     * @param  int $length
+     * @param  int|string $length
      * @throws Exception
      * @return string|bool
      */
-    public function read(int $length): string|bool
+    public function read(int|string $length): string|bool
     {
         $fp = $this->getReadHandle();
         if (!feof($fp)) {
@@ -123,10 +123,10 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
     /**
      * Move the internal read pointer to $byteOffset in the stream
      *
-     * @param  int $byteOffset
+     * @param  int|string $byteOffset
      * @return void
      */
-    public function setReadPointer(int $byteOffset): void
+    public function setReadPointer(int|string $byteOffset): void
     {
         if (isset($this->reader)) {
             $this->seekReadStreamToPosition($byteOffset);
@@ -138,11 +138,14 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      * Just write the bytes to the file
      *
      * @param string $bytes
+     * @return int
      */
-    protected function commitBytes(string $bytes): void
+    protected function commitBytes(string $bytes): int
     {
         fwrite($this->getWriteHandle(), $bytes);
         $this->resetReadHandle();
+
+        return 0;
     }
 
     /**
@@ -215,9 +218,9 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
     /**
      * Streams in a readOnly stream ensuring copy if needed
      *
-     * @param int $offset
+     * @param int|string $offset
      */
-    private function seekReadStreamToPosition(int $offset): void
+    private function seekReadStreamToPosition(int|string $offset): void
     {
         if ($this->seekable === null) {
             $this->getReadStreamSeekableStatus();

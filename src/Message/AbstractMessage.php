@@ -42,9 +42,9 @@ abstract class AbstractMessage implements MessageInterface
 
     /**
      * Character set
-     * @var string
+     * @var ?string
      */
-    protected string $charSet = 'utf-8';
+    protected ?string $charSet = null;
 
     /**
      * Message or part ID
@@ -57,6 +57,16 @@ abstract class AbstractMessage implements MessageInterface
      * @var ?string
      */
     protected ?string $idHeader = null;
+
+    /**
+     * Constructor
+     *
+     * Instantiate the message object
+     */
+    public function __construct()
+    {
+
+    }
 
     /**
      * Add message part header

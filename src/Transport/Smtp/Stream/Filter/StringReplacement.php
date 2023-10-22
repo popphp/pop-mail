@@ -71,9 +71,9 @@ class StringReplacement implements FilterInterface
      * Perform the actual replacements on $buffer and return the result
      *
      * @param  mixed $buffer
-     * @return string
+     * @return mixed
      */
-    public function filter(mixed $buffer): string
+    public function filter(mixed $buffer): mixed
     {
         return str_replace($this->search, $this->replace, $buffer);
     }

@@ -39,7 +39,7 @@ class TransportTest extends TestCase
 
 
         $this->assertInstanceOf('Pop\Mail\Transport\Mailgun', $transport);
-        $this->assertInstanceOf('Pop\Http\Client\Curl', $transport->getClient());
+        $this->assertInstanceOf('Pop\Http\Client', $transport->getClient());
     }
 
     public function testSendgrid()
@@ -55,7 +55,7 @@ class TransportTest extends TestCase
         $mailer->send($message);
 
         $this->assertInstanceOf('Pop\Mail\Transport\Sendgrid', $transport);
-        $this->assertInstanceOf('Pop\Http\Client\Stream', $transport->getClient());
+        $this->assertInstanceOf('Pop\Http\Client', $transport->getClient());
     }
 
 }

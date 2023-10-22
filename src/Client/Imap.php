@@ -18,6 +18,8 @@ use Pop\Mail\Message;
 /**
  * Mail client IMAP class
  *
+ *  NOTE: Many enterprise mail applications have discontinued support of IMAP and it is no longer allowed.
+ *
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>

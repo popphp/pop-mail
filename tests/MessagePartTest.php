@@ -11,6 +11,7 @@ class MessagePartTest extends TestCase
     public function testQuotedPrintable()
     {
         $part = new Message\Simple('Hello World', 'text/plain', Message\Simple::QUOTED_PRINTABLE);
+        $this->assertTrue($part->isQuotedPrintable());
         $this->assertEquals(Message\Simple::QUOTED_PRINTABLE, $part->getEncoding());
         $this->assertFalse($part->isBase64());
     }
@@ -24,12 +25,14 @@ class MessagePartTest extends TestCase
     public function test7Bit()
     {
         $part = new Message\Simple('Hello World', 'text/plain', Message\Simple::_7BIT);
+        $this->assertTrue($part->is7Bit());
         $this->assertEquals(Message\Simple::_7BIT, $part->getEncoding());
     }
 
     public function test8Bit()
     {
         $part = new Message\Simple('Hello World', 'text/plain', Message\Simple::_8BIT);
+        $this->assertTrue($part->is8Bit());
         $this->assertEquals(Message\Simple::_8BIT, $part->getEncoding());
     }
 
@@ -143,6 +146,24 @@ class MessagePartTest extends TestCase
 
         $parts = Message\Part::parse($bodyString);
         $this->assertEquals(6, count($parts));
+    }
+
+    public function testParseParts()
+    {
+        $html = new \Pop\Mime\Part();
+        $html->addHeader('Content-Type', 'text/html');
+        $html->setBody('<html><body><h1>This is the text message.</h1></body></html>');
+
+        $text = new \Pop\Mime\Part();
+        $text->addHeader('Content-Type', 'text/plain');
+        $text->setBody('This is the text message.');
+
+        $file = new \Pop\Mime\Part();
+        $file->addHeader('Content-Type', 'application/octet-stream');
+        $file->addFile(__DIR__ . '/tmp/test.pdf');
+
+        $parts = Message\Part::parseParts([[$html, $text, $file]]);
+        $this->assertEquals(3, count($parts));
     }
 
 }

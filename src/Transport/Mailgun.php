@@ -61,7 +61,7 @@ class Mailgun extends AbstractTransport
     {
         $request = new Client\Request($apiUrl, 'POST');
         $request->addHeader('Authorization', 'Basic ' . base64_encode('api:' . $apiKey));
-        $this->client = new Client($request, ['force_custom_method' => true]);
+        $this->client = new Client($request, new Client\Handler\Curl(), ['force_custom_method' => true]);
 
         return $this->client;
     }
@@ -115,7 +115,8 @@ class Mailgun extends AbstractTransport
             }
         }
 
-        $this->client->setData($fields);
+        //$this->client->setData($fields);
+        $this->client->getHandler()->setOption(CURLOPT_POSTFIELDS, $fields);
 
         if ($i > 0) {
             $this->client->getRequest()->addHeader('Content-Type', 'multipart/form-data');

@@ -65,7 +65,7 @@ class Sendgrid extends AbstractTransport
     {
         $request = new Client\Request($apiUrl, 'POST');
         $request->createAsJson();
-        $this->client = new Client($request, Auth::createBearer($apiKey));
+        $this->client = new Client($request, Auth::createBearer($apiKey), new Client\Handler\Stream());
 
         return $this->client;
     }

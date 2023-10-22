@@ -289,6 +289,25 @@ class MessageTest extends TestCase
         $this->assertStringContainsString('<john@doe.com>', Message::decodeText($str));
     }
 
+    public function testGenerateId()
+    {
+        $message = new Message();
+        $this->assertTrue(str_contains($message->generateId('testdomain.com'), '@testdomain.com>'));
+        $this->assertTrue(str_contains($message->generateId(), '@localhost>'));
+    }
+
+    public function testGetHeadersAsString()
+    {
+        $message = new Message();
+        $message->setContentType('text/plain');
+        $message->setCharSet('utf-8');
+        $message->addHeader('X-Test', 'Test-Value');
+        $this->assertTrue(str_contains($message->generateId('testdomain.com'), '@testdomain.com>'));
+        $headers = $message->getHeadersAsString();
+        $this->assertTrue(str_contains($headers, '@testdomain.com>'));
+        $this->assertTrue(str_contains($headers, 'text/plain; charset="utf-8"'));
+    }
+
     public function testRenderPartAsLines()
     {
         $message = new Message('Hello World');

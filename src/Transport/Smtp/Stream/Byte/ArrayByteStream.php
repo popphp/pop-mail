@@ -74,10 +74,10 @@ class ArrayByteStream implements InputInterface, OutputInterface
      * remaining bytes are given instead. If no bytes are remaining at all, bool
      * false is returned.
      *
-     * @param  int $length
+     * @param  int|string $length
      * @return string|bool
      */
-    public function read(int $length): string|bool
+    public function read(int|string $length): string|bool
     {
         if ($this->offset == $this->arraySize) {
             return false;
@@ -111,6 +111,8 @@ class ArrayByteStream implements InputInterface, OutputInterface
         foreach ($this->mirrors as $stream) {
             $stream->write($bytes);
         }
+
+        return null;
     }
 
     /**
@@ -154,10 +156,10 @@ class ArrayByteStream implements InputInterface, OutputInterface
     /**
      * Move the internal read pointer to $byteOffset in the stream.
      *
-     * @param  int $byteOffset
-     * @return bool
+     * @param  int|string $byteOffset
+     * @return void
      */
-    public function setReadPointer(int $byteOffset): void
+    public function setReadPointer(int|string $byteOffset): void
     {
         if ($byteOffset > $this->arraySize) {
             $byteOffset = $this->arraySize;

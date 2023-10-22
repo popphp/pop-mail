@@ -29,6 +29,8 @@ class Pop extends Imap
     /**
      * Constructor
      *
+     * NOTE: Many enterprise mail applications have discontinued support of POP and it is no longer allowed.
+     *
      * Instantiate the POP mail client object
      *
      * @param string     $host

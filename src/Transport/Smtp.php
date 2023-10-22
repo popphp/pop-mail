@@ -46,7 +46,9 @@ class Smtp extends Smtp\EsmtpTransport implements TransportInterface
 
         $this->setHost($host);
         $this->setPort($port);
-        $this->setEncryption($security);
+        if ($security !== null) {
+            $this->setEncryption($security);
+        }
     }
 
     /**

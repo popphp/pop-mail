@@ -134,9 +134,9 @@ class ByteArrayReplacement implements FilterInterface
      *
      * @param  mixed $buffer
      * @param  int   $minReplaces
-     * @return array
+     * @return mixed
      */
-    public function filter(mixed $buffer, int $minReplaces = -1): array
+    public function filter(mixed $buffer, int $minReplaces = -1): mixed
     {
         if ($this->treeMaxLen == 0) {
             return $buffer;
