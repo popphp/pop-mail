@@ -30,18 +30,18 @@ class Sendmail extends AbstractTransport
 
     /**
      * Sendmail params
-     * @var string
+     * @var ?string
      */
-    protected $params = null;
+    protected ?string $params = null;
 
     /**
      * Constructor
      *
      * Instantiate the Sendmail transport object
      *
-     * @param  string $params
+     * @param ?string $params
      */
-    public function __construct($params = null)
+    public function __construct(?string $params = null)
     {
         if ($params !== null) {
             $this->setParams($params);
@@ -54,7 +54,7 @@ class Sendmail extends AbstractTransport
      * @param  string $params
      * @return Sendmail
      */
-    public function setParams($params)
+    public function setParams(string $params): Sendmail
     {
         $this->params = $params;
         return $this;
@@ -63,9 +63,9 @@ class Sendmail extends AbstractTransport
     /**
      * Get the params
      *
-     * @return string
+     * @return ?string
      */
-    public function getParams()
+    public function getParams(): ?string
     {
         return $this->params;
     }
@@ -76,7 +76,7 @@ class Sendmail extends AbstractTransport
      * @param  Message $message
      * @return bool
      */
-    public function send(Message $message)
+    public function send(Message $message): bool
     {
         $headers = $message->getHeadersAsString(['Subject', 'To']);
 

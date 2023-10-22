@@ -34,6 +34,6 @@ interface TransportInterface
      * @param  Message $message
      * @return mixed
      */
-    public function send(Message $message);
+    public function send(Message $message): mixed;
 
 }

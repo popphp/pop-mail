@@ -34,6 +34,6 @@ abstract class AbstractTransport implements TransportInterface
      * @param  Message $message
      * @return mixed
      */
-    abstract public function send(Message $message);
+    abstract public function send(Message $message): mixed;
 
 }

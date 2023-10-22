@@ -14,7 +14,11 @@
 namespace Pop\Mail\Transport;
 
 use Pop\Http\Client;
+use Pop\Http\Auth;
 use Pop\Mail\Message;
+use Pop\Mail\Message\Text;
+use Pop\Mail\Message\Html;
+use Pop\Mail\Message\Attachment;
 
 /**
  * Sendgrid transport class
@@ -31,19 +35,19 @@ class Sendgrid extends AbstractTransport
 
     /**
      * Sendgrid API client params
-     * @var Client\Stream
+     * @var ?Client
      */
-    protected $client = null;
+    protected ?Client $client = null;
 
     /**
      * Constructor
      *
      * Instantiate the Sendgrid API transport object
      *
-     * @param string $apiUrl
-     * @param string $apiKey
+     * @param ?string $apiUrl
+     * @param ?string $apiKey
      */
-    public function __construct($apiUrl = null, $apiKey = null)
+    public function __construct(?string $apiUrl = null, ?string $apiKey = null)
     {
         if (($apiUrl !== null) && ($apiKey !== null)) {
             $this->createClient($apiUrl, $apiKey);
@@ -53,15 +57,15 @@ class Sendgrid extends AbstractTransport
     /**
      * Create the API client
      *
-     * @param string $apiUrl
-     * @param string $apiKey
-     * @return Client\Stream
+     * @param  string $apiUrl
+     * @param  string $apiKey
+     * @return Client
      */
-    public function createClient($apiUrl, $apiKey)
+    public function createClient(string $apiUrl, string $apiKey)
     {
-        $this->client = new Client\Stream($apiUrl, 'POST');
-        $this->client->addRequestHeader('Authorization', 'Bearer ' . $apiKey);
-        $this->client->createAsJson();
+        $request = new Client\Request($apiUrl, 'POST');
+        $request->createAsJson();
+        $this->client = new Client($request, Auth::createBearer($apiKey));
 
         return $this->client;
     }
@@ -69,9 +73,9 @@ class Sendgrid extends AbstractTransport
     /**
      * Get the API client
      *
-     * @return Client\Stream
+     * @return Client
      */
-    public function getClient()
+    public function getClient(): Client
     {
         return $this->client;
     }
@@ -80,9 +84,9 @@ class Sendgrid extends AbstractTransport
      * Send the message
      *
      * @param  Message $message
-     * @return void
+     * @return mixed
      */
-    public function send(Message $message)
+    public function send(Message $message): mixed
     {
         $headers         = $message->getHeaders();
         $parts           = $message->getParts();
@@ -178,22 +182,22 @@ class Sendgrid extends AbstractTransport
         }
 
         foreach ($parts as $part) {
-            if ($part instanceof Message\Text) {
+            if ($part instanceof Text) {
                 $fields['content'][] = [
                     'type'  => 'text/plain',
                     'value' => $part->getBody()
                 ];
-            } else if ($part instanceof Message\Html) {
+            } else if ($part instanceof Html) {
                 $fields['content'][] = [
                     'type'  => 'text/html',
                     'value' => $part->getBody()
                 ];
-            } else if ($part instanceof Message\Attachment) {
+            } else if ($part instanceof Attachment) {
                 if (!isset($fields['attachments'])) {
                     $fields['attachments'] = [];
                 }
                 $contentType = $part->getContentType();
-                if (strpos($contentType, ';') !== false) {
+                if (str_contains($contentType, ';')) {
                     $contentType = trim(substr($contentType, 0, strpos($contentType, ';')));
                 }
                 $fields['attachments'][] = [
@@ -205,8 +209,8 @@ class Sendgrid extends AbstractTransport
             }
         }
 
-        $this->client->setFields($fields);
-        $this->client->send();
+        $this->client->setData($fields);
+        return $this->client->send();
     }
 
 }

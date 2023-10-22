@@ -31,19 +31,19 @@ class Mailgun extends AbstractTransport
 
     /**
      * Mailgun API client params
-     * @var Client\Curl
+     * @var ?Client
      */
-    protected $client = null;
+    protected ?Client $client = null;
 
     /**
      * Constructor
      *
      * Instantiate the Mailgun API transport object
      *
-     * @param string $apiUrl
-     * @param string $apiKey
+     * @param ?string $apiUrl
+     * @param ?string $apiKey
      */
-    public function __construct($apiUrl = null, $apiKey = null)
+    public function __construct(?string $apiUrl = null, ?string $apiKey = null)
     {
         if (($apiUrl !== null) && ($apiKey !== null)) {
             $this->createClient($apiUrl, $apiKey);
@@ -53,15 +53,15 @@ class Mailgun extends AbstractTransport
     /**
      * Create the API client
      *
-     * @param string $apiUrl
-     * @param string $apiKey
-     * @return Client\Curl
+     * @param  string $apiUrl
+     * @param  string $apiKey
+     * @return Client
      */
-    public function createClient($apiUrl, $apiKey)
+    public function createClient(string $apiUrl, string $apiKey)
     {
-        $this->client = new Client\Curl($apiUrl);
-        $this->client->addRequestHeader('Authorization', 'Basic ' . base64_encode('api:' . $apiKey));
-        $this->client->setOption(CURLOPT_CUSTOMREQUEST, 'POST');
+        $request = new Client\Request($apiUrl, 'POST');
+        $request->addHeader('Authorization', 'Basic ' . base64_encode('api:' . $apiKey));
+        $this->client = new Client($request, ['force_custom_method' => true]);
 
         return $this->client;
     }
@@ -69,9 +69,9 @@ class Mailgun extends AbstractTransport
     /**
      * Get the API client
      *
-     * @return Client\Curl
+     * @return Client
      */
-    public function getClient()
+    public function getClient(): Client
     {
         return $this->client;
     }
@@ -80,9 +80,9 @@ class Mailgun extends AbstractTransport
      * Send the message
      *
      * @param  Message $message
-     * @return void
+     * @return mixed
      */
-    public function send(Message $message)
+    public function send(Message $message): mixed
     {
         $fields         = [];
         $headers        = $message->getHeaders();
@@ -107,7 +107,7 @@ class Mailgun extends AbstractTransport
                 $fields['html'] = $part->getBody();
             } else if ($part instanceof Message\Attachment) {
                 $contentType = $part->getContentType();
-                if (strpos($contentType, ';') !== false) {
+                if (str_contains($contentType, ';')) {
                     $contentType = trim(substr($contentType, 0, strpos($contentType, ';')));
                 }
                 $fields['attachment[' . $i . ']'] = curl_file_create($part->getFilename(), $contentType, $part->getBasename());
@@ -115,13 +115,13 @@ class Mailgun extends AbstractTransport
             }
         }
 
-        $this->client->setFields($fields);
+        $this->client->setData($fields);
 
         if ($i > 0) {
-            $this->client->addRequestHeader('Content-Type', 'multipart/form-data');
+            $this->client->getRequest()->addHeader('Content-Type', 'multipart/form-data');
         }
 
-        $this->client->send();
+        return $this->client->send();
     }
 
 }
