@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -21,35 +21,35 @@ use Pop\Mail\Message;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 class Imap extends AbstractClient
 {
 
     /**
      * Mailbox connection string
-     * @var string
+     * @var ?string
      */
-    protected $connectionString = null;
+    protected ?string $connectionString = null;
 
     /**
      * Mailbox connection resource
-     * @var resource
+     * @var mixed
      */
-    protected $connection = null;
+    protected mixed $connection = null;
 
     /**
      * Constructor
      *
      * Instantiate the IMAP mail client object
      *
-     * @param string $host
-     * @param int    $port
-     * @param string $service
+     * @param string     $host
+     * @param int|string $port
+     * @param string     $service
      */
-    public function __construct($host, $port, $service = 'imap')
+    public function __construct(string $host, int|string $port, string $service = 'imap')
     {
         parent::__construct($host, $port, $service);
     }
@@ -57,14 +57,16 @@ class Imap extends AbstractClient
     /**
      * Connect to an IMAP mailbox
      *
-     * @param array  $creds
-     * @param string $flags
-     * @param int    $options
-     * @param int    $retries
-     * @param array  $params
+     * @param  array   $creds
+     * @param  ?string $flags
+     * @param  ?int    $options
+     * @param  ?int    $retries
+     * @param  ?array  $params
      * @return Imap
      */
-    public static function connect(array $creds, $flags = null, $options = null, $retries = null, array $params = null)
+    public static function connect(
+        array $creds, ?string $flags = null, ?int $options = null, ?int $retries = null, ?array $params = null
+    ): Imap
     {
         if (!isset($creds['host']) || !isset($creds['port']) || !isset($creds['username']) || !isset($creds['password'])) {
             throw new Exception(
@@ -86,31 +88,31 @@ class Imap extends AbstractClient
     /**
      * Open mailbox connection
      *
-     * @param string $flags
-     * @param int    $options
-     * @param int    $retries
-     * @param array  $params
+     * @param  ?string $flags
+     * @param  ?int    $options
+     * @param  ?int    $retries
+     * @param  ?array  $params
      * @return Imap
      */
-    public function open($flags = null, $options = null, $retries = null, array $params = null)
+    public function open(?string $flags = null, ?int $options = null, ?int $retries = null, ?array $params = null): Imap
     {
         $this->connectionString = '{' . $this->host . ':' . $this->port . '/' . $this->service;
 
-        if (null !== $flags) {
+        if ($flags !== null) {
             $this->connectionString .= $flags;
         }
 
         $this->connectionString .= '}';
 
-        if ((null !== $options) && (null !== $retries) && (null !== $params)) {
+        if (($options !== null) && ($retries !== null) && ($params !== null)) {
             $this->connection = imap_open(
                 $this->connectionString . $this->folder, $this->username, $this->password, $options, $retries, $params
             );
-        } else if ((null !== $options) && (null !== $retries)) {
+        } else if (($options !== null) && ($retries !== null)) {
             $this->connection = imap_open(
                 $this->connectionString . $this->folder, $this->username, $this->password, $options, $retries
             );
-        } else if (null !== $options) {
+        } else if ($options !== null) {
             $this->connection = imap_open(
                 $this->connectionString . $this->folder, $this->username, $this->password, $options
             );
@@ -126,9 +128,9 @@ class Imap extends AbstractClient
     /**
      * Determine if the mailbox connection has been opened
      *
-     * @return boolean
+     * @return bool
      */
-    public function isOpen()
+    public function isOpen(): bool
     {
         return is_resource($this->connection);
     }
@@ -136,9 +138,9 @@ class Imap extends AbstractClient
     /**
      * Get mailbox connection
      *
-     * @return resource
+     * @return mixed
      */
-    public function connection()
+    public function connection(): mixed
     {
         return $this->connection;
     }
@@ -146,9 +148,9 @@ class Imap extends AbstractClient
     /**
      * Get mailbox connection string
      *
-     * @return string
+     * @return ?string
      */
-    public function getConnectionString()
+    public function getConnectionString(): ?string
     {
         return $this->connectionString;
     }
@@ -156,10 +158,10 @@ class Imap extends AbstractClient
     /**
      * List mailboxes
      *
-     * @param string $pattern
+     * @param  string $pattern
      * @return array
      */
-    public function listMailboxes($pattern = '*')
+    public function listMailboxes(string $pattern = '*'): array
     {
         return imap_list($this->connection, $this->connectionString . $this->folder, $pattern);
     }
@@ -169,7 +171,7 @@ class Imap extends AbstractClient
      *
      * @return \stdClass
      */
-    public function getStatus()
+    public function getStatus(): \stdClass
     {
         return imap_status($this->connection, $this->connectionString . $this->folder, SA_ALL);
 
@@ -180,7 +182,7 @@ class Imap extends AbstractClient
      *
      * @return \stdClass
      */
-    public function getInfo()
+    public function getInfo(): \stdClass
     {
         return imap_mailboxmsginfo($this->connection);
 
@@ -190,7 +192,7 @@ class Imap extends AbstractClient
      *
      * @return int
      */
-    public function getNumberOfMessages()
+    public function getNumberOfMessages(): int
     {
         return imap_num_msg($this->connection);
     }
@@ -200,7 +202,7 @@ class Imap extends AbstractClient
      *
      * @return int
      */
-    public function getNumberOfReadMessages()
+    public function getNumberOfReadMessages(): int
     {
         return abs($this->getNumberOfMessages() - $this->getStatus()->unseen);
     }
@@ -210,7 +212,7 @@ class Imap extends AbstractClient
      *
      * @return int
      */
-    public function getNumberOfUnreadMessages()
+    public function getNumberOfUnreadMessages(): int
     {
         return $this->getStatus()->unseen;
     }
@@ -222,7 +224,7 @@ class Imap extends AbstractClient
      * @param  int    $options
      * @return array
      */
-    public function getOverview($ids, $options = FT_UID)
+    public function getOverview(mixed $ids, int $options = FT_UID): array
     {
         if (is_array($ids)) {
             $ids = implode(',', $ids);
@@ -233,14 +235,14 @@ class Imap extends AbstractClient
     /**
      * Get message IDs from a mailbox
      *
-     * @param string $criteria
-     * @param int    $options
-     * @param string $charset
+     * @param  string $criteria
+     * @param  int    $options
+     * @param  ?string $charset
      * @return array
      */
-    public function getMessageIds($criteria = 'ALL', $options = SE_UID, $charset = null)
+    public function getMessageIds(string $criteria = 'ALL', int $options = SE_UID, ?string $charset = null): array
     {
-        return (null !== $charset) ?
+        return ($charset !== null) ?
             imap_search($this->connection, $criteria, $options, $charset) :
             imap_search($this->connection, $criteria, $options);
     }
@@ -249,15 +251,17 @@ class Imap extends AbstractClient
      * Get message IDs from a mailbox by a sort criteria
      *
      * @param  int     $criteria
-     * @param  boolean $reverse
+     * @param  bool    $reverse
      * @param  int     $options
      * @param  string  $search
-     * @param  string  $charset
+     * @param  s?tring $charset
      * @return array
      */
-    public function getMessageIdsBy($criteria = SORTDATE, $reverse = true, $options = SE_UID, $search = 'ALL', $charset = null)
+    public function getMessageIdsBy(
+        int $criteria = SORTDATE, bool $reverse = true, int $options = SE_UID, string $search = 'ALL', ?string $charset = null
+    ): array
     {
-        return (null !== $charset) ?
+        return ($charset !== null) ?
             imap_sort($this->connection, $criteria, (int)$reverse, $options, $search, $charset) :
             imap_sort($this->connection, $criteria, (int)$reverse, $options, $search);
     }
@@ -265,12 +269,12 @@ class Imap extends AbstractClient
     /**
      * Get message headers from a mailbox
      *
-     * @param  string $criteria
-     * @param  int    $options
-     * @param  string $charset
+     * @param  string  $criteria
+     * @param  int     $options
+     * @param  ?string $charset
      * @return array
      */
-    public function getMessageHeaders($criteria = 'ALL', $options = SE_UID, $charset = null)
+    public function getMessageHeaders(string $criteria = 'ALL', int $options = SE_UID, ?string $charset = null): array
     {
         $headers = [];
         $ids     = $this->getMessageIds($criteria, $options, $charset);
@@ -286,13 +290,15 @@ class Imap extends AbstractClient
      * Get message headers from a mailbox
      *
      * @param  int     $criteria
-     * @param  boolean $reverse
+     * @param  bool    $reverse
      * @param  int     $options
      * @param  string  $search
-     * @param  string  $charset
+     * @param  ?string $charset
      * @return array
      */
-    public function getMessageHeadersBy($criteria = SORTDATE, $reverse = true, $options = SE_UID, $search = 'ALL', $charset = null)
+    public function getMessageHeadersBy(
+        int $criteria = SORTDATE, bool $reverse = true, int $options = SE_UID, string $search = 'ALL', ?string $charset = null
+    ): array
     {
         $headers = [];
         $ids     = $this->getMessageIdsBy($criteria, $reverse, $options, $search, $charset);
@@ -307,10 +313,10 @@ class Imap extends AbstractClient
     /**
      * Get message number from UID
      *
-     * @param  int $id
+     * @param  int|string $id
      * @return int
      */
-    public function getMessageNumber($id)
+    public function getMessageNumber(int|string $id): int
     {
         return imap_msgno($this->connection, $id);
     }
@@ -318,10 +324,10 @@ class Imap extends AbstractClient
     /**
      * Get raw message headers by message ID
      *
-     * @param  int $id
+     * @param  int|string $id
      * @return array
      */
-    public function getMessageHeaderInfoById($id)
+    public function getMessageHeaderInfoById(int|string $id): array
     {
         $headers = imap_headerinfo($this->connection, imap_msgno($this->connection, $id));
         return ($headers !== false) ? json_decode(json_encode($headers), true) : [];
@@ -330,24 +336,24 @@ class Imap extends AbstractClient
     /**
      * Get raw message headers by message ID
      *
-     * @param  int $id
+     * @param  int|string $id
      * @return array
      */
-    public function getMessageRawHeadersById($id)
+    public function getMessageRawHeadersById(int|string $id): array
     {
         $headers       = explode("\r\n", imap_fetchheader($this->connection, $id, FT_UID));
         $parsedHeaders = [];
         $name          = null;
 
         foreach ($headers as $header) {
-            if (((substr($header, 0, 1) == ' ') || (substr($header, 0, 1) == "\t")) &&
-                (null !== $name) && isset($parsedHeaders[$name])) {
+            if (((str_starts_with($header, ' ')) || (str_starts_with($header, "\t"))) &&
+                ($name !== null) && isset($parsedHeaders[$name])) {
                 if (is_array($parsedHeaders[$name])) {
                     $parsedHeaders[$name][key($parsedHeaders[$name])] .= $header;
                 } else {
                     $parsedHeaders[$name] .= $header;
                 }
-            } else if (!empty($header) && (strpos($header, ':') !== false)) {
+            } else if (!empty($header) && (str_contains($header, ':'))) {
                 $name  = substr($header, 0, strpos($header, ':'));
                 $value = (strpos($header, ':') < (strlen($header) - 1)) ? substr($header, (strpos($header, ': ') + 2)) : '';
 
@@ -375,10 +381,10 @@ class Imap extends AbstractClient
     /**
      * Get message headers by message ID
      *
-     * @param  int $id
+     * @param  int|string $id
      * @return array
      */
-    public function getMessageHeadersById($id)
+    public function getMessageHeadersById(int|string $id): array
     {
         $headers = imap_rfc822_parse_headers(imap_fetchheader($this->connection, $id, FT_UID));
         return json_decode(json_encode($headers), true);
@@ -387,10 +393,10 @@ class Imap extends AbstractClient
     /**
      * Get message structure by message ID
      *
-     * @param  int $id
+     * @param  int|string $id
      * @return \stdClass
      */
-    public function getMessageStructure($id)
+    public function getMessageStructure(int|string $id): \stdClass
     {
         return imap_fetchstructure($this->connection, $id, FT_UID);
     }
@@ -398,10 +404,10 @@ class Imap extends AbstractClient
     /**
      * Get message boundary by message ID
      *
-     * @param  int $id
-     * @return string
+     * @param  int|string $id
+     * @return string|null
      */
-    public function getMessageBoundary($id)
+    public function getMessageBoundary(int|string $id): string|null
     {
         $boundary  = null;
         $structure = $this->getMessageStructure($id);
@@ -421,10 +427,10 @@ class Imap extends AbstractClient
     /**
      * Get message body by message ID
      *
-     * @param  int $id
+     * @param  int|string $id
      * @return string
      */
-    public function getMessageBody($id)
+    public function getMessageBody(int|string $id): string
     {
         return imap_body($this->connection, $id, FT_UID);
     }
@@ -432,10 +438,10 @@ class Imap extends AbstractClient
     /**
      * Get message parts by message ID
      *
-     * @param  int $id
+     * @param  int|string $id
      * @return array
      */
-    public function getMessageParts($id)
+    public function getMessageParts(int|string $id): array
     {
         $boundary = $this->getMessageBoundary($id);
         $body     = $this->getMessageBody($id);
@@ -445,13 +451,12 @@ class Imap extends AbstractClient
     /**
      * Get message parts by message ID
      *
-     * @param  int    $id
-     * @param  string $encoding
+     * @param  int|string $id
      * @return array
      */
-    public function getMessageAttachments($id, $encoding = null)
+    public function getMessageAttachments(int|string $id): array
     {
-        return array_filter($this->getMessageParts($id, $encoding), function($part){
+        return array_filter($this->getMessageParts($id), function($part){
             return $part->attachment;
         });
     }
@@ -459,11 +464,11 @@ class Imap extends AbstractClient
     /**
      * Get message parts by message ID
      *
-     * @param  int    $id
-     * @param  string $encoding
-     * @return boolean
+     * @param  int|string $id
+     * @param  ?string    $encoding
+     * @return bool
      */
-    public function hasMessageAttachments($id, $encoding = null)
+    public function hasMessageAttachments(int|string $id, ?string $encoding = null): bool
     {
         return (count($this->getMessageAttachments($id, $encoding)) > 0);
     }
@@ -476,7 +481,7 @@ class Imap extends AbstractClient
      * @param  int          $options
      * @return Imap
      */
-    public function copyMessage($ids, $to, $options = CP_UID)
+    public function copyMessage(mixed $ids, string|array $to, int $options = CP_UID): Imap
     {
         if (is_array($ids)) {
             $ids = implode(',', $ids);
@@ -494,7 +499,7 @@ class Imap extends AbstractClient
      * @param  int          $options
      * @return Imap
      */
-    public function moveMessage($ids, $to, $options = CP_UID)
+    public function moveMessage(mixed $ids, string|array $to, int $options = CP_UID): Imap
     {
         if (is_array($ids)) {
             $ids = implode(',', $ids);
@@ -511,7 +516,7 @@ class Imap extends AbstractClient
      * @param  int   $options
      * @return Imap
      */
-    public function markAsRead($ids, $options = ST_UID)
+    public function markAsRead(mixed $ids, int $options = ST_UID): Imap
     {
         return $this->setMessageFlags($ids, "\\Seen", $options);
     }
@@ -523,7 +528,7 @@ class Imap extends AbstractClient
      * @param  int   $options
      * @return Imap
      */
-    public function markAsUnread($ids, $options = ST_UID)
+    public function markAsUnread(mixed $ids, int $options = ST_UID): Imap
     {
         return $this->clearMessageFlags($ids, "\\Seen", $options);
     }
@@ -536,7 +541,7 @@ class Imap extends AbstractClient
      * @param  int    $options
      * @return Imap
      */
-    public function setMessageFlags($ids, $flags, $options = ST_UID)
+    public function setMessageFlags(mixed $ids, string $flags, int $options = ST_UID): Imap
     {
         if (is_array($ids)) {
             $ids = implode(',', $ids);
@@ -554,7 +559,7 @@ class Imap extends AbstractClient
      * @param  int    $options
      * @return Imap
      */
-    public function clearMessageFlags($ids, $flags, $options = ST_UID)
+    public function clearMessageFlags(mixed $ids, string $flags, int $options = ST_UID): Imap
     {
         if (is_array($ids)) {
             $ids = implode(',', $ids);
@@ -567,11 +572,11 @@ class Imap extends AbstractClient
     /**
      * Delete message
      *
-     * @param  int $id
+     * @param  int|string $id
      * @param  int $options
      * @return Imap
      */
-    public function deleteMessage($id, $options = FT_UID)
+    public function deleteMessage(int|string $id, int $options = FT_UID): Imap
     {
         imap_delete($this->connection, $id, $options);
         return $this;
@@ -583,9 +588,9 @@ class Imap extends AbstractClient
      * @param  string $new
      * @return Imap
      */
-    public function createMailbox($new)
+    public function createMailbox(string $new): Imap
     {
-        if (strpos($new, $this->connectionString) === false) {
+        if (!str_contains($new, $this->connectionString)) {
             $new = $this->connectionString . $new;
         }
         imap_createmailbox($this->connection, $new);
@@ -595,19 +600,19 @@ class Imap extends AbstractClient
     /**
      * Rename mailbox
      *
-     * @param  string $new
-     * @param  string $old
+     * @param  string  $new
+     * @param  ?string $old
      * @return Imap
      */
-    public function renameMailbox($new, $old = null)
+    public function renameMailbox(string $new, ?string $old = null): Imap
     {
-        if (null === $old) {
+        if ($old === null) {
             $old = $this->connectionString . $this->folder;
-        } else if (strpos($old, $this->connectionString) === false) {
+        } else if (!str_contains($old, $this->connectionString)) {
             $old = $this->connectionString . $old;
         }
 
-        if (strpos($new, $this->connectionString) === false) {
+        if (!str_contains($new, $this->connectionString)) {
             $new = $this->connectionString . $new;
         }
 
@@ -618,13 +623,13 @@ class Imap extends AbstractClient
     /**
      * Delete mailbox
      *
-     * @param  string $mailbox
+     * @param  ?string $mailbox
      * @throws Exception
      * @return Imap
      */
-    public function deleteMailbox($mailbox = null)
+    public function deleteMailbox(?string $mailbox = null): Imap
     {
-        if (null === $mailbox) {
+        if ($mailbox === null) {
             $mailbox = $this->folder;
         }
 
@@ -642,7 +647,7 @@ class Imap extends AbstractClient
      * @param  string $text
      * @return string
      */
-    public  function decodeText($text)
+    public  function decodeText(string $text): string
     {
         return Message::decodeText($text);
     }
@@ -652,7 +657,7 @@ class Imap extends AbstractClient
      *
      * @return void
      */
-    public function close()
+    public function close(): void
     {
         if (is_resource($this->connection)) {
             imap_close($this->connection);

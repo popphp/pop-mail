@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -21,7 +21,7 @@ use Pop\Mail\Transport\Smtp\Stream\FileInterface;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
- * @version    3.8.0
+ * @version    4.0.0
  */
 class FileByteStream extends AbstractFilterableInputStream implements FileInterface
 {
@@ -90,7 +90,7 @@ class FileByteStream extends AbstractFilterableInputStream implements FileInterf
      * through the stream by $length.
      *
      * If less bytes exist than are requested the
-     * remaining bytes are given instead. If no bytes are remaining at all, boolean
+     * remaining bytes are given instead. If no bytes are remaining at all, bool
      * false is returned.
      *
      * @param  int $length

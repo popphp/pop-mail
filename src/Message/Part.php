@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Utils;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 class Part extends Utils\ArrayObject
 {
@@ -31,11 +31,11 @@ class Part extends Utils\ArrayObject
     /**
      * Parse message parts from string
      *
-     * @param  mixed $body
-     * @param  string $boundary
+     * @param  mixed   $body
+     * @param  ?string $boundary
      * @return array
      */
-    public static function parse($body, $boundary = null)
+    public static function parse(mixed $body, ?string $boundary = null): array
     {
         $partStrings = \Pop\Mime\Message::parseBody($body, $boundary);
         $parts       = [];
@@ -53,7 +53,7 @@ class Part extends Utils\ArrayObject
      * @param  array $parts
      * @return array
      */
-    public static function parseParts(array $parts)
+    public static function parseParts(array $parts): array
     {
         $flattenedParts = [];
 

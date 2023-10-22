@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace Pop\Mail\Client;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 interface ClientInterface
 {
@@ -29,44 +29,44 @@ interface ClientInterface
     /**
      * Get mail client host
      *
-     * @return string
+     * @return ?string
      */
-    public function getHost();
+    public function getHost(): ?string;
 
     /**
      * Get mail client port
      *
-     * @return int
+     * @return int|string|null
      */
-    public function getPort();
+    public function getPort(): int|string|null;
 
     /**
      * Get mail client service
      *
-     * @return string
+     * @return ?string
      */
-    public function getService();
+    public function getService(): ?string;
 
     /**
      * Get username
      *
      * @return string
      */
-    public function getUsername();
+    public function getUsername(): string;
 
     /**
      * Get password
      *
      * @return string
      */
-    public function getPassword();
+    public function getPassword(): string;
 
     /**
      * Get folder
      *
      * @return string
      */
-    public function getFolder();
+    public function getFolder(): string;
 
     /**
      * Set mail client host
@@ -74,15 +74,15 @@ interface ClientInterface
      * @param  string $host
      * @return ClientInterface
      */
-    public function setHost($host);
+    public function setHost(string $host): ClientInterface;
 
     /**
      * Set mail client port
      *
-     * @param  int $port
+     * @param  int|string $port
      * @return ClientInterface
      */
-    public function setPort($port);
+    public function setPort(int|string $port): ClientInterface;
 
     /**
      * Set mail client service
@@ -90,7 +90,7 @@ interface ClientInterface
      * @param  string $service
      * @return ClientInterface
      */
-    public function setService($service);
+    public function setService(string $service): ClientInterface;
 
     /**
      * Set username
@@ -98,7 +98,7 @@ interface ClientInterface
      * @param  string $username
      * @return ClientInterface
      */
-    public function setUsername($username);
+    public function setUsername(string $username): ClientInterface;
 
     /**
      * Set password
@@ -106,7 +106,7 @@ interface ClientInterface
      * @param  string $password
      * @return ClientInterface
      */
-    public function setPassword($password);
+    public function setPassword(string $password): ClientInterface;
 
     /**
      * Set folder
@@ -114,6 +114,6 @@ interface ClientInterface
      * @param  string $folder
      * @return ClientInterface
      */
-    public function setFolder($folder);
+    public function setFolder(string $folder): ClientInterface;
 
 }

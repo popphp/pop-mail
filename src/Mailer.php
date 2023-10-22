@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -13,40 +13,43 @@
  */
 namespace Pop\Mail;
 
+use Pop\Mail\Transport\TransportInterface;
+
 /**
  * Mailer class
  *
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 class Mailer
 {
 
     /**
      * Transport object
-     * @var Transport\TransportInterface
+     * @var ?TransportInterface
      */
-    protected $transport = null;
+    protected ?TransportInterface $transport = null;
 
 
     /**
      * Default from address
-     * @var string
+     * @var ?string
      */
-    protected $defaultFrom = null;
+    protected ?string $defaultFrom = null;
 
     /**
      * Constructor
      *
      * Instantiate the message object
      *
-     * @param  Transport\TransportInterface $transport
+     * @param TransportInterface $transport
+     * @param ?string            $defaultFrom
      */
-    public function __construct(Transport\TransportInterface $transport, $defaultFrom = null)
+    public function __construct(TransportInterface $transport, ?string $defaultFrom = null)
     {
         $this->transport   = $transport;
         $this->defaultFrom = $defaultFrom;
@@ -55,9 +58,9 @@ class Mailer
     /**
      * Get the transport object
      *
-     * @return Transport\TransportInterface
+     * @return TransportInterface
      */
-    public function transport()
+    public function transport(): TransportInterface
     {
         return $this->transport;
     }
@@ -65,9 +68,10 @@ class Mailer
     /**
      * Set default from address
      *
+     * @param  string $from
      * @return Mailer
      */
-    public function setDefaultFrom($from)
+    public function setDefaultFrom(string $from): Mailer
     {
         $this->defaultFrom = $from;
         return $this;
@@ -76,9 +80,9 @@ class Mailer
     /**
      * Get default from address
      *
-     * @return string
+     * @return ?string
      */
-    public function getDefaultFrom()
+    public function getDefaultFrom(): ?string
     {
         return $this->defaultFrom;
     }
@@ -86,11 +90,11 @@ class Mailer
     /**
      * Has default from address
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasDefaultFrom()
+    public function hasDefaultFrom(): bool
     {
-        return (null !== $this->defaultFrom);
+        return ($this->defaultFrom !== null);
     }
 
     /**
@@ -99,7 +103,7 @@ class Mailer
      * @param  Message $message
      * @return mixed
      */
-    public function send(Message $message)
+    public function send(Message $message): mixed
     {
         if ((!$message->hasFrom()) && ($this->hasDefaultFrom())) {
             $message->setFrom($this->defaultFrom);
@@ -112,10 +116,9 @@ class Mailer
      * Send messages from mail queue
      *
      * @param  Queue $queue
-     * @throws Exception
      * @return int
      */
-    public function sendFromQueue(Queue $queue)
+    public function sendFromQueue(Queue $queue): int
     {
         $sent     = 0;
         $messages = $queue->prepare();
@@ -135,7 +138,7 @@ class Mailer
      * @throws Exception
      * @return int
      */
-    public function sendFromDir($dir)
+    public function sendFromDir(string $dir): int
     {
         if (!file_exists($dir)) {
             throw new Exception('Error: That directory does not exist');

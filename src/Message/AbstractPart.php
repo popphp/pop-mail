@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Mail\Message;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 abstract class AbstractPart extends AbstractMessage implements PartInterface
 {
@@ -40,15 +40,15 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
 
     /**
      * Message part content
-     * @var string
+     * @var ?string
      */
-    protected $content = null;
+    protected ?string $content = null;
 
     /**
      * Message part encoding
-     * @var string
+     * @var ?string
      */
-    protected $encoding = null;
+    protected ?string $encoding = null;
 
     /**
      * Constructor
@@ -57,14 +57,12 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
      *
      * @param string  $content
      * @param string  $contentType
-     * @param string  $encoding
-     * @param boolean $chunk
+     * @param ?string $encoding
+     * @param bool    $chunk
      */
-    public function __construct($content, $contentType = 'text/plain', $encoding = null, $chunk = false)
+    public function __construct(string $content, string $contentType = 'text/plain', ?string $encoding = null, bool $chunk = false)
     {
-        parent::__construct();
-
-        if (null !== $encoding) {
+        if ($encoding !== null) {
             $this->setEncoding($encoding);
 
             switch ($this->encoding) {
@@ -99,9 +97,9 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     /**
      * Get message part content
      *
-     * @return string
+     * @return ?string
      */
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->content;
     }
@@ -112,7 +110,7 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
      * @param  string $content
      * @return AbstractPart
      */
-    public function setContent($content)
+    public function setContent(string $content): AbstractPart
     {
         $this->content = $content;
         return $this;
@@ -121,9 +119,9 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     /**
      * Get message part encoding
      *
-     * @return string
+     * @return ?string
      */
-    public function getEncoding()
+    public function getEncoding(): ?string
     {
         return $this->encoding;
     }
@@ -134,7 +132,7 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
      * @param  string $encoding
      * @return AbstractPart
      */
-    public function setEncoding($encoding)
+    public function setEncoding(string $encoding): AbstractPart
     {
         $this->encoding = $encoding;
         return $this;
@@ -143,9 +141,9 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     /**
      * Check if encoding is base64
      *
-     * @return string
+     * @return bool
      */
-    public function isBase64()
+    public function isBase64(): bool
     {
         return ($this->encoding == self::BASE64);
     }
@@ -153,9 +151,9 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     /**
      * Check if encoding is quoted printable
      *
-     * @return string
+     * @return bool
      */
-    public function isQuotedPrintable()
+    public function isQuotedPrintable(): bool
     {
         return ($this->encoding == self::QUOTED_PRINTABLE);
     }
@@ -163,9 +161,9 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     /**
      * Check if encoding is 8-bit
      *
-     * @return string
+     * @return bool
      */
-    public function is8Bit()
+    public function is8Bit(): bool
     {
         return ($this->encoding == self::_8BIT);
     }
@@ -173,9 +171,9 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     /**
      * Check if encoding is 7-bit
      *
-     * @return string
+     * @return bool
      */
-    public function is7Bit()
+    public function is7Bit(): bool
     {
         return ($this->encoding == self::_7BIT);
     }
@@ -183,9 +181,9 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
     /**
      * Get message body
      *
-     * @return string
+     * @return ?string
      */
-    public function getBody()
+    public function getBody(): ?string
     {
         return $this->getContent();
     }
@@ -196,7 +194,7 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
      * @param  array $omitHeaders
      * @return string
      */
-    public function render(array $omitHeaders = [])
+    public function render(array $omitHeaders = []): string
     {
         return $this->getHeadersAsString($omitHeaders) . Message::CRLF . $this->getBody() . Message::CRLF . Message::CRLF;
     }
@@ -207,7 +205,7 @@ abstract class AbstractPart extends AbstractMessage implements PartInterface
      * @param  array $omitHeaders
      * @return array
      */
-    public function renderAsLines(array $omitHeaders = [])
+    public function renderAsLines(array $omitHeaders = []): array
     {
         $lines = [];
 

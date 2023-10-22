@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace Pop\Mail\Message;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 interface MessageInterface
 {
@@ -31,25 +31,25 @@ interface MessageInterface
      *
      * @param  string $header
      * @param  string $value
-     * @return AbstractPart
+     * @return MessageInterface
      */
-    public function addHeader($header, $value);
+    public function addHeader(string $header, string $value): MessageInterface;
 
     /**
      * Add headers
      *
      * @param  array $headers
-     * @return AbstractPart
+     * @return MessageInterface
      */
-    public function addHeaders(array $headers);
+    public function addHeaders(array $headers): MessageInterface;
 
     /**
      * Determine if message has header
      *
      * @param  string $header
-     * @return boolean
+     * @return bool
      */
-    public function hasHeader($header);
+    public function hasHeader(string $header): bool;
 
     /**
      * Get header
@@ -57,51 +57,51 @@ interface MessageInterface
      * @param  string $header
      * @return string
      */
-    public function getHeader($header);
+    public function getHeader(string $header): ?string;
 
     /**
      * Get all headers
      *
      * @return array
      */
-    public function getHeaders();
+    public function getHeaders(): array;
 
     /**
      * Get header as string
      *
      * @param  string $header
-     * @return string
+     * @return string|null
      */
-    public function getHeaderAsString($header);
+    public function getHeaderAsString(string $header): string|null;
 
     /**
      * Get all headers as string
      *
-     * @param  array $omit
-     * @return string
+     * @param  array $omitHeaders
+     * @return string|null
      */
-    public function getHeadersAsString(array $omit = []);
+    public function getHeadersAsString(array $omitHeaders = []): string|null;
 
     /**
      * Get content type
      *
-     * @return string
+     * @return ?string
      */
-    public function getContentType();
+    public function getContentType(): ?string;
 
     /**
      * Get character set
      *
-     * @return string
+     * @return ?string
      */
-    public function getCharSet();
+    public function getCharSet(): ?string;
 
     /**
      * Get body
      *
-     * @return string
+     * @return ?string
      */
-    public function getBody();
+    public function getBody(): ?string;
 
     /**
      * Set content type
@@ -109,7 +109,7 @@ interface MessageInterface
      * @param  string $contentType
      * @return MessageInterface
      */
-    public function setContentType($contentType);
+    public function setContentType(string $contentType): MessageInterface;
 
     /**
      * Set character set
@@ -117,27 +117,27 @@ interface MessageInterface
      * @param  string $charSet
      * @return MessageInterface
      */
-    public function setCharSet($charSet);
+    public function setCharSet(string $charSet): MessageInterface;
 
     /**
      * Render
      *
      * @return string
      */
-    public function render();
+    public function render(): string;
 
     /**
      * Render as an array of lines
      *
      * @return array
      */
-    public function renderAsLines();
+    public function renderAsLines(): array;
 
     /**
      * Render to string
      *
      * @return string
      */
-    public function __toString();
+    public function __toString(): string;
 
 }

@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -13,7 +13,14 @@
  */
 namespace Pop\Mail;
 
+use Pop\Mail\Message\Part;
+use Pop\Mail\Message\Simple;
+use Pop\Mail\Message\Text;
+use Pop\Mail\Message\Html;
+use Pop\Mail\Message\Attachment;
+use Pop\Mail\Message\AbstractMessage;
 use Pop\Mail\Message\AbstractPart;
+use Pop\Mail\Message\PartInterface;
 use Pop\Mime\Part\Header\Value;
 
 /**
@@ -22,11 +29,11 @@ use Pop\Mime\Part\Header\Value;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
-class Message extends Message\AbstractMessage
+class Message extends AbstractMessage
 {
 
     /**
@@ -39,13 +46,13 @@ class Message extends Message\AbstractMessage
      * Message parts
      * @var array
      */
-    protected $parts = [];
+    protected array $parts = [];
 
     /**
      * Message addresses
      * @var array
      */
-    protected $addresses = [
+    protected array $addresses = [
         'To'          => [],
         'CC'          => [],
         'BCC'         => [],
@@ -57,22 +64,22 @@ class Message extends Message\AbstractMessage
 
     /**
      * Message boundary
-     * @var string
+     * @var ?string
      */
-    protected $boundary = null;
+    protected ?string $boundary = null;
 
     /**
      * Constructor
      *
      * Instantiate the message object
      *
-     * @param  string $subject
+     * @param ?string $subject
      */
-    public function __construct($subject = null)
+    public function __construct(?string $subject = null)
     {
         parent::__construct();
 
-        if (null !== $subject) {
+        if ($subject !== null) {
             $this->setSubject($subject);
         }
     }
@@ -84,9 +91,9 @@ class Message extends Message\AbstractMessage
      * @throws Exception
      * @return Message
      */
-    public static function load($message)
+    public static function load(string $message): Message
     {
-        if (is_string($message) && (strpos($message, 'Subject:') !== false)) {
+        if (is_string($message) && (str_contains($message, 'Subject:'))) {
             return self::parse($message);
         } else if (file_exists($message)) {
             return self::parseFromFile($message);
@@ -99,9 +106,9 @@ class Message extends Message\AbstractMessage
      * Set Subject
      *
      * @param  string $subject
-     * @return Message\AbstractMessage
+     * @return AbstractMessage
      */
-    public function setSubject($subject)
+    public function setSubject(string $subject): AbstractMessage
     {
         return $this->addHeader('Subject', $subject);
     }
@@ -110,9 +117,9 @@ class Message extends Message\AbstractMessage
      * Set To
      *
      * @param  mixed $to
-     * @return Message\AbstractMessage
+     * @return AbstractMessage
      */
-    public function setTo($to)
+    public function setTo(mixed $to): AbstractMessage
     {
         if ($to instanceof Value) {
             $to = (string)$to;
@@ -125,9 +132,9 @@ class Message extends Message\AbstractMessage
      * Set CC
      *
      * @param  mixed $cc
-     * @return Message\AbstractMessage
+     * @return AbstractMessage
      */
-    public function setCc($cc)
+    public function setCc(mixed $cc): AbstractMessage
     {
         if ($cc instanceof Value) {
             $cc = (string)$cc;
@@ -140,9 +147,9 @@ class Message extends Message\AbstractMessage
      * Set BCC
      *
      * @param  mixed $bcc
-     * @return Message\AbstractMessage
+     * @return AbstractMessage
      */
-    public function setBcc($bcc)
+    public function setBcc(mixed $bcc): AbstractMessage
     {
         if ($bcc instanceof Value) {
             $bcc = (string)$bcc;
@@ -155,9 +162,9 @@ class Message extends Message\AbstractMessage
      * Set From
      *
      * @param  mixed $from
-     * @return Message\AbstractMessage
+     * @return AbstractMessage
      */
-    public function setFrom($from)
+    public function setFrom(mixed $from): AbstractMessage
     {
         if ($from instanceof Value) {
             $from = (string)$from;
@@ -170,9 +177,9 @@ class Message extends Message\AbstractMessage
      * Set Reply-To
      *
      * @param  mixed $replyTo
-     * @return Message\AbstractMessage
+     * @return AbstractMessage
      */
-    public function setReplyTo($replyTo)
+    public function setReplyTo(mixed $replyTo): AbstractMessage
     {
         if ($replyTo instanceof Value) {
             $replyTo = (string)$replyTo;
@@ -185,9 +192,9 @@ class Message extends Message\AbstractMessage
      * Set Sender
      *
      * @param  mixed $sender
-     * @return Message\AbstractMessage
+     * @return AbstractMessage
      */
-    public function setSender($sender)
+    public function setSender(mixed $sender): AbstractMessage
     {
         if ($sender instanceof Value) {
             $sender = (string)$sender;
@@ -200,9 +207,9 @@ class Message extends Message\AbstractMessage
      * Set Return-Path
      *
      * @param  mixed $returnPath
-     * @return Message\AbstractMessage
+     * @return AbstractMessage
      */
-    public function setReturnPath($returnPath)
+    public function setReturnPath(mixed $returnPath): AbstractMessage
     {
         if ($returnPath instanceof Value) {
             $returnPath = (string)$returnPath;
@@ -217,10 +224,10 @@ class Message extends Message\AbstractMessage
      * @param  mixed $body
      * @return Message
      */
-    public function setBody($body)
+    public function setBody(mixed $body): Message
     {
-        if (!($body instanceof Message\PartInterface)) {
-            $body = new Message\Text($body);
+        if (!($body instanceof PartInterface)) {
+            $body = new Text($body);
         }
         return $this->addPart($body);
     }
@@ -231,10 +238,10 @@ class Message extends Message\AbstractMessage
      * @param  mixed $text
      * @return Message
      */
-    public function addText($text)
+    public function addText(mixed $text): Message
     {
-        if (!($text instanceof Message\Text) && is_string($text)) {
-            $text = new Message\Text($text);
+        if (!($text instanceof Text) && is_string($text)) {
+            $text = new Text($text);
         }
         return $this->addPart($text);
     }
@@ -245,10 +252,10 @@ class Message extends Message\AbstractMessage
      * @param  mixed $html
      * @return Message
      */
-    public function addHtml($html)
+    public function addHtml(mixed $html): Message
     {
-        if (!($html instanceof Message\Html) && is_string($html)) {
-            $html = new Message\Html($html);
+        if (!($html instanceof Html) && is_string($html)) {
+            $html = new Html($html);
         }
         return $this->addPart($html);
     }
@@ -260,14 +267,14 @@ class Message extends Message\AbstractMessage
      * @param  string $encoding
      * @return Message
      */
-    public function attachFile($file, $encoding = AbstractPart::BASE64)
+    public function attachFile(string $file, string $encoding = AbstractPart::BASE64): Message
     {
-        if (!($file instanceof Message\Attachment)) {
+        if (!($file instanceof Attachment)) {
             $options = [
                 'encoding' => $encoding,
                 'chunk'    => true
             ];
-            $file = Message\Attachment::createFromFile($file, $options);
+            $file = Attachment::createFromFile($file, $options);
         }
         return $this->addPart($file);
     }
@@ -280,24 +287,26 @@ class Message extends Message\AbstractMessage
      * @param  string $encoding
      * @return Message
      */
-    public function attachFileFromStream($stream, $basename = 'file.tmp', $encoding = AbstractPart::BASE64)
+    public function attachFileFromStream(
+        string $stream, string $basename = 'file.tmp', string $encoding = AbstractPart::BASE64
+    ): Message
     {
         $options = [
             'basename' => $basename,
             'encoding' => $encoding,
             'chunk'    => true
         ];
-        $file = Message\Attachment::createFromStream($stream, $options);
+        $file = Attachment::createFromStream($stream, $options);
         return $this->addPart($file);
     }
 
     /**
      * Add message part
      *
-     * @param  Message\PartInterface $part
+     * @param  PartInterface $part
      * @return Message
      */
-    public function addPart(Message\PartInterface $part)
+    public function addPart(PartInterface $part): Message
     {
         $this->parts[] = $part;
         $this->validateContentType();
@@ -310,7 +319,7 @@ class Message extends Message\AbstractMessage
      * @param  string $header
      * @return Message
      */
-    public function removeHeader($header)
+    public function removeHeader(string $header): Message
     {
         if (isset($this->headers[$header])) {
             unset($this->headers[$header]);
@@ -321,9 +330,9 @@ class Message extends Message\AbstractMessage
     /**
      * Get subject
      *
-     * @return string
+     * @return ?string
      */
-    public function getSubject()
+    public function getSubject(): ?string
     {
         return $this->getHeader('Subject');
     }
@@ -333,7 +342,7 @@ class Message extends Message\AbstractMessage
      *
      * @return array
      */
-    public function getTo()
+    public function getTo(): array
     {
         return $this->addresses['To'];
     }
@@ -343,7 +352,7 @@ class Message extends Message\AbstractMessage
      *
      * @return array
      */
-    public function getCc()
+    public function getCc(): array
     {
         return $this->addresses['CC'];
     }
@@ -353,7 +362,7 @@ class Message extends Message\AbstractMessage
      *
      * @return array
      */
-    public function getBcc()
+    public function getBcc(): array
     {
         return $this->addresses['BCC'];
     }
@@ -363,7 +372,7 @@ class Message extends Message\AbstractMessage
      *
      * @return array
      */
-    public function getFrom()
+    public function getFrom(): array
     {
         return $this->addresses['From'];
     }
@@ -373,7 +382,7 @@ class Message extends Message\AbstractMessage
      *
      * @return array
      */
-    public function getReplyTo()
+    public function getReplyTo(): array
     {
         return $this->addresses['Reply-To'];
     }
@@ -383,7 +392,7 @@ class Message extends Message\AbstractMessage
      *
      * @return array
      */
-    public function getSender()
+    public function getSender(): array
     {
         return $this->addresses['Sender'];
     }
@@ -393,7 +402,7 @@ class Message extends Message\AbstractMessage
      *
      * @return array
      */
-    public function getReturnPath()
+    public function getReturnPath(): array
     {
         return $this->addresses['Return-Path'];
     }
@@ -401,9 +410,9 @@ class Message extends Message\AbstractMessage
     /**
      * Has To
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasTo()
+    public function hasTo(): bool
     {
         return !empty($this->addresses['To']);
     }
@@ -411,9 +420,9 @@ class Message extends Message\AbstractMessage
     /**
      * Has CC
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasCc()
+    public function hasCc(): bool
     {
         return !empty($this->addresses['CC']);
     }
@@ -421,9 +430,9 @@ class Message extends Message\AbstractMessage
     /**
      * Has BCC
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasBcc()
+    public function hasBcc(): bool
     {
         return !empty($this->addresses['BCC']);
     }
@@ -431,9 +440,9 @@ class Message extends Message\AbstractMessage
     /**
      * Has From
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasFrom()
+    public function hasFrom(): bool
     {
         return !empty($this->addresses['From']);
     }
@@ -441,9 +450,9 @@ class Message extends Message\AbstractMessage
     /**
      * Has Reply-To
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasReplyTo()
+    public function hasReplyTo(): bool
     {
         return !empty($this->addresses['Reply-To']);
     }
@@ -451,9 +460,9 @@ class Message extends Message\AbstractMessage
     /**
      * Has Sender
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasSender()
+    public function hasSender(): bool
     {
         return !empty($this->addresses['Sender']);
     }
@@ -461,9 +470,9 @@ class Message extends Message\AbstractMessage
     /**
      * Has Return-Path
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasReturnPath()
+    public function hasReturnPath(): bool
     {
         return !empty($this->addresses['Return-Path']);
     }
@@ -471,9 +480,9 @@ class Message extends Message\AbstractMessage
     /**
      * Get message body
      *
-     * @return string
+     * @return ?string
      */
-    public function getBody()
+    public function getBody(): ?string
     {
         $body  = null;
 
@@ -484,7 +493,7 @@ class Message extends Message\AbstractMessage
             $body .= '--' . $this->getBoundary() . '--';
         } else if (count($this->parts) == 1) {
             $part  = $this->parts[0];
-            if (($part instanceof Message\Text) || ($part instanceof Message\Html)) {
+            if (($part instanceof Text) || ($part instanceof Html)) {
                 $body .= $part->getBody() . self::CRLF;
             } else {
                 $body .= '--' . $this->getBoundary() . self::CRLF . $part . self::CRLF;
@@ -500,9 +509,9 @@ class Message extends Message\AbstractMessage
      *
      * @return string
      */
-    public function getBoundary()
+    public function getBoundary(): string
     {
-        if (null === $this->boundary) {
+        if ($this->boundary === null) {
             $this->generateBoundary();
         }
         return $this->boundary;
@@ -512,11 +521,11 @@ class Message extends Message\AbstractMessage
      * Get message part
      *
      * @param  int $i
-     * @return Message\PartInterface
+     * @return PartInterface|null
      */
-    public function getPart($i)
+    public function getPart(int $i): PartInterface|null
     {
-        return (isset($this->parts[(int)$i])) ? $this->parts[(int)$i] : null;
+        return $this->parts[$i] ?? null;
     }
 
     /**
@@ -524,7 +533,7 @@ class Message extends Message\AbstractMessage
      *
      * @return array
      */
-    public function getParts()
+    public function getParts(): array
     {
         return $this->parts;
     }
@@ -535,7 +544,7 @@ class Message extends Message\AbstractMessage
      * @param  string $boundary
      * @return Message
      */
-    public function setBoundary($boundary)
+    public function setBoundary(string $boundary): Message
     {
         $this->boundary = $boundary;
         $this->addHeader('MIME-Version', '1.0');
@@ -547,7 +556,7 @@ class Message extends Message\AbstractMessage
      *
      * @return Message
      */
-    public function generateBoundary()
+    public function generateBoundary(): Message
     {
         return $this->setBoundary(sha1(time()));
     }
@@ -558,7 +567,7 @@ class Message extends Message\AbstractMessage
      * @param  array $omitHeaders
      * @return string
      */
-    public function render(array $omitHeaders = [])
+    public function render(array $omitHeaders = []): string
     {
         return $this->getHeadersAsString($omitHeaders) . self::CRLF . $this->getBody();
     }
@@ -570,7 +579,7 @@ class Message extends Message\AbstractMessage
      * @param  array  $omitHeaders
      * @return void
      */
-    public function save($to, array $omitHeaders = [])
+    public function save(string $to, array $omitHeaders = []): void
     {
         file_put_contents($to, $this->render($omitHeaders));
     }
@@ -581,7 +590,7 @@ class Message extends Message\AbstractMessage
      * @param  array $omitHeaders
      * @return array
      */
-    public function renderAsLines(array $omitHeaders = [])
+    public function renderAsLines(array $omitHeaders = []): array
     {
         $lines   = [];
         $headers = explode(Message::CRLF, $this->getHeadersAsString($omitHeaders) . Message::CRLF);
@@ -601,10 +610,11 @@ class Message extends Message\AbstractMessage
     /**
      * Write this entire entity to a buffer
      *
-     * @param Transport\Smtp\Stream\BufferInterface $is
+     * @param  Transport\Smtp\Stream\BufferInterface $is
      * @param  array $omitHeaders
+     * @return void
      */
-    public function toByteStream(Transport\Smtp\Stream\BufferInterface $is, array $omitHeaders = [])
+    public function toByteStream(Transport\Smtp\Stream\BufferInterface $is, array $omitHeaders = []): void
     {
         $lines = $this->renderAsLines($omitHeaders);
         foreach ($lines as $line) {
@@ -620,7 +630,7 @@ class Message extends Message\AbstractMessage
      * @throws Exception
      * @return Message
      */
-    public static function parseFromFile($file)
+    public static function parseFromFile(string $file): Message
     {
         if (!file_exists($file)) {
             throw new Exception("Error: The file '" . $file . "' does not exist.");
@@ -636,7 +646,7 @@ class Message extends Message\AbstractMessage
      * @throws Exception
      * @return Message
      */
-    public static function parse($stream)
+    public static function parse(string $stream): Message
     {
         $parsedMessage = \Pop\Mime\Message::parseMessage($stream);
         $message       = new self();
@@ -686,7 +696,7 @@ class Message extends Message\AbstractMessage
         }
 
         if ($parsedMessage->hasParts()) {
-            $parts = Message\Part::parseParts($parsedMessage->getParts());
+            $parts = Part::parseParts($parsedMessage->getParts());
 
             foreach ($parts as $part) {
                 if ($part->attachment) {
@@ -696,13 +706,13 @@ class Message extends Message\AbstractMessage
                         'encoding'    => AbstractPart::BASE64,
                         'chunk'       => true
                     ];
-                    $message->addPart(Message\Attachment::createFromStream($part->content, $options));
+                    $message->addPart(Attachment::createFromStream($part->content, $options));
                 } else if (!empty($part->type) && (stripos($part->type, 'html') !== false)) {
-                    $message->addPart(new Message\Html($part->content));
+                    $message->addPart(new Html($part->content));
                 } else if (!empty($part->type) && (stripos($part->type, 'text') !== false)) {
-                    $message->addPart(new Message\Text($part->content));
+                    $message->addPart(new Text($part->content));
                 } else {
-                    $message->addPart(new Message\Simple($part->content));
+                    $message->addPart(new Simple($part->content));
                 }
             }
         }
@@ -716,7 +726,7 @@ class Message extends Message\AbstractMessage
      * @param  string $text
      * @return string
      */
-    public static function decodeText($text)
+    public static function decodeText(string $text): string
     {
         $decodedValues = imap_mime_header_decode($text);
         $decoded       = '';
@@ -731,11 +741,11 @@ class Message extends Message\AbstractMessage
     /**
      * Parse addresses
      *
-     * @param  mixed   $addresses
-     * @param  boolean $asArray
+     * @param  mixed $addresses
+     * @param  bool  $asArray
      * @return string|array
      */
-    public function parseAddresses($addresses, $asArray = false)
+    public function parseAddresses(mixed $addresses, bool $asArray = false): string|array
     {
         $formatted = [];
         $emails    = [];
@@ -747,7 +757,7 @@ class Message extends Message\AbstractMessage
                     $emails[$value->mailbox . '@' . $value->host] = null;
                 } else {
                     // $key is email
-                    if (strpos($key, '@') !== false) {
+                    if (str_contains($key, '@')) {
                         if (!empty($value) && !is_numeric($value)) {
                             $formatted[]  = '"' . $value . '" <' . $key . '>';
                             $emails[$key] = $value;
@@ -756,7 +766,7 @@ class Message extends Message\AbstractMessage
                             $emails[$key] = null;
                         }
                     // $value is email
-                    } else if (strpos($value, '@') !== false) {
+                    } else if (str_contains($value, '@')) {
                         if (!empty($key) && !is_numeric($key)) {
                             $formatted[]    = '"' . $key . '" <' . $value . '>';
                             $emails[$value] = $key;
@@ -767,9 +777,9 @@ class Message extends Message\AbstractMessage
                     }
                 }
             }
-        } else if (is_string($addresses) && (strpos($addresses, '@') !== false)) {
+        } else if (is_string($addresses) && (str_contains($addresses, '@'))) {
             $formatted = [$addresses];
-            if (strpos($addresses, ',') !== false) {
+            if (str_contains($addresses, ',')) {
                 $addresses = explode(',', $addresses);
                 foreach ($addresses as $address) {
                     $address = $this->parseNameAndEmail(trim($address));
@@ -790,16 +800,16 @@ class Message extends Message\AbstractMessage
      * @param  string $address
      * @return array
      */
-    public function parseNameAndEmail($address)
+    public function parseNameAndEmail(string $address): array
     {
         $name  = null;
         $email = null;
 
-        if ((strpos($address, '<') !== false) && (strpos($address, '>') !== false)) {
+        if ((str_contains($address, '<')) && (str_contains($address, '>'))) {
             $name  = trim(substr($address, 0, strpos($address, '<')));
             $email = substr($address, (strpos($address, '<') + 1));
             $email = trim(substr($email, 0, -1));
-        } else if (strpos($address, '@') !== false) {
+        } else if (str_contains($address, '@')) {
             $email = trim($address);
         }
 
@@ -811,20 +821,20 @@ class Message extends Message\AbstractMessage
      *
      * @return void
      */
-    protected function validateContentType()
+    protected function validateContentType(): void
     {
         $hasText = false;
         $hasHtml = false;
         $hasFile = false;
 
         foreach ($this->parts as $part) {
-            if ($part instanceof Message\Text) {
+            if ($part instanceof Text) {
                 $hasText = true;
             }
-            if ($part instanceof Message\Html) {
+            if ($part instanceof Html) {
                 $hasHtml = true;
             }
-            if ($part instanceof Message\Attachment) {
+            if ($part instanceof Attachment) {
                 $hasFile = true;
             }
         }
@@ -849,7 +859,8 @@ class Message extends Message\AbstractMessage
      *
      * @return void
      */
-    public function __clone() {
+    public function __clone(): void
+    {
         foreach($this as $key => $val) {
             if (is_object($val) || (is_array($val))) {
                 $this->{$key} = unserialize(serialize($val));

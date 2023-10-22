@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,36 +19,36 @@ namespace Pop\Mail\Message;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 class Attachment extends AbstractPart
 {
 
     /**
      * File attachment
-     * @var string
+     * @var ?string
      */
-    protected $filename = null;
+    protected ?string $filename = null;
 
     /**
      * File attachment basename
-     * @var string
+     * @var ?string
      */
-    protected $basename = null;
+    protected ?string $basename = null;
 
     /**
      * File attachment original stream content
-     * @var string
+     * @var ?string
      */
-    protected $stream = null;
+    protected ?string $stream = null;
 
     /**
      * Common content types for auto-detection
      * @var array
      */
-    protected $contentTypes = [
+    protected array $contentTypes = [
         'csv'    => 'text/csv',
         'doc'    => 'application/msword',
         'docx'   => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -79,17 +79,17 @@ class Attachment extends AbstractPart
      *
      * Instantiate the mail attachment object
      *
-     * @param  string  $file
-     * @param  string  $stream
+     * @param  ?string $file
+     * @param  ?string $stream
      * @param  array   $options  ['contentType', 'basename', 'encoding', 'chunk']
      * @throws Exception
      */
-    public function __construct($file = null, $stream = null, array $options = [])
+    public function __construct(?string $file = null, ?string $stream = null, array $options = [])
     {
-        if (null !== $stream) {
+        if ($stream !== null) {
             $this->stream   = $stream;
             $this->basename = $options['basename'] ?? 'file.tmp';
-        } else if (null !== $file) {
+        } else if ($file !== null) {
             if (!file_exists($file)) {
                 throw new Exception("Error: The file '" . $file . "' does not exist.");
             } else {
@@ -106,11 +106,11 @@ class Attachment extends AbstractPart
         // Set encoding
         if (isset($options['encoding'])) {
             switch (strtoupper($options['encoding'])) {
-                case self::BASE64:
-                case self::QUOTED_PRINTABLE:
-                case self::BINARY:
-                case self::_8BIT:
-                case self::_7BIT:
+                case Attachment::BASE64:
+                case Attachment::QUOTED_PRINTABLE:
+                case Attachment::BINARY:
+                case Attachment::_8BIT:
+                case Attachment::_7BIT:
                     $encoding = strtoupper($options['encoding']);
             }
         }
@@ -125,7 +125,7 @@ class Attachment extends AbstractPart
         }
 
         // Fallback content type detection
-        if ((null === $contentType) && (strpos($this->basename, '.') !== false)) {
+        if (($contentType === null) && (str_contains($this->basename, '.'))) {
             $pathInfo    = pathinfo($this->basename);
             $ext         = strtolower($pathInfo['extension']);
             $contentType = (array_key_exists($ext, $this->contentTypes)) ?
@@ -144,11 +144,11 @@ class Attachment extends AbstractPart
      *
      * @param  string  $file
      * @param  array   $options  ['contentType', 'basename', 'encoding', 'chunk']
-     * @return self
+     * @return Attachment
      */
-    public static function createFromFile($file, array $options = [])
+    public static function createFromFile(string $file, array $options = []): Attachment
     {
-        return new self($file, null, $options);
+        return new Attachment($file, null, $options);
     }
 
     /**
@@ -156,19 +156,19 @@ class Attachment extends AbstractPart
      *
      * @param  string  $stream
      * @param  array   $options  ['contentType', 'basename', 'encoding', 'chunk']
-     * @return self
+     * @return Attachment
      */
-    public static function createFromStream($stream, array $options = [])
+    public static function createFromStream(string $stream, array $options = []): Attachment
     {
-        return new self(null, $stream, $options);
+        return new Attachment(null, $stream, $options);
     }
 
     /**
      * Get attachment filename
      *
-     * @return string
+     * @return ?string
      */
-    public function getFilename()
+    public function getFilename(): ?string
     {
         return $this->filename;
     }
@@ -176,9 +176,9 @@ class Attachment extends AbstractPart
     /**
      * Get attachment basename
      *
-     * @return string
+     * @return ?string
      */
-    public function getBasename()
+    public function getBasename(): ?string
     {
         return $this->basename;
     }
@@ -186,9 +186,9 @@ class Attachment extends AbstractPart
     /**
      * Get attachment original stream content
      *
-     * @return string
+     * @return ?string
      */
-    public function getStream()
+    public function getStream(): ?string
     {
         return $this->stream;
     }

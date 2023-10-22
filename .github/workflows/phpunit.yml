@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  XDEBUG_MODE: debug,coverage
+
 jobs:
   build:
 
@@ -13,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: [ '7.4', '8.0' ]
+        php-versions: [ '8.1', '8.2' ]
 
     services:
       httpd:

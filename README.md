@@ -27,6 +27,12 @@ Install `pop-mail` using Composer.
 
     composer require popphp/pop-mail
 
+Or, require it in your composer.json file
+
+    "require": {
+        "popphp/pop-mail" : "^4.0.0"
+    }
+
 ### A Note about SMTP
 The SMTP transport component within `pop-mail` is forked from and built on top of the SMTP features and
 functionality of the [Swift Mailer Library](https://github.com/swiftmailer/swiftmailer) and the great

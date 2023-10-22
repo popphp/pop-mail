@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,63 +19,63 @@ namespace Pop\Mail\Client;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 abstract class AbstractClient implements ClientInterface
 {
 
     /**
      * Mail client host
-     * @var string
+     * @var ?string
      */
-    protected $host = null;
+    protected ?string $host = null;
 
     /**
      * Mail client port
-     * @var int
+     * @var int|string|null
      */
-    protected $port = null;
+    protected int|string|null $port = null;
 
     /**
      * Mail client service (pop, imap, nntp, etc.)
-     * @var string
+     * @var ?string
      */
-    protected $service = null;
+    protected ?string $service = null;
 
     /**
      * Username
      * @var string
      */
-    protected $username = '';
+    protected string $username = '';
 
     /**
      * Password
      * @var string
      */
-    protected $password = '';
+    protected string $password = '';
 
     /**
      * Current folder
      * @var string
      */
-    protected $folder = '';
+    protected string $folder = '';
 
     /**
      * Constructor
      *
      * Instantiate the mail client object
      *
-     * @param string $host
-     * @param int    $port
-     * @param string $service
+     * @param string     $host
+     * @param int|string $port
+     * @param ?string    $service
      */
-    public function __construct($host, $port, $service = null)
+    public function __construct(string $host, int|string $port, ?string $service = null)
     {
         $this->setHost($host);
         $this->setPort($port);
-        if (null !== $service) {
+        if ($service !== null) {
             $this->setService($service);
         }
     }
@@ -83,9 +83,9 @@ abstract class AbstractClient implements ClientInterface
     /**
      * Get mail client host
      *
-     * @return string
+     * @return ?string
      */
-    public function getHost()
+    public function getHost(): ?string
     {
         return $this->host;
     }
@@ -93,9 +93,9 @@ abstract class AbstractClient implements ClientInterface
     /**
      * Get mail client port
      *
-     * @return int
+     * @return int|string|null
      */
-    public function getPort()
+    public function getPort(): int|string|null
     {
         return $this->port;
     }
@@ -103,9 +103,9 @@ abstract class AbstractClient implements ClientInterface
     /**
      * Get mail client service
      *
-     * @return string
+     * @return ?string
      */
-    public function getService()
+    public function getService(): ?string
     {
         return $this->service;
     }
@@ -115,7 +115,7 @@ abstract class AbstractClient implements ClientInterface
      *
      * @return string
      */
-    public function getUsername()
+    public function getUsername(): string
     {
         return $this->username;
     }
@@ -125,7 +125,7 @@ abstract class AbstractClient implements ClientInterface
      *
      * @return string
      */
-    public function getPassword()
+    public function getPassword(): string
     {
         return $this->password;
     }
@@ -135,7 +135,7 @@ abstract class AbstractClient implements ClientInterface
      *
      * @return string
      */
-    public function getFolder()
+    public function getFolder(): string
     {
         return $this->folder;
     }
@@ -146,7 +146,7 @@ abstract class AbstractClient implements ClientInterface
      * @param  string $host
      * @return AbstractClient
      */
-    public function setHost($host)
+    public function setHost(string $host): AbstractClient
     {
         $this->host = $host;
         return $this;
@@ -155,10 +155,10 @@ abstract class AbstractClient implements ClientInterface
     /**
      * Set mail client port
      *
-     * @param  int $port
+     * @param  int|string $port
      * @return AbstractClient
      */
-    public function setPort($port)
+    public function setPort(int|string$port): AbstractClient
     {
         $this->port = $port;
         return $this;
@@ -170,7 +170,7 @@ abstract class AbstractClient implements ClientInterface
      * @param  string $service
      * @return AbstractClient
      */
-    public function setService($service)
+    public function setService(string $service): AbstractClient
     {
         $this->service = $service;
         return $this;
@@ -182,7 +182,7 @@ abstract class AbstractClient implements ClientInterface
      * @param  string $username
      * @return AbstractClient
      */
-    public function setUsername($username)
+    public function setUsername(string $username): AbstractClient
     {
         $this->username = $username;
         return $this;
@@ -194,7 +194,7 @@ abstract class AbstractClient implements ClientInterface
      * @param  string $password
      * @return AbstractClient
      */
-    public function setPassword($password)
+    public function setPassword(string $password): AbstractClient
     {
         $this->password = $password;
         return $this;
@@ -206,7 +206,7 @@ abstract class AbstractClient implements ClientInterface
      * @param  string $folder
      * @return AbstractClient
      */
-    public function setFolder($folder)
+    public function setFolder(string $folder): AbstractClient
     {
         $this->folder = $folder;
         return $this;

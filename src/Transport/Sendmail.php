@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Mail\Message;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 class Sendmail extends AbstractTransport
 {
@@ -43,7 +43,7 @@ class Sendmail extends AbstractTransport
      */
     public function __construct($params = null)
     {
-        if (null !== $params) {
+        if ($params !== null) {
             $this->setParams($params);
         }
     }
@@ -74,15 +74,15 @@ class Sendmail extends AbstractTransport
      * Send the message
      *
      * @param  Message $message
-     * @return boolean
+     * @return bool
      */
     public function send(Message $message)
     {
         $headers = $message->getHeadersAsString(['Subject', 'To']);
 
-        if ((null !== $headers) && (null !== $this->params)) {
+        if (($headers !== null) && ($this->params !== null)) {
             return mail($message->getHeader('To'), $message->getSubject(), $message->getBody(), $headers, $this->params);
-        } else if (null !== $headers) {
+        } else if ($headers !== null) {
             return mail($message->getHeader('To'), $message->getSubject(), $message->getBody(), $headers);
         } else {
             return mail($message->getHeader('To'), $message->getSubject(), $message->getBody());

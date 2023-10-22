@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Mail\Message;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 abstract class AbstractMessage implements MessageInterface
 {
@@ -32,40 +32,31 @@ abstract class AbstractMessage implements MessageInterface
      * Headers
      * @var array
      */
-    protected $headers = [];
+    protected array $headers = [];
 
     /**
      * Content type
-     * @var string
+     * @var ?string
      */
-    protected $contentType = null;
+    protected ?string $contentType = null;
 
     /**
      * Character set
      * @var string
      */
-    protected $charSet = 'utf-8';
+    protected string $charSet = 'utf-8';
 
     /**
      * Message or part ID
-     * @var string
+     * @var ?string
      */
-    protected $id = null;
+    protected ?string $id = null;
 
     /**
      * Message or part ID header name
-     * @var string
+     * @var ?string
      */
-    protected $idHeader = null;
-
-    /**
-     * Instantiate the message object
-     *
-     */
-    public function __construct()
-    {
-
-    }
+    protected ?string $idHeader = null;
 
     /**
      * Add message part header
@@ -74,7 +65,7 @@ abstract class AbstractMessage implements MessageInterface
      * @param  string $value
      * @return AbstractMessage
      */
-    public function addHeader($header, $value)
+    public function addHeader(string $header, string $value): AbstractMessage
     {
         $this->headers[$header] = $value;
         return $this;
@@ -86,7 +77,7 @@ abstract class AbstractMessage implements MessageInterface
      * @param  array $headers
      * @return AbstractMessage
      */
-    public function addHeaders(array $headers)
+    public function addHeaders(array $headers): AbstractMessage
     {
         foreach ($headers as $header => $value) {
             $this->addHeader($header, $value);
@@ -98,9 +89,9 @@ abstract class AbstractMessage implements MessageInterface
      * Determine if message part has header
      *
      * @param  string $header
-     * @return boolean
+     * @return bool
      */
-    public function hasHeader($header)
+    public function hasHeader(string $header): bool
     {
         return isset($this->headers[$header]);
     }
@@ -109,11 +100,11 @@ abstract class AbstractMessage implements MessageInterface
      * Get message part header
      *
      * @param  string $header
-     * @return string
+     * @return ?string
      */
-    public function getHeader($header)
+    public function getHeader(string $header): ?string
     {
-        return (isset($this->headers[$header])) ? $this->headers[$header] : null;
+        return $this->headers[$header] ?? null;
     }
 
     /**
@@ -121,7 +112,7 @@ abstract class AbstractMessage implements MessageInterface
      *
      * @return array
      */
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return $this->headers;
     }
@@ -129,9 +120,9 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * Get message part content type
      *
-     * @return string
+     * @return ?string
      */
-    public function getContentType()
+    public function getContentType(): ?string
     {
         return $this->contentType;
     }
@@ -139,9 +130,9 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * Get message part character set
      *
-     * @return string
+     * @return ?string
      */
-    public function getCharSet()
+    public function getCharSet(): ?string
     {
         return $this->charSet;
     }
@@ -152,7 +143,7 @@ abstract class AbstractMessage implements MessageInterface
      * @param  string $contentType
      * @return AbstractMessage
      */
-    public function setContentType($contentType)
+    public function setContentType(string $contentType): AbstractMessage
     {
         $this->contentType = $contentType;
         return $this;
@@ -161,10 +152,10 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * Set message part character set
      *
-     * @param  string $charSet
+     * @param  ?string $charSet
      * @return AbstractMessage
      */
-    public function setCharSet($charSet = null)
+    public function setCharSet(?string $charSet = null): AbstractMessage
     {
         $this->charSet = $charSet;
         return $this;
@@ -174,9 +165,9 @@ abstract class AbstractMessage implements MessageInterface
      * Get header as string
      *
      * @param  string $header
-     * @return string
+     * @return string|null
      */
-    public function getHeaderAsString($header)
+    public function getHeaderAsString(string $header): string|null
     {
         return ($this->hasHeader($header)) ? $header . ': ' . $this->getHeader($header) : null;
     }
@@ -187,7 +178,7 @@ abstract class AbstractMessage implements MessageInterface
      * @param  array $omitHeaders
      * @return string
      */
-    public function getHeadersAsString(array $omitHeaders = [])
+    public function getHeadersAsString(array $omitHeaders = []): string
     {
         $headers = null;
 
@@ -197,8 +188,8 @@ abstract class AbstractMessage implements MessageInterface
             }
         }
 
-        if (null !== $this->id) {
-            if (null === $this->idHeader) {
+        if ($this->id !== null) {
+            if ($this->idHeader === null) {
                 $this->setIdHeader((($this instanceof Message) ? 'Message-ID' : 'Content-ID'));
             }
 
@@ -207,7 +198,7 @@ abstract class AbstractMessage implements MessageInterface
             }
         }
 
-        if ((null !== $this->contentType) && !in_array('Content-Type', $omitHeaders)) {
+        if (($this->contentType !== null) && !in_array('Content-Type', $omitHeaders)) {
             $headers .= 'Content-Type: ' . $this->contentType;
             if (!empty($this->charSet) && (stripos($this->contentType, 'charset') === false)) {
                 $headers .= '; charset="' . $this->charSet . '"';
@@ -215,9 +206,9 @@ abstract class AbstractMessage implements MessageInterface
             $headers .= Message::CRLF;
         }
 
-        if ((strpos($headers, 'Content-Type') === false) && (count($this->parts) == 1)) {
+        if ((!str_contains($headers, 'Content-Type')) && (count($this->parts) == 1)) {
             $contentType = $this->parts[0]->getContentType();
-            if (null !== $contentType) {
+            if ($contentType !== null) {
                 $headers .= 'Content-Type: ' . $contentType . Message::CRLF;
             }
         }
@@ -231,7 +222,7 @@ abstract class AbstractMessage implements MessageInterface
      * @param  string $header
      * @return AbstractMessage
      */
-    public function setIdHeader($header)
+    public function setIdHeader(string $header): AbstractMessage
     {
         $this->idHeader = $header;
         return $this;
@@ -240,9 +231,9 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * Get the ID
      *
-     * @return string
+     * @return ?string
      */
-    public function getIdHeader()
+    public function getIdHeader(): ?string
     {
         return $this->idHeader;
     }
@@ -253,7 +244,7 @@ abstract class AbstractMessage implements MessageInterface
      * @param  string $id
      * @return AbstractMessage
      */
-    public function setId($id)
+    public function setId(string $id): AbstractMessage
     {
         $this->id = $id;
         return $this;
@@ -262,9 +253,9 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * Get the ID
      *
-     * @return string
+     * @return ?string
      */
-    public function getId()
+    public function getId(): ?string
     {
         return $this->id;
     }
@@ -272,10 +263,10 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * Generate a new ID
      *
-     * @string string $domain
+     * @string ?string $domain
      * @return string
      */
-    public function generateId($domain = null)
+    public function generateId(?string $domain = null): string
     {
         $this->setId($this->getRandomId($domain));
         return $this->id;
@@ -284,13 +275,13 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * Returns a random ID
      *
-     * @string string $idRight
+     * @string ?string $idRight
      * @return string
      */
-    protected function getRandomId($idRight = null)
+    protected function getRandomId(?string $idRight = null): string
     {
         $idLeft = md5(getmypid().'.'.time().'.'.uniqid(mt_rand(), true));
-        if (null === $idRight) {
+        if ($idRight === null) {
             $idRight = !empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
         }
         return '<' . $idLeft . '@' . $idRight . '>';
@@ -299,30 +290,30 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * Get body
      *
-     * @return string
+     * @return ?string
      */
-    abstract public function getBody();
+    abstract public function getBody(): ?string;
 
     /**
      * Render
      *
      * @return string
      */
-    abstract public function render();
+    abstract public function render(): string;
 
     /**
      * Render as an array of lines
      *
      * @return array
      */
-    abstract public function renderAsLines();
+    abstract public function renderAsLines(): array;
 
     /**
      * Render message to string
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->render();
     }

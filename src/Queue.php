@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
  */
 
@@ -19,9 +19,9 @@ namespace Pop\Mail;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2023 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2024 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.popphp.org/license     New BSD License
- * @version    3.8.0
+ * @version    4.0.0
  */
 class Queue
 {
@@ -30,19 +30,19 @@ class Queue
      * Recipients
      * @var array
      */
-    protected $recipients = [];
+    protected array $recipients = [];
 
     /**
      * Messages
      * @var array
      */
-    protected $messages = [];
+    protected array $messages = [];
 
     /**
      * Prepared messages
      * @var array
      */
-    protected $prepared = [];
+    protected array $prepared = [];
 
     /**
      * Constructor
@@ -73,7 +73,7 @@ class Queue
      * @param  array $recipients
      * @return Queue
      */
-    public function setRecipients(array $recipients)
+    public function setRecipients(array $recipients): Queue
     {
         $this->recipients = [];
         foreach ($recipients as $recipient) {
@@ -88,7 +88,7 @@ class Queue
      * @param  array $recipients
      * @return Queue
      */
-    public function addRecipients(array $recipients)
+    public function addRecipients(array $recipients): Queue
     {
         foreach ($recipients as $recipient) {
             $this->addRecipient($recipient);
@@ -109,7 +109,7 @@ class Queue
      * @throws Exception
      * @return Queue
      */
-    public function addRecipient(array $recipient)
+    public function addRecipient(array $recipient): Queue
     {
         if (!isset($recipient['email'])) {
             throw new Exception("Error: The recipient's array must contain at least an 'email' key.");
@@ -127,7 +127,7 @@ class Queue
      * @param  array $messages
      * @return Queue
      */
-    public function setMessages(array $messages)
+    public function setMessages(array $messages): Queue
     {
         $this->messages = [];
         foreach ($messages as $message) {
@@ -142,7 +142,7 @@ class Queue
      * @param  array $messages
      * @return Queue
      */
-    public function addMessages(array $messages)
+    public function addMessages(array $messages): Queue
     {
         foreach ($messages as $message) {
             $this->addMessage($message);
@@ -156,7 +156,7 @@ class Queue
      * @param  Message $message
      * @return Queue
      */
-    public function addMessage(Message $message)
+    public function addMessage(Message $message): Queue
     {
         if (!in_array($message, $this->messages, true)) {
             $this->messages[] = $message;
@@ -169,7 +169,7 @@ class Queue
      *
      * @return array
      */
-    public function getMessages()
+    public function getMessages(): array
     {
         return $this->messages;
     }
@@ -179,7 +179,7 @@ class Queue
      *
      * @return array
      */
-    public function getRecipients()
+    public function getRecipients(): array
     {
         return $this->recipients;
     }
@@ -189,7 +189,7 @@ class Queue
      *
      * @return array
      */
-    public function getPreparedMessages()
+    public function getPreparedMessages(): array
     {
         return $this->prepared;
     }
@@ -199,7 +199,7 @@ class Queue
      *
      * @return array
      */
-    public function prepare()
+    public function prepare(): array
     {
         foreach ($this->recipients as $recipient) {
             foreach ($this->messages as $message) {
