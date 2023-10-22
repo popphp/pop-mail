@@ -29,16 +29,16 @@ interface SmtpInterface
      *
      * @return bool
      */
-    public function isStarted();
+    public function isStarted(): bool;
 
     /**
      * Start this Transport mechanism
      */
-    public function start();
+    public function start(): void;
 
     /**
      * Stop this Transport mechanism
      */
-    public function stop();
+    public function stop(): void;
 
 }

@@ -28,31 +28,31 @@ class AuthHandler implements HandlerInterface
      * Authenticators available to process the request.
      * @var array
      */
-    private $authenticators = [];
+    private array $authenticators = [];
 
     /**
      * The username for authentication
-     * @var string
+     * @var ?string
      */
-    private $username;
+    private ?string $username = null;
 
     /**
      * The password for authentication
-     * @var string
+     * @var ?string
      */
-    private $password;
+    private ?string $password = null;
 
     /**
      * The auth mode for authentication
-     * @var string
+     * @var ?string
      */
-    private $authMode;
+    private ?string $authMode = null;
 
     /**
      * The ESMTP AUTH parameters available
      * @var array
      */
-    private $esmtpParams = [];
+    private array $esmtpParams = [];
 
     /**
      * Create a new AuthHandler with $authenticators for support
@@ -69,7 +69,7 @@ class AuthHandler implements HandlerInterface
      *
      * @param array $authenticators
      */
-    public function setAuthenticators(array $authenticators)
+    public function setAuthenticators(array $authenticators): void
     {
         $this->authenticators = $authenticators;
     }
@@ -79,7 +79,7 @@ class AuthHandler implements HandlerInterface
      *
      * @return array
      */
-    public function getAuthenticators()
+    public function getAuthenticators(): array
     {
         return $this->authenticators;
     }
@@ -89,7 +89,7 @@ class AuthHandler implements HandlerInterface
      *
      * @param string $username
      */
-    public function setUsername($username)
+    public function setUsername(string $username): void
     {
         $this->username = $username;
     }
@@ -97,9 +97,9 @@ class AuthHandler implements HandlerInterface
     /**
      * Get the username to authenticate with
      *
-     * @return string
+     * @return ?string
      */
-    public function getUsername()
+    public function getUsername(): ?string
     {
         return $this->username;
     }
@@ -109,7 +109,7 @@ class AuthHandler implements HandlerInterface
      *
      * @param string $password
      */
-    public function setPassword($password)
+    public function setPassword(string $password): void
     {
         $this->password = $password;
     }
@@ -117,9 +117,9 @@ class AuthHandler implements HandlerInterface
     /**
      * Get the password to authenticate with
      *
-     * @return string
+     * @return ?string
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -129,7 +129,7 @@ class AuthHandler implements HandlerInterface
      *
      * @param string $mode
      */
-    public function setAuthMode($mode)
+    public function setAuthMode(string $mode): void
     {
         $this->authMode = $mode;
     }
@@ -137,9 +137,9 @@ class AuthHandler implements HandlerInterface
     /**
      * Get the auth mode to use to authenticate
      *
-     * @return string
+     * @return ?string
      */
-    public function getAuthMode()
+    public function getAuthMode(): ?string
     {
         return $this->authMode;
     }
@@ -147,9 +147,9 @@ class AuthHandler implements HandlerInterface
     /**
      * Get the name of the ESMTP extension this handles
      *
-     * @return bool
+     * @return string
      */
-    public function getHandledKeyword()
+    public function getHandledKeyword(): string
     {
         return 'AUTH';
     }
@@ -159,7 +159,7 @@ class AuthHandler implements HandlerInterface
      *
      * @param array $parameters
      */
-    public function setKeywordParams(array $parameters)
+    public function setKeywordParams(array $parameters): void
     {
         $this->esmtpParams = $parameters;
     }
@@ -169,8 +169,9 @@ class AuthHandler implements HandlerInterface
      *
      * @param  AgentInterface $agent to read/write
      * @throws Exception
+     * @return void
      */
-    public function afterEhlo(AgentInterface $agent)
+    public function afterEhlo(AgentInterface $agent): void
     {
         if ($this->username) {
             $count = 0;
@@ -193,7 +194,7 @@ class AuthHandler implements HandlerInterface
     /**
      * Not used
      */
-    public function getMailParams()
+    public function getMailParams(): array
     {
         return [];
     }
@@ -201,7 +202,7 @@ class AuthHandler implements HandlerInterface
     /**
      * Not used
      */
-    public function getRcptParams()
+    public function getRcptParams(): array
     {
         return [];
     }
@@ -210,11 +211,11 @@ class AuthHandler implements HandlerInterface
      * Not used
      *
      * @param AgentInterface $agent
-     * @param string $command
-     * @param array $codes
-     * @param bool $stop
+     * @param string         $command
+     * @param array          $codes
+     * @param bool           $stop
      */
-    public function onCommand(AgentInterface $agent, $command, $codes = [], &$stop = false)
+    public function onCommand(AgentInterface $agent, string $command, array $codes = [], bool &$stop = false): void
     {
     }
 
@@ -226,7 +227,7 @@ class AuthHandler implements HandlerInterface
      * @param  string $esmtpKeyword to compare with
      * @return int
      */
-    public function getPriorityOver($esmtpKeyword)
+    public function getPriorityOver(string $esmtpKeyword): int
     {
         return 0;
     }
@@ -234,7 +235,7 @@ class AuthHandler implements HandlerInterface
     /**
      * Not used
      */
-    public function resetState()
+    public function resetState(): void
     {
     }
 
@@ -244,7 +245,7 @@ class AuthHandler implements HandlerInterface
      * @throws Exception
      * @return array
      */
-    protected function getAuthenticatorsForAgent()
+    protected function getAuthenticatorsForAgent(): array
     {
         if (!$mode = strtolower((string)$this->authMode)) {
             return $this->authenticators;

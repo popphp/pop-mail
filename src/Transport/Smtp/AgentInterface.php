@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Transport\Smtp;
 
+use Pop\Mail\Transport\Smtp\Stream\BufferInterface;
+
 /**
  * SMTP agent interface
  *
@@ -27,9 +29,9 @@ interface AgentInterface
     /**
      * Get the IoBuffer where read/writes are occurring.
      *
-     * @return Stream\BufferInterface
+     * @return BufferInterface
      */
-    public function getBuffer();
+    public function getBuffer(): BufferInterface;
 
     /**
      * Run a command against the buffer, expecting the given response codes.
@@ -37,9 +39,10 @@ interface AgentInterface
      * If no response codes are given, the response will not be validated.
      * If codes are given, an exception will be thrown on an invalid response.
      *
-     * @param string $command
-     * @param int[]  $codes
+     * @param  string $command
+     * @param  array  $codes
+     * @return mixed
      */
-    public function executeCommand($command, $codes = []);
+    public function executeCommand(string $command, array $codes = []): mixed;
 
 }

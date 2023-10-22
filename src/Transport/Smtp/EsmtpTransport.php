@@ -13,6 +13,8 @@
  */
 namespace Pop\Mail\Transport\Smtp;
 
+use Pop\Mail\Transport\Smtp\Stream\BufferInterface;
+
 /**
  * ESMTP transport class
  *
@@ -28,36 +30,36 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      * ESMTP extension handlers
      * @var array
      */
-    private $handlers = [];
+    private array $handlers = [];
 
     /**
      * ESMTP capabilities
      * @var array
      */
-    private $capabilities = [];
+    private array $capabilities = [];
 
     /**
      * Connection buffer parameters
      * @var array
      */
-    private $params = [
+    private array $params = [
         'protocol'               => 'tcp',
         'host'                   => 'localhost',
         'port'                   => 25,
         'timeout'                => 30,
         'blocking'               => 1,
         'tls'                    => false,
-        'type'                   => Stream\BufferInterface::TYPE_SOCKET,
+        'type'                   => BufferInterface::TYPE_SOCKET,
         'stream_context_options' => [],
     ];
 
     /**
      * Creates a new EsmtpTransport using the given I/O buffer
      *
-     * @param Stream\BufferInterface $buffer
-     * @param array                  $handlers
+     * @param ?BufferInterface $buffer
+     * @param ?array           $handlers
      */
-    public function __construct(Stream\BufferInterface $buffer = null, array $handlers = null)
+    public function __construct(?BufferInterface $buffer = null, ?array $handlers = null)
     {
         if ($buffer === null) {
             $buffer = new Stream\Buffer(new Stream\Filter\StringReplacementFactory());
@@ -81,7 +83,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      * @param  string $host
      * @return EsmtpTransport
      */
-    public function setHost($host)
+    public function setHost(string $host): EsmtpTransport
     {
         $this->params['host'] = $host;
         return $this;
@@ -92,7 +94,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      *
      * @return string
      */
-    public function getHost()
+    public function getHost(): string
     {
         return $this->params['host'];
     }
@@ -100,10 +102,10 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Set the port to connect to
      *
-     * @param  int $port
+     * @param  int|string $port
      * @return EsmtpTransport
      */
-    public function setPort($port)
+    public function setPort(int|string $port): EsmtpTransport
     {
         $this->params['port'] = (int)$port;
 
@@ -115,7 +117,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      *
      * @return int
      */
-    public function getPort()
+    public function getPort(): int
     {
         return $this->params['port'];
     }
@@ -123,10 +125,10 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Set the connection timeout
      *
-     * @param  int $timeout seconds
+     * @param  int|string $timeout seconds
      * @return EsmtpTransport
      */
-    public function setTimeout($timeout)
+    public function setTimeout(int|string $timeout): EsmtpTransport
     {
         $this->params['timeout'] = (int) $timeout;
         $this->buffer->setParam('timeout', (int) $timeout);
@@ -139,7 +141,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      *
      * @return int
      */
-    public function getTimeout()
+    public function getTimeout(): int
     {
         return $this->params['timeout'];
     }
@@ -147,12 +149,12 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Set the encryption type (tls or ssl)
      *
-     * @param string $encryption
+     * @param  string $encryption
      * @return EsmtpTransport
      */
-    public function setEncryption($encryption)
+    public function setEncryption(string $encryption): EsmtpTransport
     {
-        $encryption = strtolower((string)$encryption);
+        $encryption = strtolower($encryption);
         if ('tls' == $encryption) {
             $this->params['protocol'] = 'tcp';
             $this->params['tls'] = true;
@@ -169,7 +171,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      *
      * @return string
      */
-    public function getEncryption()
+    public function getEncryption(): string
     {
         return $this->params['tls'] ? 'tls' : $this->params['protocol'];
     }
@@ -180,7 +182,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      * @param  array $options
      * @return EsmtpTransport
      */
-    public function setStreamOptions($options)
+    public function setStreamOptions(array $options): EsmtpTransport
     {
         $this->params['stream_context_options'] = $options;
         return $this;
@@ -191,7 +193,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      *
      * @return array
      */
-    public function getStreamOptions()
+    public function getStreamOptions(): array
     {
         return $this->params['stream_context_options'];
     }
@@ -199,10 +201,10 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Sets the source IP
      *
-     * @param string $source
+     * @param  string $source
      * @return EsmtpTransport
      */
-    public function setSourceIp($source)
+    public function setSourceIp(string $source): EsmtpTransport
     {
         $this->params['sourceIp'] = $source;
 
@@ -212,11 +214,11 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Returns the IP used to connect to the destination
      *
-     * @return string
+     * @return string|null
      */
-    public function getSourceIp()
+    public function getSourceIp(): string|null
     {
-        return isset($this->params['sourceIp']) ? $this->params['sourceIp'] : null;
+        return $this->params['sourceIp'] ?? null;
     }
 
     /**
@@ -225,7 +227,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      * @param  array $handlers
      * @return EsmtpTransport
      */
-    public function setExtensionHandlers(array $handlers)
+    public function setExtensionHandlers(array $handlers): EsmtpTransport
     {
         $assoc = [];
         foreach ($handlers as $handler) {
@@ -244,7 +246,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      *
      * @return array
      */
-    public function getExtensionHandlers()
+    public function getExtensionHandlers(): array
     {
         return array_values($this->handlers);
     }
@@ -256,10 +258,10 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      * If codes are given, an exception will be thrown on an invalid response.
      *
      * @param  string $command
-     * @param  int[]  $codes
+     * @param  array  $codes
      * @return string
      */
-    public function executeCommand($command, $codes = [])
+    public function executeCommand(string $command, array $codes = []): string
     {
         $stopSignal = false;
         $response   = null;
@@ -278,18 +280,18 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Mixin handling method for ESMTP handlers
      *
-     * @param  $method
-     * @param  $args
+     * @param  mixed $method
+     * @param  mixed $args
      * @throws Exception
      * @return mixed
      */
-    public function __call($method, $args)
+    public function __call(mixed $method, mixed $args): mixed
     {
         foreach ($this->handlers as $handler) {
             if (method_exists($handler, $method)) {
                 $return = call_user_func_array([$handler, $method], $args);
                 // Allow fluid method calls
-                if (is_null($return) && substr(strtolower((string)$method), 0, 3) == 'set') {
+                if (is_null($return) && str_starts_with(strtolower((string)$method), 'set')) {
                     return $this;
                 } else {
                     return $return;
@@ -298,6 +300,8 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
                 throw new Exception('Error: The method ' . $method . ' does not exist.');
             }
         }
+
+        return null;
     }
 
     /**
@@ -305,7 +309,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      *
      * @return array
      */
-    protected function getBufferParams()
+    protected function getBufferParams(): array
     {
         return $this->params;
     }
@@ -313,14 +317,14 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Overridden to perform EHLO instead
      *
-     * @return mixed
+     * @return void
      */
-    protected function doHeloCommand()
+    protected function doHeloCommand(): void
     {
         try {
             $response = $this->executeCommand(sprintf("EHLO %s\r\n", $this->domain), [250]);
         } catch (Exception $e) {
-            return parent::doHeloCommand();
+            parent::doHeloCommand();
         }
 
         if ($this->params['tls']) {
@@ -334,7 +338,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
                 try {
                     $response = $this->executeCommand(sprintf("EHLO %s\r\n", $this->domain), [250]);
                 } catch (Exception $e) {
-                    return parent::doHeloCommand();
+                    parent::doHeloCommand();
                 }
             } catch (Exception $e) {
                 $this->throwException($e);
@@ -351,9 +355,10 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Overridden to add Extension support
      *
-     * @param string $address
+     * @param  string $address
+     * @return void
      */
-    protected function doMailFromCommand($address)
+    protected function doMailFromCommand(string $address): void
     {
         $handlers = $this->getActiveHandlers();
         $params = [];
@@ -369,7 +374,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      *
      * @param string $address
      */
-    protected function doRcptToCommand($address)
+    protected function doRcptToCommand(string $address): void
     {
         $handlers = $this->getActiveHandlers();
         $params = [];
@@ -388,7 +393,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      * @param  string $ehloResponse
      * @return array
      */
-    private function getCapabilities($ehloResponse)
+    private function getCapabilities(string $ehloResponse): array
     {
         $capabilities = [];
         $ehloResponse = trim($ehloResponse);
@@ -409,7 +414,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Set parameters which are used by each extension handler
      */
-    private function setHandlerParams()
+    private function setHandlerParams(): void
     {
         foreach ($this->handlers as $keyword => $handler) {
             if (array_key_exists($keyword, $this->capabilities)) {
@@ -421,7 +426,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Get ESMTP handlers which are currently ok to use
      */
-    private function getActiveHandlers()
+    private function getActiveHandlers(): array
     {
         $handlers = [];
         foreach ($this->handlers as $keyword => $handler) {
@@ -440,7 +445,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      * @param HandlerInterface $b
      * @return int
      */
-    private function sortHandlers(HandlerInterface $a, HandlerInterface $b)
+    private function sortHandlers(HandlerInterface $a, HandlerInterface $b): int
     {
         return $a->getPriorityOver($b->getHandledKeyword());
     }

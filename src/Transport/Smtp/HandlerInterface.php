@@ -29,45 +29,45 @@ interface HandlerInterface
      *
      * @return bool
      */
-    public function getHandledKeyword();
+    public function getHandledKeyword(): bool;
 
     /**
      * Set the parameters which the EHLO greeting indicated
      *
      * @param array $parameters
      */
-    public function setKeywordParams(array $parameters);
+    public function setKeywordParams(array $parameters): void;
 
     /**
      * Runs immediately after a EHLO has been issued
      *
      * @param AgentInterface $agent to read/write
      */
-    public function afterEhlo(AgentInterface $agent);
+    public function afterEhlo(AgentInterface $agent): void;
 
     /**
      * Get params which are appended to MAIL FROM:<>
      *
-     * @return string[]
+     * @return array
      */
-    public function getMailParams();
+    public function getMailParams(): array;
 
     /**
      * Get params which are appended to RCPT TO:<>
      *
-     * @return string[]
+     * @return array
      */
-    public function getRcptParams();
+    public function getRcptParams(): array;
 
     /**
      * Runs when a command is due to be sent
      *
      * @param AgentInterface $agent            to read/write
      * @param string         $command          to send
-     * @param int[]          $codes            expected in response
+     * @param array          $codes            expected in response
      * @param bool           $stop             to be set true  by-reference if the command is now sent
      */
-    public function onCommand(AgentInterface $agent, $command, $codes = [], &$stop = false);
+    public function onCommand(AgentInterface $agent, string $command, array $codes = [], bool &$stop = false): void;
 
     /**
      * Returns +1, -1 or 0 according to the rules for usort().
@@ -77,11 +77,11 @@ interface HandlerInterface
      * @param  string $esmtpKeyword to compare with
      * @return int
      */
-    public function getPriorityOver($esmtpKeyword);
+    public function getPriorityOver(string $esmtpKeyword): int;
 
     /**
      * Tells this handler to clear any buffers and reset its state
      */
-    public function resetState();
+    public function resetState(): void;
 
 }

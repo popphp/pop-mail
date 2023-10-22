@@ -15,6 +15,7 @@ namespace Pop\Mail\Transport\Smtp;
 
 use Pop\Mail\Message;
 use Pop\Mail\Transport\TransportInterface;
+use Pop\Mail\Transport\Smtp\Stream\BufferInterface;
 
 /**
  * Abstract SMTP transport class
@@ -29,39 +30,39 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
 
     /**
      * Input-Output buffer for sending/receiving SMTP commands and responses
-     * @var Stream\BufferInterface
+     * @var ?BufferInterface
      */
-    protected $buffer;
+    protected ?BufferInterface $buffer = null;
 
     /**
      * Connection status
      * @var bool
      */
-    protected $started = false;
+    protected bool $started = false;
 
     /**
      * The domain name to use in HELO command
      * @var string
      */
-    protected $domain = '[127.0.0.1]';
+    protected string $domain = '[127.0.0.1]';
 
     /**
      * Source IP
-     * @var string
+     * @var ?string
      */
-    protected $sourceIp = null;
+    protected ?string $sourceIp = null;
 
     /**
      * Return an array of params for the Buffer
      */
-    abstract protected function getBufferParams();
+    abstract protected function getBufferParams(): array;
 
     /**
      * Creates a new EsmtpTransport using the given I/O buffer.
      *
-     * @param Stream\BufferInterface $buffer
+     * @param BufferInterface $buffer
      */
-    public function __construct(Stream\BufferInterface $buffer)
+    public function __construct(BufferInterface $buffer)
     {
         $this->buffer = $buffer;
         $this->lookupHostname();
@@ -76,10 +77,10 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * If your server doesn't have a domain name, use the IP in square
      * brackets (i.e. [127.0.0.1]).
      *
-     * @param string $domain
+     * @param  string $domain
      * @return AbstractSmtp
      */
-    public function setLocalDomain($domain)
+    public function setLocalDomain(string $domain): AbstractSmtp
     {
         $this->domain = $domain;
         return $this;
@@ -90,7 +91,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      *
      * @return string
      */
-    public function getLocalDomain()
+    public function getLocalDomain(): string
     {
         return $this->domain;
     }
@@ -100,17 +101,18 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      *
      * @param string $source
      */
-    public function setSourceIp($source)
+    public function setSourceIp(string $source): AbstractSmtp
     {
         $this->sourceIp = $source;
+        return $this;
     }
 
     /**
      * Returns the IP used to connect to the destination
      *
-     * @return string
+     * @return ?string
      */
-    public function getSourceIp()
+    public function getSourceIp(): ?string
     {
         return $this->sourceIp;
     }
@@ -118,7 +120,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Start the SMTP connection
      */
-    public function start()
+    public function start(): void
     {
         if (!$this->started) {
             try {
@@ -138,7 +140,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      *
      * @return bool
      */
-    public function isStarted()
+    public function isStarted(): bool
     {
         return $this->started;
     }
@@ -153,7 +155,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * @return int
      * @throws \Exception
      */
-    public function send(Message $message)
+    public function send(Message $message): int
     {
         if (!$this->isStarted()) {
             $this->start();
@@ -193,7 +195,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Stop the SMTP connection.
      */
-    public function stop()
+    public function stop(): void
     {
         if ($this->started) {
             try {
@@ -213,7 +215,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Reset the current mail transaction.
      */
-    public function reset()
+    public function reset(): void
     {
         $this->executeCommand("RSET\r\n", [250]);
     }
@@ -221,9 +223,9 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Get the IoBuffer where read/writes are occurring.
      *
-     * @return Stream\BufferInterface
+     * @return BufferInterface
      */
-    public function getBuffer()
+    public function getBuffer(): BufferInterface
     {
         return $this->buffer;
     }
@@ -234,11 +236,11 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * If no response codes are given, the response will not be validated.
      * If codes are given, an exception will be thrown on an invalid response.
      *
-     * @param string   $command
-     * @param int[]    $codes
+     * @param  string $command
+     * @param  array  $codes
      * @return string
      */
-    public function executeCommand($command, $codes = [])
+    public function executeCommand(string $command, array $codes = []): string
     {
         $seq      = $this->buffer->write($command);
         $response = $this->getFullResponse($seq);
@@ -248,13 +250,13 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     }
 
     /** Read the opening SMTP greeting */
-    protected function readGreeting()
+    protected function readGreeting(): void
     {
         $this->assertResponseCode($this->getFullResponse(0), [220]);
     }
 
     /** Send the HELO welcome */
-    protected function doHeloCommand()
+    protected function doHeloCommand(): void
     {
         $this->executeCommand(sprintf("HELO %s\r\n", $this->domain), [250]);
     }
@@ -262,9 +264,10 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Send the MAIL FROM command
      *
-     * @param $address
+     * @param string $address
+     * @return void
      */
-    protected function doMailFromCommand($address)
+    protected function doMailFromCommand(string $address): void
     {
         $this->executeCommand(sprintf("MAIL FROM:<%s>\r\n", $address), [250]);
     }
@@ -272,15 +275,16 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Send the RCPT TO command
      *
-     * @param $address
+     * @param  string $address
+     * @return void
      */
-    protected function doRcptToCommand($address)
+    protected function doRcptToCommand(string $address): void
     {
         $this->executeCommand(sprintf("RCPT TO:<%s>\r\n", $address), [250, 251, 252]);
     }
 
     /** Send the DATA command */
-    protected function doDataCommand()
+    protected function doDataCommand(): void
     {
         $this->executeCommand("DATA\r\n", [354]);
     }
@@ -290,7 +294,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      *
      * @param Message $message
      */
-    protected function streamMessage(Message $message)
+    protected function streamMessage(Message $message): void
     {
         $this->buffer->setWriteTranslations(["\r\n." => "\r\n.."]);
         try {
@@ -309,7 +313,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * @param  Message $message
      * @return null|string
      */
-    protected function getReversePath(Message $message)
+    protected function getReversePath(Message $message): null|string
     {
         $returnKeys = array_keys($message->getReturnPath());
         $senderKeys = array_keys($message->getSender());
@@ -332,7 +336,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * @param  Exception $e
      * @throws Exception
      */
-    protected function throwException(Exception $e)
+    protected function throwException(Exception $e): void
     {
         throw $e;
     }
@@ -341,9 +345,9 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * Throws an Exception if a response code is incorrect
      *
      * @param string $response
-     * @param string $wanted
+     * @param array  $wanted
      */
-    protected function assertResponseCode($response, $wanted)
+    protected function assertResponseCode(string $response, array $wanted): void
     {
         list($code) = sscanf($response, '%3d');
         $valid = (empty($wanted) || in_array($code, $wanted));
@@ -363,9 +367,10 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * Get an entire multi-line response using its sequence number
      *
      * @param  string $seq
+     * @throws Exception
      * @return string
      */
-    protected function getFullResponse($seq)
+    protected function getFullResponse(string $seq): string
     {
         $response = '';
         try {
@@ -388,7 +393,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * @param  array   $recipients
      * @return int
      */
-    private function doMailTransaction(Message $message, $reversePath, array $recipients)
+    private function doMailTransaction(Message $message, string $reversePath, array $recipients): int
     {
         $sent = 0;
         $this->doMailFromCommand($reversePath);
@@ -418,7 +423,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * @param  array   $to
      * @return int
      */
-    private function sendTo(Message $message, $reversePath, array $to)
+    private function sendTo(Message $message, string $reversePath, array $to): int
     {
         if (empty($to)) {
             return 0;
@@ -435,7 +440,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * @param  array   $bcc
      * @return int
      */
-    private function sendBcc(Message $message, $reversePath, array $bcc)
+    private function sendBcc(Message $message, string $reversePath, array $bcc): int
     {
         $sent = 0;
         foreach ($bcc as $forwardPath => $name) {
@@ -449,13 +454,13 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Try to determine the hostname of the server this is run on
      */
-    private function lookupHostname()
+    private function lookupHostname(): void
     {
         if (!empty($_SERVER['SERVER_NAME']) && $this->isFqdn($_SERVER['SERVER_NAME'])) {
             $this->domain = $_SERVER['SERVER_NAME'];
         } elseif (!empty($_SERVER['SERVER_ADDR'])) {
             // Set the address literal tag (See RFC 5321, section: 4.1.3)
-            if (false === strpos($_SERVER['SERVER_ADDR'], ':')) {
+            if (!str_contains($_SERVER['SERVER_ADDR'], ':')) {
                 $prefix = ''; // IPv4 addresses are not tagged.
             } else {
                 $prefix = 'IPv6:'; // Adding prefix in case of IPv6.
@@ -471,7 +476,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * @param  string $hostname
      * @return bool
      */
-    private function isFqdn($hostname)
+    private function isFqdn(string $hostname): bool
     {
         // We could do a really thorough check, but there's really no point
         if (false !== $dotPos = strpos($hostname, '.')) {
