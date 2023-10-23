@@ -13,6 +13,7 @@
  */
 namespace Pop\Mail\Api;
 
+use Aws\Ses\SesClient;
 use Pop\Http;
 
 /**
@@ -42,14 +43,14 @@ interface HttpInterface
      * @param  Http\Client $client
      * @return HttpInterface
      */
-    public function setClient(Http\Client $client): HttpInterface;
+    public function setClient(Http\Client|SesClient $client): HttpInterface;
 
     /**
      * Get client
      *
-     * @return Http\Client
+     * @return Http\Client|SesClient
      */
-    public function getClient(): Http\Client;
+    public function getClient(): Http\Client|SesClient;
 
     /**
      * Has client

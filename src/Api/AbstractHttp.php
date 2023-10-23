@@ -14,6 +14,7 @@
 namespace Pop\Mail\Api;
 
 use Pop\Http;
+use Aws\Ses\SesClient;
 
 /**
  * Abstract HTTP base class
@@ -30,9 +31,9 @@ abstract class AbstractHttp implements HttpInterface
 
     /**
      * Client
-     * @var ?Http\Client
+     * @var Http\Client|SesClient|null
      */
-    protected ?Http\Client $client = null;
+    protected Http\Client|SesClient|null $client = null;
 
     /**
      * Create Office 365 object
@@ -49,10 +50,10 @@ abstract class AbstractHttp implements HttpInterface
     /**
      * Set client
      *
-     * @param  Http\Client $client
+     * @param  Http\Client|SesClient $client
      * @return AbstractHttp
      */
-    public function setClient(Http\Client $client): AbstractHttp
+    public function setClient(Http\Client|SesClient $client): AbstractHttp
     {
         $this->client = $client;
         return $this;
@@ -61,9 +62,9 @@ abstract class AbstractHttp implements HttpInterface
     /**
      * Get client
      *
-     * @return Http\Client
+     * @return Http\Client|SesClient
      */
-    public function getClient(): Http\Client
+    public function getClient(): Http\Client|SesClient
     {
         return $this->client;
     }

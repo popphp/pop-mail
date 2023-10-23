@@ -478,6 +478,22 @@ class Message extends AbstractMessage
     }
 
     /**
+     * Has attachments
+     *
+     * @return bool
+     */
+    public function hasAttachments(): bool
+    {
+        foreach ($this->parts as $part) {
+            if ($part instanceof Attachment) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get message body
      *
      * @return ?string
