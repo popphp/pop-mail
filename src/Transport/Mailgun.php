@@ -89,7 +89,6 @@ class Mailgun extends AbstractHttp implements TransportInterface
             }
         }
 
-        //$this->client->setData($fields);
         $this->client->getHandler()->setOption(CURLOPT_POSTFIELDS, $fields);
 
         if ($i > 0) {
