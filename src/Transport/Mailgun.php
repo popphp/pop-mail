@@ -14,10 +14,11 @@
 namespace Pop\Mail\Transport;
 
 use Pop\Http\Client;
+use Pop\Mail\Api\AbstractHttp;
 use Pop\Mail\Message;
 
 /**
- * Mailgun transport class
+ * Mailgun API transport class
  *
  * @category   Pop
  * @package    Pop\Mail
@@ -26,54 +27,27 @@ use Pop\Mail\Message;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    4.0.0
  */
-class Mailgun extends AbstractTransport
+class Mailgun extends AbstractHttp
 {
-
-    /**
-     * Mailgun API client params
-     * @var ?Client
-     */
-    protected ?Client $client = null;
-
-    /**
-     * Constructor
-     *
-     * Instantiate the Mailgun API transport object
-     *
-     * @param ?string $apiUrl
-     * @param ?string $apiKey
-     */
-    public function __construct(?string $apiUrl = null, ?string $apiKey = null)
-    {
-        if (($apiUrl !== null) && ($apiKey !== null)) {
-            $this->createClient($apiUrl, $apiKey);
-        }
-    }
 
     /**
      * Create the API client
      *
-     * @param  string $apiUrl
-     * @param  string $apiKey
-     * @return Client
+     * @param  array $options
+     * @throws Exception|Client\Exception
+     * @return Mailgun
      */
-    public function createClient(string $apiUrl, string $apiKey)
+    public function createClient(array $options): Mailgun
     {
-        $request = new Client\Request($apiUrl, 'POST');
-        $request->addHeader('Authorization', 'Basic ' . base64_encode('api:' . $apiKey));
+        if (!isset($options['api_url']) || !isset($options['api_key'])) {
+            throw new Exception('Error: The required client options were not provided.');
+        }
+
+        $request = new Client\Request($options['api_url'], 'POST');
+        $request->addHeader('Authorization', 'Basic ' . base64_encode('api:' . $options['api_key']));
         $this->client = new Client($request, new Client\Handler\Curl(), ['force_custom_method' => true]);
 
-        return $this->client;
-    }
-
-    /**
-     * Get the API client
-     *
-     * @return Client
-     */
-    public function getClient(): Client
-    {
-        return $this->client;
+        return $this;
     }
 
     /**

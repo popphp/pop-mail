@@ -15,13 +15,14 @@ namespace Pop\Mail\Transport;
 
 use Pop\Http\Client;
 use Pop\Http\Auth;
+use Pop\Mail\Api\AbstractHttp;
 use Pop\Mail\Message;
 use Pop\Mail\Message\Text;
 use Pop\Mail\Message\Html;
 use Pop\Mail\Message\Attachment;
 
 /**
- * Sendgrid transport class
+ * Sendgrid API transport class
  *
  * @category   Pop
  * @package    Pop\Mail
@@ -30,54 +31,27 @@ use Pop\Mail\Message\Attachment;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    4.0.0
  */
-class Sendgrid extends AbstractTransport
+class Sendgrid extends AbstractHttp
 {
-
-    /**
-     * Sendgrid API client params
-     * @var ?Client
-     */
-    protected ?Client $client = null;
-
-    /**
-     * Constructor
-     *
-     * Instantiate the Sendgrid API transport object
-     *
-     * @param ?string $apiUrl
-     * @param ?string $apiKey
-     */
-    public function __construct(?string $apiUrl = null, ?string $apiKey = null)
-    {
-        if (($apiUrl !== null) && ($apiKey !== null)) {
-            $this->createClient($apiUrl, $apiKey);
-        }
-    }
 
     /**
      * Create the API client
      *
-     * @param  string $apiUrl
-     * @param  string $apiKey
-     * @return Client
+     * @param  array $options
+     * @throws Exception|Client\Exception
+     * @return Sendgrid
      */
-    public function createClient(string $apiUrl, string $apiKey)
+    public function createClient(array $options): Sendgrid
     {
-        $request = new Client\Request($apiUrl, 'POST');
+        if (!isset($options['api_url']) || !isset($options['api_key'])) {
+            throw new Exception('Error: The required client options were not provided.');
+        }
+
+        $request = new Client\Request($options['api_url'], 'POST');
         $request->createAsJson();
-        $this->client = new Client($request, Auth::createBearer($apiKey), new Client\Handler\Stream());
+        $this->client = new Client($request, Auth::createBearer($options['api_key']), new Client\Handler\Stream());
 
-        return $this->client;
-    }
-
-    /**
-     * Get the API client
-     *
-     * @return Client
-     */
-    public function getClient(): Client
-    {
-        return $this->client;
+        return $this;
     }
 
     /**

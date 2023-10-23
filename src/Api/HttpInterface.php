@@ -11,12 +11,12 @@
 /**
  * @namespace
  */
-namespace Pop\Mail\Client;
+namespace Pop\Mail\Api;
 
 use Pop\Http;
 
 /**
- * Abstract HTTP client class
+ * Http base interface
  *
  * @category   Pop
  * @package    Pop\Mail
@@ -25,53 +25,37 @@ use Pop\Http;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    4.0.0
  */
-abstract class AbstractHttpClient implements HttpClientInterface
+interface HttpInterface
 {
 
     /**
-     * Client
-     * @var ?Http\Client
+     * Create client
+     *
+     * @param  array $options
+     * @return HttpInterface
      */
-    protected ?Http\Client $client = null;
+    public function createClient(array $options): HttpInterface;
 
     /**
-     * Create Office 365 object
+     * Set client
      *
-     * @param ?array $options
+     * @param  Http\Client $client
+     * @return HttpInterface
      */
-    public function __construct(?array $options = null)
-    {
-        if ($options !== null) {
-            $this->setOptions($options);
-        }
-    }
+    public function setClient(Http\Client $client): HttpInterface;
 
     /**
      * Get client
      *
      * @return Http\Client
      */
-    public function getClient(): Http\Client
-    {
-        return $this->client;
-    }
+    public function getClient(): Http\Client;
 
     /**
      * Has client
      *
      * @return bool
      */
-    public function hasClient(): bool
-    {
-        return ($this->client !== null);
-    }
-
-    /**
-     * Set options
-     *
-     * @param  array $options
-     * @return AbstractHttpClient
-     */
-    abstract public function setOptions(array $options): AbstractHttpClient;
+    public function hasClient(): bool;
 
 }
