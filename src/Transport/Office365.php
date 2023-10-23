@@ -168,7 +168,7 @@ class Office365 extends AbstractOffice365 implements TransportInterface
         $this->client->addOption('auto', true);
 
         $this->client->setData($fields);
-        $response = $this->client->send('/users/' . $this->accountId . '/sendMail');
+        $response = $this->client->send('/users/' . $this->accountId . '/sendmail');
 
         $var = 123;
     }
