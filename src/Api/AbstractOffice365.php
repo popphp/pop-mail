@@ -56,7 +56,7 @@ abstract class AbstractOffice365 extends AbstractHttpClient
      * Base URL
      * @var ?string
      */
-    protected ?string $baseUri = 'https://graph.microsoft.com/v1.0/users/';
+    protected ?string $baseUri = 'https://graph.microsoft.com/v1.0/users';
 
     /**
      * Create client
@@ -79,7 +79,7 @@ abstract class AbstractOffice365 extends AbstractHttpClient
         }
 
         $this->client = new Http\Client([
-            'base_uri' => $this->baseUri . $this->accountId
+            'base_uri' => $this->baseUri
         ]);
 
         return $this;

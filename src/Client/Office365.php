@@ -60,7 +60,7 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
         $this->client->addOption('type', Http\Client\Request::URLFORM);
         $this->client->addOption('auto', true);
 
-        $uri = "/mailfolders('" . $folder . "')/messages";
+        $uri = "/" . $this->accountId . "/mailfolders('" . $folder . "')/messages";
         if (!empty($data)){
             $uri .= '?' . rawurldecode(http_build_query($data, "\n"));
         }
@@ -89,7 +89,7 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
         $this->client->addOption('type', Http\Client\Request::URLFORM);
         $this->client->addOption('auto', true);
 
-        $uri = "/messages/" . $messageId;
+        $uri = "/" . $this->accountId . "/messages/" . $messageId;
         if ($raw) {
             $uri .= '/$value';
         }
@@ -118,7 +118,9 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
         $this->client->addOption('type', Http\Client\Request::URLFORM);
         $this->client->addOption('auto', true);
 
-        return $this->client->send("/mailfolders('" . $folder . "')/messages/" . $messageId . '/attachments');
+        return $this->client->send(
+            "/" . $this->accountId . "/mailfolders('" . $folder . "')/messages/" . $messageId . "/attachments"
+        );
     }
 
     /**
@@ -143,7 +145,9 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
         $this->client->addOption('type', Http\Client\Request::URLFORM);
         $this->client->addOption('auto', true);
 
-        return $this->client->send("/mailfolders('" . $folder . "')/messages/" . $messageId . '/attachments/' . $attachmentId);
+        return $this->client->send(
+            "/" . $this->accountId . "/mailfolders('" . $folder . "')/messages/" . $messageId . "/attachments/" . $attachmentId
+        );
     }
 
     /**
@@ -168,7 +172,7 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
         $this->client->addOption('method', 'PATCH');
         $this->client->setData(['isRead' => $isRead]);
 
-        $this->client->send('/messages/' . $messageId);
+        $this->client->send("/" . $this->accountId . "/messages/" . $messageId);
 
         return $this;
     }

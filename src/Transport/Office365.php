@@ -18,6 +18,7 @@ use Pop\Mail\Api\AbstractOffice365;
 use Pop\Mail\Message;
 use Pop\Mail\Message\Html;
 use Pop\Mail\Message\Text;
+use Pop\Mail\Message\Attachment;
 
 /**
  * Mailgun API transport class
@@ -42,12 +43,12 @@ class Office365 extends AbstractOffice365 implements TransportInterface
     {
         $headers         = $message->getHeaders();
         $parts           = $message->getParts();
-        $personalHeaders = ['From', 'Reply-To', 'Subject', 'To', 'CC', 'BCC'];
+        $personalHeaders = ['From', 'Reply-To', 'Subject', 'To', 'CC', 'BCC', 'MIME-Version'];
         $fields          = [
             'message' => [
                 'subject' => $message->getSubject(),
                 'body'    => []
-            ]
+            ],
         ];
 
         $toAddresses    = $message->getTo();
@@ -145,20 +146,20 @@ class Office365 extends AbstractOffice365 implements TransportInterface
                     'contentType' => 'html',
                     'content'     => $part->getBody()
                 ];
-//            } else if ($part instanceof Attachment) {
-//                if (!isset($fields['message']['attachments'])) {
-//                    $fields['message']['attachments'] = [];
-//                }
-//                $contentType = $part->getContentType();
-//                if (str_contains($contentType, ';')) {
-//                    $contentType = trim(substr($contentType, 0, strpos($contentType, ';')));
-//                }
-//                $fields['message']['attachments'][] = [
-//                    'content'     => base64_encode(file_get_contents($part->getFilename())),
-//                    'type'        => $contentType,
-//                    'filename'    => $part->getBasename(),
-//                    'disposition' => 'attachment'
-//                ];
+            } else if ($part instanceof Attachment) {
+                if (!isset($fields['message']['attachments'])) {
+                    $fields['message']['attachments'] = [];
+                }
+                $contentType = $part->getContentType();
+                if (str_contains($contentType, ';')) {
+                    $contentType = trim(substr($contentType, 0, strpos($contentType, ';')));
+                }
+                $fields['message']['attachments'][] = [
+                    '@odata.type'  =>  "#microsoft.graph.fileAttachment",
+                    'contentBytes' => base64_encode(file_get_contents($part->getFilename())),
+                    'contentType'  => $contentType,
+                    'name'         => $part->getBasename(),
+                ];
             }
         }
 
@@ -168,9 +169,7 @@ class Office365 extends AbstractOffice365 implements TransportInterface
         $this->client->addOption('auto', true);
 
         $this->client->setData($fields);
-        $response = $this->client->send('/users/' . $this->accountId . '/sendmail');
-
-        $var = 123;
+        return $this->client->send('/' . $this->accountId . '/sendmail');
     }
 
 }
