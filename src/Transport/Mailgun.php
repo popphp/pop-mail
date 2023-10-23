@@ -27,7 +27,7 @@ use Pop\Mail\Message;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    4.0.0
  */
-class Mailgun extends AbstractHttp
+class Mailgun extends AbstractHttp implements TransportInterface
 {
 
     /**

@@ -31,7 +31,7 @@ use Pop\Mail\Message\Attachment;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    4.0.0
  */
-class Sendgrid extends AbstractHttp
+class Sendgrid extends AbstractHttp implements TransportInterface
 {
 
     /**
