@@ -259,8 +259,8 @@ From there, you pass the `JSON` file directly into Google transport object, alon
 use Pop\Mail\Mailer;
 use Pop\Mail\Transport\Google;
 
-$google = new Google();
-$google->createClient('my-google-app-config.json', 'me@domain.com');
+$transport = new Google();
+$transport->createClient('my-google-app-config.json', 'me@domain.com');
 
 $mailer = new Mailer($transport);
 ```
@@ -297,8 +297,8 @@ function. If needed, you can pass a string of `$params` into the constructor tha
 use Pop\Mail\Mailer;
 use Pop\Mail\Transport\Sendmail;
 
-$sendmail = new Sendmail();
-$mailer   = new Mailer($sendmail);
+$transport = new Sendmail();
+$mailer    = new Mailer($transport);
 ```
 
 Clients
