@@ -501,6 +501,35 @@ download a `JSON` file with the appropriate credentials and data for your applic
 ```
 
 You can pass the `JSON` file directly into Google client object, along with the user email being used.
+From there, you can request and store the required token for future requests:
+
+```php
+use Pop\Mail\Client\Google;
+
+$google = new Google();
+$google->createClient('my-google-app-config.json', 'me@domain.com');
+
+// Fetch the token and its expiration to be stored with your application for future use
+$google->requestToken();
+$accessToken  = $google->getToken();
+$tokenExpires = $google->getTokenExpires();
+```
+
+When calling the Google client object at a later time, you can reuse the token (if it hasn't expired):
+
+```php
+use Pop\Mail\Client\Google;
+
+$google = new Google();
+$google->createClient('my-google-app-config.json', 'me@domain.com');
+
+// Get the access token and its expiration from your application store
+$google->setToken($accessToken)
+$google->setTokenExpires($tokenExpires);
+```
+
+If the token has expired, the client object will automatically refresh it. At this point, you can fetch
+the new token and its expiration from the client object and store them.
 
 From there you can interact with the client to fetch messages and their content.
 
