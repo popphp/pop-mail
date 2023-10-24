@@ -1,6 +1,6 @@
 <?php
 
-namespace Pop\Mail\Test\Transport;
+namespace Pop\Mail\Test\Client;
 
 use Pop\Http;
 use Pop\Mail\Client;
