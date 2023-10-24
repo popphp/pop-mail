@@ -31,7 +31,7 @@ many aspects of sending and receiving mail over the internet. It provides functi
 - **Messages**
   - Create mail messages with multiple mime types and attachments
   - Send the messages through the mailer object, or save mail messages to be sent later
-  - Send the message through a queue with multiple recipients
+  - Send the messages through a queue with multiple recipients
 - **Mail Transports**
   - Manage sending mail messages from a server-to-server application connection*
   - Send emails to a queue of recipients, with individual message customization
@@ -611,8 +611,8 @@ echo $parts[0]->content;
 Mail Queues
 -----------
 
-You can create a mail queue to manage and send a message to multiple recipients at the same time.
-The benefit is that the body of the message can contain placeholders that can be swapped for
+You can create a mail queue to manage and send messages to multiple recipients at the same time.
+The benefit is that the body of the messages can contain placeholders that can be swapped for
 individual user data for customization and a better user experience.
 
 ```php
