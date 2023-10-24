@@ -11,22 +11,22 @@ many aspects of sending and receiving mail over the internet. It provides functi
 
 - **Mail Clients**
   - Manage mailboxes, their messages, data, attachments and statuses from a server-to-server application connection*
-    - Google Client: utilizes the Gmail API
-    - Office 365 Client: utilizes the Office 365 Mail API
-    - Generic IMAP/POP3 Client: utilizes standard IMAP/POP3 connections and interfaces
+    - **Google Client**: utilizes the Gmail API
+    - **Office 365 Client**: utilizes the Office 365 Mail API
+    - **Generic IMAP/POP3 Client**: utilizes standard IMAP/POP3 connections and interfaces
       *(for security purposes, IMAP/POP3 are not as widely supported anymore and their usage has been deprecated in some popular enterprise mail platforms)*
 - **Mail Transports**
   - Manage creating and sending email messages with multiple mime types and attachments from a server-to-server application connection*
   - Send emails to a queue of recipients, with individual message customization
   - Save emails to be sent later
-  - Available mail transports are interchangeable. The following mail transports are available:
-    - Mailgun Transport: utilizes the Mailgun API
-    - Sendgrid Transport: utilizes the Sendgrid API
-    - Google Transport: utilizes the Gmail API
-    - Office 365 Transport: utilizes the Office 365 Mail API
-    - AWS SES Transport: utilizes the AWS SDK
-    - SMTP Transport: utilizes a standard SMTP connection
-    - Sendmail Transport: utilizes a basic Sendmail connection
+  - The available mail transports are interchangeable:
+    - **Mailgun Transport**: utilizes the Mailgun API
+    - **Sendgrid Transport**: utilizes the Sendgrid API
+    - **Google Transport**: utilizes the Gmail API
+    - **Office 365** Transport: utilizes the Office 365 Mail API
+    - **AWS SES** Transport: utilizes the AWS SDK
+    - **SMTP Transport**: utilizes a standard SMTP connection
+    - **Sendmail Transport**: utilizes a basic Sendmail connection
 
 \* **NOTE:** - The main use-case for this component is that of a server-to-server application connection. This means
 that the component would be used with an application that has been granted the appropriate access and permissions to
