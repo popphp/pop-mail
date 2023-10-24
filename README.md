@@ -461,7 +461,7 @@ $attachments = $office365->getAttachments($messageId);
 
 ##### Get an attachment
 
-WHen the message's attachments are returned, they will have any ID associated with them.
+When the message's attachments are returned, they will have any ID associated with them.
 Use that to get an individual message attachment:
 
 ```php
@@ -534,7 +534,7 @@ $attachments = $google->getAttachments($messageId);
 
 ##### Get an attachment
 
-WHen the message's attachments are returned, they will have any ID associated with them.
+When the message's attachments are returned, they will have any ID associated with them.
 Use that to get an individual message attachment:
 
 ```php
