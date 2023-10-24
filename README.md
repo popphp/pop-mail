@@ -6,6 +6,8 @@ pop-mail
 
 * [Overview](#overview)
 * [Install](#install)
+* [Messages](#messages)
+* [Mailer](#mailer)
 * [Transports](#transports)
   - [Mailgun](#mailgun)
   - [Sendgrid](#sendgrid)
@@ -67,6 +69,12 @@ Or, require it in your composer.json file
     "require": {
         "popphp/pop-mail" : "^4.0.0"
     }
+
+Messages
+--------
+
+Mailer
+------
 
 Transports
 ----------
