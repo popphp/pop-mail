@@ -31,6 +31,7 @@ many aspects of sending and receiving mail over the internet. It provides functi
 - **Messages**
   - Create mail messages with multiple mime types and attachments
   - Send the messages through the mailer object, or save mail messages to be sent later
+  - Send the message through a queue with multiple recipients
 - **Mail Transports**
   - Manage sending mail messages from a server-to-server application connection*
   - Send emails to a queue of recipients, with individual message customization
