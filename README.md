@@ -76,8 +76,74 @@ Or, require it in your composer.json file
 Messages
 --------
 
+Create a simple text mail message:
+
+```php
+use Pop\Mail\Message;
+
+$message = new Message('Hello World');
+$message->setTo('you@domain.com');
+$message->setFrom('me@domain.com');
+$message->setBody('Hello World! This is a text body!');
+```
+
+Create a mail message with both text and HTML parts:
+
+```php
+use Pop\Mail\Message;
+
+$message = new Message('Hello World');
+$message->setTo('you@domain.com');
+$message->setFrom('me@domain.com');
+$message->addText('Hello World! This is a text body!');
+$message->addHtml('<html><body><h1>Hello World!</h1><p>This is an HTML body!</p></body></html>');
+```
+
+Create a mail message with a file attachment:
+
+```php
+use Pop\Mail\Message;
+
+$message = new Message('Hello World');
+$message->setTo('you@domain.com');
+$message->setFrom('me@domain.com');
+$message->setBody('Hello World! This is a text body!');
+$message->attachFile(__DIR__ . '/image.jpg');
+```
+
+Create a mail message with a file attachment from a stream of file contents:
+
+```php
+use Pop\Mail\Message;
+
+$message = new Message('Hello World');
+$message->setTo('you@domain.com');
+$message->setFrom('me@domain.com');
+$message->setBody('Hello World! This is a text body!');
+$message->attachFileFromStream($fileContents, 'filename.pdf');
+```
+
 Mailer
 ------
+
+Once a message object is created, it can be passed to a mailer object to be sent.
+The mailer object will require a transport object to perform the required tasks
+to send the message through the provided mail platform.
+
+```php
+use Pop\Mail\Message;
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Sendmail;
+
+$transport = new Sendmail()
+$mailer    = new Mailer($transport);
+$message   = new Message('Hello World');
+$message->setTo('you@domain.com');
+$message->setFrom('me@domain.com');
+$message->setBody('Hello World! This is a text body!');
+
+$mailer->send($message);
+```
 
 Transports
 ----------
