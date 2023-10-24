@@ -28,10 +28,12 @@ Overview
 `pop-mail` is the main mail component for the Pop PHP Framework. It provides a robust set of features to manage the
 many aspects of sending and receiving mail over the internet. It provides functionality for the following:
 
+- **Messages**
+  - Create mail messages with multiple mime types and attachments
+  - Save mail messages to be sent later
 - **Mail Transports**
-  - Manage creating and sending email messages with multiple mime types and attachments from a server-to-server application connection*
+  - Manage sending email messages from a server-to-server application connection*
   - Send emails to a queue of recipients, with individual message customization
-  - Save emails to be sent later
   - The available mail transports are interchangeable:
     - **Mailgun Transport**: utilizes the Mailgun API
     - **Sendgrid Transport**: utilizes the Sendgrid API
