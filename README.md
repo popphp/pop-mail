@@ -13,7 +13,7 @@ many aspects of sending and receiving mail over the internet. It provides functi
   - Manage mailboxes, their messages, data, attachments and statuses from a server-to-server application connection*
     - **Google Client**: utilizes the Gmail API
     - **Office 365 Client**: utilizes the Office 365 Mail API
-    - **Generic IMAP/POP3 Client**: utilizes standard IMAP/POP3 connections and interfaces
+    - **IMAP/POP3 Client**: utilizes standard a IMAP or POP3 connection
       *(for security purposes, IMAP/POP3 are not as widely supported anymore and their usage has been deprecated in some popular enterprise mail platforms)*
 - **Mail Transports**
   - Manage creating and sending email messages with multiple mime types and attachments from a server-to-server application connection*
@@ -23,8 +23,8 @@ many aspects of sending and receiving mail over the internet. It provides functi
     - **Mailgun Transport**: utilizes the Mailgun API
     - **Sendgrid Transport**: utilizes the Sendgrid API
     - **Google Transport**: utilizes the Gmail API
-    - **Office 365** Transport: utilizes the Office 365 Mail API
-    - **AWS SES** Transport: utilizes the AWS SDK
+    - **Office 365 Transport**: utilizes the Office 365 Mail API
+    - **AWS SES Transport**: utilizes the AWS SDK
     - **SMTP Transport**: utilizes a standard SMTP connection
     - **Sendmail Transport**: utilizes a basic Sendmail connection
 
