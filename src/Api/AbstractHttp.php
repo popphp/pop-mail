@@ -31,16 +31,16 @@ abstract class AbstractHttp implements HttpInterface
 
     /**
      * Client
-     * @var Http\Client|SesClient|null
+     * @var mixed
      */
-    protected Http\Client|SesClient|null $client = null;
+    protected mixed $client = null;
 
     /**
      * Create Office 365 object
      *
-     * @param ?array $options
+     * @param array|string|null $options
      */
-    public function __construct(?array $options = null)
+    public function __construct(array|string|null $options = null)
     {
         if ($options !== null) {
             $this->createClient($options);
@@ -50,10 +50,10 @@ abstract class AbstractHttp implements HttpInterface
     /**
      * Set client
      *
-     * @param  Http\Client|SesClient $client
+     * @param  mixed $client
      * @return AbstractHttp
      */
-    public function setClient(Http\Client|SesClient $client): AbstractHttp
+    public function setClient(mixed $client): AbstractHttp
     {
         $this->client = $client;
         return $this;
@@ -62,9 +62,9 @@ abstract class AbstractHttp implements HttpInterface
     /**
      * Get client
      *
-     * @return Http\Client|SesClient
+     * @return mixed
      */
-    public function getClient(): Http\Client|SesClient
+    public function getClient(): mixed
     {
         return $this->client;
     }
@@ -80,11 +80,36 @@ abstract class AbstractHttp implements HttpInterface
     }
 
     /**
+     * Parse options
+     *
+     * @param  array|string $options
+     * @throws Exception
+     * @return array
+     */
+    public function parseOptions(array|string $options): array
+    {
+        if (is_string($options)) {
+            $jsonValue = @json_decode($options, true);
+            if ((json_last_error() === JSON_ERROR_NONE) && is_array($jsonValue)) {
+                $options = $jsonValue;
+            } else if (file_exists($options)) {
+                $options = @json_decode(file_get_contents($options), true);
+            }
+
+            if (!is_array($options)) {
+                throw new Exception('Error: Unable to parse the options.');
+            }
+        }
+
+        return $options;
+    }
+
+    /**
      * Create client
      *
-     * @param  array $options
+     * @param  array|string $options
      * @return AbstractHttp
      */
-    abstract public function createClient(array $options): AbstractHttp;
+    abstract public function createClient(array|string $options): AbstractHttp;
 
 }

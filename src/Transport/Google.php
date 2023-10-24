@@ -14,7 +14,7 @@
 namespace Pop\Mail\Transport;
 
 use Pop\Http\Client;
-use Pop\Mail\Api\AbstractHttp;
+use Pop\Mail\Api\AbstractGoogle;
 use Pop\Mail\Message;
 
 /**
@@ -27,24 +27,8 @@ use Pop\Mail\Message;
  * @license    http://www.popphp.org/license     New BSD License
  * @version    4.0.0
  */
-class Google extends AbstractHttp implements TransportInterface
+class Google extends AbstractGoogle implements TransportInterface
 {
-
-    /**
-     * Create the API client
-     *
-     * @param  array $options
-     * @throws Exception|Client\Exception
-     * @return Google
-     */
-    public function createClient(array $options): Google
-    {
-
-        /**
-         * TO-DO
-         */
-        return $this;
-    }
 
     /**
      * Send the message

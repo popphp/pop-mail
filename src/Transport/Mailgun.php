@@ -33,12 +33,16 @@ class Mailgun extends AbstractHttp implements TransportInterface
     /**
      * Create the API client
      *
-     * @param  array $options
-     * @throws Exception|Client\Exception
+     * @param  array|string $options
+     * @throws Exception|Client\Exception|\Pop\Mail\Api\Exception
      * @return Mailgun
      */
-    public function createClient(array $options): Mailgun
+    public function createClient(array|string $options): Mailgun
     {
+        if (is_string($options)) {
+            $options = $this->parseOptions($options);
+        }
+
         if (!isset($options['api_url']) || !isset($options['api_key'])) {
             throw new Exception('Error: The required client options were not provided.');
         }

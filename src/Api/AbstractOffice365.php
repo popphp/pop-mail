@@ -35,18 +35,6 @@ abstract class AbstractOffice365 extends AbstractHttpClient
     protected ?string $tenantId = null;
 
     /**
-     * Account ID
-     * @var ?string
-     */
-    protected ?string $accountId = null;
-
-    /**
-     * Account username
-     * @var ?string
-     */
-    protected ?string $username = null;
-
-    /**
      * Token request URI
      * @var ?string
      */
@@ -61,12 +49,16 @@ abstract class AbstractOffice365 extends AbstractHttpClient
     /**
      * Create client
      *
-     * @param  array $options
+     * @param  array|string $options
      * @throws Exception
      * @return AbstractOffice365
      */
-    public function createClient(array $options): AbstractOffice365
+    public function createClient(array|string $options): AbstractOffice365
     {
+        if (is_string($options)) {
+            $options = $this->parseOptions($options);
+        }
+
         $this->clientId     = $options['client_id'] ?? null;
         $this->clientSecret = $options['client_secret'] ?? null;
         $this->scope        = $options['scope'] ?? null;
@@ -115,77 +107,6 @@ abstract class AbstractOffice365 extends AbstractHttpClient
     public function hasTenantId(): bool
     {
         return ($this->tenantId !== null);
-    }
-
-    /**
-     * Set account ID
-     *
-     * @param  string $accountId
-     * @return AbstractOffice365
-     */
-    public function setAccountId(string $accountId): AbstractOffice365
-    {
-        $this->accountId = $accountId;
-
-        if ($this->accountId !== null) {
-            $this->client = new Http\Client([
-                'base_uri' => $this->baseUri . $this->accountId
-            ]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get account ID
-     *
-     * @return ?string
-     */
-    public function getAccountId(): ?string
-    {
-        return $this->accountId;
-    }
-
-    /**
-     * Has account ID
-     *
-     * @return bool
-     */
-    public function hasAccountId(): bool
-    {
-        return ($this->accountId !== null);
-    }
-
-    /**
-     * Set account username
-     *
-     * @param  string $username
-     * @return AbstractOffice365
-     */
-    public function setUsername(string $username): AbstractOffice365
-    {
-        $this->username = $username;
-        return $this;
-    }
-
-    /**
-     * Get account username
-     *
-     * @return ?string
-     */
-    public function getUsername(): ?string
-    {
-        return $this->username;
-    }
-
-    /**
-     * Has account username
-     *
-     * @return bool
-     */
-    public function hasUsername(): bool
-    {
-        return ($this->username !== null);
     }
 
     /**

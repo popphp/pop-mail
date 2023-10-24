@@ -14,6 +14,7 @@
 namespace Pop\Mail\Api;
 
 use Pop\Http;
+use Google;
 
 /**
  * Abstract Google Mail API class
@@ -29,32 +30,29 @@ abstract class AbstractGoogle extends AbstractHttpClient
 {
 
     /**
-     * Token request URI
-     * @var ?string
-     */
-    protected ?string $tokenRequestUri = 'https://accounts.google.com/o/oauth2/v2/auth';
-
-    /**
-     * Base URL
-     * @var ?string
-     */
-    protected ?string $baseUri = '';
-
-    /**
      * Create client
      *
-     * @param  array $options
+     * @param  array|string $options
+     * @param  ?string      $username
+     * @throws Exception
      * @return AbstractGoogle
      */
-    public function createClient(array $options): AbstractGoogle
+    public function createClient(array|string $options, ?string $username = null): AbstractGoogle
     {
-        $this->clientId     = $options['client_id'] ?? null;
-        $this->clientSecret = $options['client_secret'] ?? null;
-        $this->scope        = $options['scope'] ?? null;
+        if ($username !== null) {
+            $this->setUsername($username);
+        }
 
-        /**
-         * TO-DO: Create client
-         */
+        if ($this->username === null) {
+            throw new Exception('Error: The username is required to create the client object.');
+        }
+
+        $this->client = new Google\Client();
+        $this->client->setAuthConfig($options);
+        $this->client->setSubject($this->username);
+        $this->client->setAccessType('offline');
+        $this->client->setIncludeGrantedScopes(true);
+        $this->client->addScope(Google\Service\Gmail::MAIL_GOOGLE_COM);
 
         return $this;
     }
@@ -67,31 +65,15 @@ abstract class AbstractGoogle extends AbstractHttpClient
      */
     public function requestToken(): AbstractGoogle
     {
-        if (empty($this->clientId) || empty($this->scope)) {
-            throw new Exception('Error: The required credentials have not been set.');
+        if (empty($this->client)) {
+            throw new Exception('Error: The client object has not yet been instantiated.');
         } else {
             if (isset($this->token) && isset($this->tokenExpires) && !$this->isTokenExpired()) {
                 return $this;
             }
         }
 
-        /**
-         * TO-DO
-         */
-
-        $client = new Http\Client($this->tokenRequestUri, [
-            'method' => 'GET',
-            'auto'   => true,
-            'query'  => [
-                'client_id'     => $this->clientId,
-                'scope'         => $this->scope,
-                'response_type' => 'code',
-                'redirect_uri'  => 'http://localhost:8000/',
-                'access_type'   => 'offline'
-            ]
-        ]);
-
-        $response = $client->send();
+        $response = $this->client->fetchAccessTokenWithAssertion();
 
         if (is_array($response) && isset($response['access_token']) && isset($response['expires_in'])) {
             $this->setToken($response['access_token'])

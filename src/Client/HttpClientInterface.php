@@ -32,12 +32,12 @@ interface HttpClientInterface
      * Get messages
      *
      * @param  string $folder
-     * @param  bool   $unread
+     * @param  array  $search
      * @param  int    $limit
      * @throws Exception|Http\Exception|Http\Client\Exception|Http\Client\Handler\Exception
      * @return mixed
      */
-    public function getMessages(string $folder = 'Inbox', bool $unread = false, int $limit = 10): mixed;
+    public function getMessages(string $folder = 'Inbox', array $search = [], int $limit = 10): mixed;
 
     /**
      * Get messages

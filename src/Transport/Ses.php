@@ -37,12 +37,16 @@ class Ses extends AbstractHttp implements TransportInterface
     /**
      * Create the API client
      *
-     * @param  array $options
-     * @throws Exception
+     * @param  array|string $options
+     * @throws Exception|\Pop\Mail\Api\Exception
      * @return Ses
      */
-    public function createClient(array $options): Ses
+    public function createClient(array|string $options): Ses
     {
+        if (is_string($options)) {
+            $options = $this->parseOptions($options);
+        }
+
         $key    = $options['key'] ?? null;
         $secret = $options['secret'] ?? null;
 

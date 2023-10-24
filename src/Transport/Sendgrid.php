@@ -37,12 +37,16 @@ class Sendgrid extends AbstractHttp implements TransportInterface
     /**
      * Create the API client
      *
-     * @param  array $options
-     * @throws Exception|Client\Exception
+     * @param  array|string $options
+     * @throws Exception|Client\Exception|\Pop\Mail\Api\Exception
      * @return Sendgrid
      */
-    public function createClient(array $options): Sendgrid
+    public function createClient(array|string $options): Sendgrid
     {
+        if (is_string($options)) {
+            $options = $this->parseOptions($options);
+        }
+
         if (!isset($options['api_url']) || !isset($options['api_key'])) {
             throw new Exception('Error: The required client options were not provided.');
         }

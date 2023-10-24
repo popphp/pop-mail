@@ -94,6 +94,50 @@ interface HttpClientInterface
     public function hasScope(): bool;
 
     /**
+     * Set account ID
+     *
+     * @param  string $accountId
+     * @return HttpClientInterface
+     */
+    public function setAccountId(string $accountId): HttpClientInterface;
+
+    /**
+     * Get account ID
+     *
+     * @return ?string
+     */
+    public function getAccountId(): ?string;
+
+    /**
+     * Has account ID
+     *
+     * @return bool
+     */
+    public function hasAccountId(): bool;
+
+    /**
+     * Set account username
+     *
+     * @param  string $username
+     * @return HttpClientInterface
+     */
+    public function setUsername(string $username): HttpClientInterface;
+
+    /**
+     * Get account username
+     *
+     * @return ?string
+     */
+    public function getUsername(): ?string;
+
+    /**
+     * Has account username
+     *
+     * @return bool
+     */
+    public function hasUsername(): bool;
+
+    /**
      * Set token
      *
      * @param  string $token

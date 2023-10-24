@@ -47,6 +47,18 @@ abstract class AbstractHttpClient extends AbstractHttp implements HttpClientInte
     protected ?string $scope = null;
 
     /**
+     * Account ID
+     * @var ?string
+     */
+    protected ?string $accountId = null;
+
+    /**
+     * Account username
+     * @var ?string
+     */
+    protected ?string $username = null;
+
+    /**
      * Token
      * @var ?string
      */
@@ -164,6 +176,70 @@ abstract class AbstractHttpClient extends AbstractHttp implements HttpClientInte
     public function hasScope(): bool
     {
         return ($this->scope !== null);
+    }
+
+    /**
+     * Set account ID
+     *
+     * @param  string $accountId
+     * @return AbstractHttpClient
+     */
+    public function setAccountId(string $accountId): AbstractHttpClient
+    {
+        $this->accountId = $accountId;
+        return $this;
+    }
+
+    /**
+     * Get account ID
+     *
+     * @return ?string
+     */
+    public function getAccountId(): ?string
+    {
+        return $this->accountId;
+    }
+
+    /**
+     * Has account ID
+     *
+     * @return bool
+     */
+    public function hasAccountId(): bool
+    {
+        return ($this->accountId !== null);
+    }
+
+    /**
+     * Set account username
+     *
+     * @param  string $username
+     * @return AbstractHttpClient
+     */
+    public function setUsername(string $username): AbstractHttpClient
+    {
+        $this->username = $username;
+        return $this;
+    }
+
+    /**
+     * Get account username
+     *
+     * @return ?string
+     */
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    /**
+     * Has account username
+     *
+     * @return bool
+     */
+    public function hasUsername(): bool
+    {
+        return ($this->username !== null);
     }
 
     /**

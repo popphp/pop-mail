@@ -32,25 +32,25 @@ interface HttpInterface
     /**
      * Create client
      *
-     * @param  array $options
+     * @param  array|string $options
      * @return HttpInterface
      */
-    public function createClient(array $options): HttpInterface;
+    public function createClient(array|string $options): HttpInterface;
 
     /**
      * Set client
      *
-     * @param  Http\Client $client
+     * @param  mixed $client
      * @return HttpInterface
      */
-    public function setClient(Http\Client|SesClient $client): HttpInterface;
+    public function setClient(mixed $client): HttpInterface;
 
     /**
      * Get client
      *
-     * @return Http\Client|SesClient
+     * @return mixed
      */
-    public function getClient(): Http\Client|SesClient;
+    public function getClient(): mixed;
 
     /**
      * Has client
@@ -58,5 +58,14 @@ interface HttpInterface
      * @return bool
      */
     public function hasClient(): bool;
+
+    /**
+     * Parse options
+     *
+     * @param  array|string $options
+     * @throws Exception
+     * @return array
+     */
+    public function parseOptions(array|string $options): array;
 
 }

@@ -33,12 +33,12 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
      * Get messages
      *
      * @param  string $folder
-     * @param  bool   $unread
+     * @param  array  $search
      * @param  int    $limit
      * @throws Exception|Http\Exception|Http\Client\Exception|Http\Client\Handler\Exception
      * @return mixed
      */
-    public function getMessages(string $folder = 'Inbox', bool $unread = false, int $limit = 10): mixed
+    public function getMessages(string $folder = 'Inbox', array $search = [], int $limit = 10): mixed
     {
         if ($this->client === null) {
             throw new Exception('Error: The client object has not been instantiated yet.');
@@ -51,8 +51,59 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
         if (!empty($limit)) {
             $data['$top'] = $limit;
         }
-        if ($unread) {
-            $data['filter'] = 'isRead eq false';
+
+        if (!empty($search)) {
+            $filterStrings = [];
+            foreach ($search as $key => $value) {
+                $op         = 'eq';
+                $startsWith = false;
+                $endsWith   = false;
+                if (str_ends_with($key, '%')) {
+                    $startsWith = true;
+                    $key        = substr($key, 0, -1);
+                } else if (str_starts_with($key, '%')) {
+                    $endsWith = true;
+                    $key      = substr($key, 1);
+                } else {
+                    if (str_ends_with($key, '!=')) {
+                        $op  = 'ne';
+                        $key = substr($key, 0, -2);
+                    } else if (str_ends_with($key, '>')) {
+                        $op  = 'gt';
+                        $key = substr($key, 0, -1);
+                    } else if (str_ends_with($key, '>=')) {
+                        $op  = 'ge';
+                        $key = substr($key, 0, -2);
+                    } else if (str_ends_with($key, '<')) {
+                        $op  = 'lt';
+                        $key = substr($key, 0, -1);
+                    } else if (str_ends_with($key, '<=')) {
+                        $op  = 'le';
+                        $key = substr($key, 0, -2);
+                    }
+                }
+
+                switch (strtolower($key)) {
+                    case 'unread':
+                        $filterStrings[] = "isRead " . $op . " " . ($value) ? "false" : "true";
+                        break;
+                    case 'sent':
+                        $filterStrings[] = "sentDateTime " . $op . " " . date('c', strtotime($value));
+                        break;
+                    default:
+                        if ($startsWith) {
+                            $filterStrings[] = "startsWith(" . $key . ", '" . $value . "')";
+                        } else if ($endsWith) {
+                            $filterStrings[] = "endsWith(" . $key . ", '" . $value . "')";
+                        } else {
+                            $filterStrings[] = $key . " " . $op . " '" . $value . "'";
+                        }
+                }
+            }
+
+            if (!empty($filterStrings)) {
+                $data['filter'] = implode(' and ', $filterStrings);
+            }
         }
 
         $this->client->setAuth(Http\Auth::createBearer($this->token));
