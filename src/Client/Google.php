@@ -161,7 +161,7 @@ class Google extends AbstractGoogle implements HttpClientInterface
         $gmail   = new Gmail($this->client);
         $message = $gmail->users_messages->get($this->username, $messageId, ['format' => (($raw) ? 'raw' : 'full')]);
 
-        return (($raw) && isset($message['raw'])) ? base64_decode(strtr($message['raw'], '-_', '+/')) : $message;
+        return (($raw) && isset($message['raw'])) ? base64_decode(strtr($message['raw'], '._-', '+/=')) : $message;
     }
 
     /**
