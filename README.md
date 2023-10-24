@@ -73,6 +73,8 @@ Or, require it in your composer.json file
         "popphp/pop-mail" : "^4.0.0"
     }
 
+[Top](#pop-mail)
+
 Messages
 --------
 
@@ -125,6 +127,8 @@ $message->setBody('Hello World! This is a text body!');
 $message->attachFileFromStream($fileContents, 'filename.pdf');
 ```
 
+[Top](#pop-mail)
+
 Mailer
 ------
 
@@ -146,6 +150,8 @@ $message->setBody('Hello World! This is a text body!');
 
 $mailer->send($message);
 ```
+
+[Top](#pop-mail)
 
 Transports
 ----------
@@ -363,6 +369,8 @@ $transport = new Sendmail();
 $mailer    = new Mailer($transport);
 ```
 
+[Top](#pop-mail)
+
 Clients
 -------
 
@@ -568,6 +576,8 @@ header('Content-Length: ' . strlen($parts[0]->content));
 echo $parts[0]->content;
 ```
 
+[Top](#pop-mail)
+
 Mail Queues
 -----------
 
@@ -610,6 +620,8 @@ $mailer = new Mailer(new Sendmail());
 $mailer->sendFromQueue($queue);
 ```
 
+[Top](#pop-mail)
+
 Saving Mail
 -----------
 
@@ -638,3 +650,5 @@ $message2->save(__DIR__ . '/mail-queue/message2.msg');
 $mailer = new Mailer(new Sendmail());
 $mailer->sendFromDir(__DIR__ . '/mail-queue');
 ```
+
+[Top](#pop-mail)
