@@ -32,7 +32,7 @@ many aspects of sending and receiving mail over the internet. It provides functi
   - Create mail messages with multiple mime types and attachments
   - Save mail messages to be sent later
 - **Mail Transports**
-  - Manage sending email messages from a server-to-server application connection*
+  - Manage sending mail messages from a server-to-server application connection*
   - Send emails to a queue of recipients, with individual message customization
   - The available mail transports are interchangeable:
     - **Mailgun Transport**: utilizes the Mailgun API
