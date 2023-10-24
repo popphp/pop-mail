@@ -216,7 +216,7 @@ $mailer = new Mailer($transport);
 
 ### AWS SES
 
-The AWS Ses transport requires a `key` and `secret` that are obtained from the AWS SES admin console.
+The AWS SES transport requires a `key` and `secret` that are obtained from the AWS SES admin console.
 
 ```php
 use Pop\Mail\Mailer;
@@ -235,7 +235,7 @@ $mailer    = new Mailer($transport);
 The Google transport requires a number of configuration steps to be performed in the Google administration
 portal and cloud console. This includes setting up the approved application as a `service account` and its
 necessary requirements. When that is complete, you should be prompted to download a `JSON` file with
-the appropriate credentials for your application:
+the appropriate credentials and data for your application:
 
 ```json
 {
@@ -257,6 +257,20 @@ From there, you pass the `JSON` file directly into Google transport object, alon
 
 ```php
 use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Google;
+
+$google = new Google();
+$google->createClient('my-google-app-config.json', 'me@domain.com');
+
+$mailer = new Mailer($transport);
+```
+
+### SMTP
+
+The SMTP transport requires the standard configuration parameters for a typical SMTP connection:
+
+```php
+use Pop\Mail\Mailer;
 use Pop\Mail\Transport\Smtp;
 
 $smtpOptions = [
@@ -269,20 +283,6 @@ $smtpOptions = [
 
 $transport = new Smtp($smtpOptions);
 $mailer    = new Mailer($transport);
-```
-
-### SMTP
-
-The SMTP transport requires the standard configuration parameters for a typical SMTP connection:
-
-```php
-use Pop\Mail\Mailer;
-use Pop\Mail\Transport\Smtp;
-
-$google = new Google();
-$google->createClient('my-google-app-config.json', 'nick@nolainteractive.com');
-
-$mailer = new Mailer($transport);
 ```
 
 ### Sendmail
