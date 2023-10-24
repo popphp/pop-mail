@@ -51,6 +51,31 @@ class Smtp extends Smtp\EsmtpTransport implements TransportInterface
         }
     }
 
+
+    /**
+     * Create the SMTP transport
+     *
+     * @param  array $options
+     * @throws Exception
+     * @return Smtp
+     */
+    public static function create(array $options): Smtp
+    {
+        if (empty($options['host']) || empty($options['port']) || empty($options['username']) || empty($options['password'])) {
+            throw new Exception('Error: The required credentials were not provided.');
+        }
+
+        $smtp = new Smtp($options['host'], $options['port']);
+        $smtp->setUsername($options['username'])
+            ->setPassword($options['password']);
+
+        if (isset($options['encryption'])) {
+            $smtp->setEncryption($options['encryption']);
+        }
+
+        return $smtp;
+    }
+
     /**
      * Send the message
      *

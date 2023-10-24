@@ -150,8 +150,9 @@ Transports
 
 ### Mailgun
 
-The Mailgun transport requires an API URL and API key. The Mailgun API URL is typically a string comprised of
-your approved mail domain, for example:
+The Mailgun transport requires an `api_url` and `api_key`. The API key is obtained from the
+Mailgun administration portal. The Mailgun API URL is typically a string comprised of your
+approved mail domain, for example:
 
 ```text
 https://api.mailgun.net/v3/YOUR_MAIL_DOMAIN/messages
@@ -171,7 +172,8 @@ $mailer    = new Mailer($transport);
 
 ### Sendgrid
 
-The Sendgrid transport requires an API URL and API key.
+The Sendgrid transport requires an `api_url` and `api_key`. These values are obtained from the
+Sendgrid administration portal.
 
 ```php
 use Pop\Mail\Mailer;
@@ -187,13 +189,117 @@ $mailer    = new Mailer($transport);
 
 ### Office 365
 
+The Office 365 transport requires a few more configuration options that are obtained from the approved
+application within the Office 365 administration portal. You will need the following:
+
+- Client ID
+- Client Secret
+- Scope (This is typically something like `https://graph.microsoft.com/.default`)
+- Tenant ID
+- Account ID (This is typically the `object_id` of the user mailbox that is being used)
+
+```php
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Office365;
+
+$transport = new Office365();
+$transport->createClient([
+    'client_id'     => 'O365_CLIENT_ID',
+    'client_secret' => 'O365_CLIENT_SECRET',
+    'scope'         => 'O365_SCOPE',
+    'tenant_id'     => 'O365_TENANT_ID',
+    'account_id'    => 'O365_ACCOUNT_ID',
+]);
+
+$mailer = new Mailer($transport);
+```
+
 ### AWS SES
+
+The AWS Ses transport requires a `key` and `secret` that are obtained from the AWS SES admin console.
+
+```php
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Ses;
+
+$sesOptions = [
+    'key'    => 'AWS_SES_KEY',
+    'secret' => 'AWS_SES_SECRET',
+]
+$transport = new Ses($sesOptions);
+$mailer    = new Mailer($transport);
+```
 
 ### Google
 
+The Google transport requires a number of configuration steps to be performed in the Google administration
+portal and cloud console. This includes setting up the approved application as a `service account` and its
+necessary requirements. When that is complete, you should be prompted to download a `JSON` file with
+the appropriate credentials for your application:
+
+```json
+{
+  "type": "service_account",
+  "project_id": "PROJECT_ID",
+  "private_key_id": "PRIVATE_KEY_ID",
+  "private_key": "PRIVATE_KEY",
+  "client_email": "CLIENT_EMAIL",
+  "client_id": "CLIENT_ID",
+  "auth_uri": "AUTH_URI",
+  "token_uri": "TOKEN_URI",
+  "auth_provider_x509_cert_url": "AUTH_PROVIDER",
+  "client_x509_cert_url": "CLIENT_CERT_URL",
+  "universe_domain": "UNIVERSE_DOMAIN"
+}
+```
+
+From there, you pass the `JSON` file directly into Google transport object, along with the user email being used:
+
+```php
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Smtp;
+
+$smtpOptions = [
+    'host'       => 'SMTP_HOST_DOMAIN',
+    'port'       => 'SMTP_PORT',
+    'username'   => 'SMTP_USERNAME',
+    'password'   => 'SMTP_PASSWORD',
+    'encryption' => 'SMTP_ENCRYPTION'
+];
+
+$transport = new Smtp($smtpOptions);
+$mailer    = new Mailer($transport);
+```
+
 ### SMTP
 
+The SMTP transport requires the standard configuration parameters for a typical SMTP connection:
+
+```php
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Smtp;
+
+$google = new Google();
+$google->createClient('my-google-app-config.json', 'nick@nolainteractive.com');
+
+$mailer = new Mailer($transport);
+```
+
 ### Sendmail
+
+Sendmail is the most basic transport. It is not used very often and is not recommended, but could be utilized
+within testing and dev environments. It leverages the basic `sendmail` application running on the server, so
+it is required that it be set up and configured properly on the server and within PHP for use with PHP's `mail`
+function. If needed, you can pass a string of `$params` into the constructor that will be passed on to the
+`mail` function call.
+
+```php
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Sendmail;
+
+$sendmail = new Sendmail();
+$mailer   = new Mailer($sendmail);
+```
 
 Clients
 -------
