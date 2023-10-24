@@ -30,7 +30,7 @@ many aspects of sending and receiving mail over the internet. It provides functi
 
 - **Messages**
   - Create mail messages with multiple mime types and attachments
-  - Save mail messages to be sent later
+  - Send the messages through the mailer object, or save mail messages to be sent later
 - **Mail Transports**
   - Manage sending mail messages from a server-to-server application connection*
   - Send emails to a queue of recipients, with individual message customization
@@ -75,6 +75,8 @@ Or, require it in your composer.json file
 
 Messages
 --------
+
+Message objects can be created and passed to a mailer object to be sent by an application. 
 
 Create a simple text mail message:
 
@@ -148,6 +150,9 @@ $mailer->send($message);
 Transports
 ----------
 
+The available transports all share the same interface and are interchangeable. However, they
+each require different configuration that adheres to the specifications of their mail platform. 
+
 ### Mailgun
 
 The Mailgun transport requires an `api_url` and `api_key`. The API key is obtained from the
@@ -198,6 +203,8 @@ application within the Office 365 administration portal. You will need the follo
 - Tenant ID
 - Account ID (This is typically the `object_id` of the user mailbox that is being used)
 
+You can create an Office 365 transport object and then request and store the required token for future requests:
+
 ```php
 use Pop\Mail\Mailer;
 use Pop\Mail\Transport\Office365;
@@ -211,8 +218,38 @@ $transport->createClient([
     'account_id'    => 'O365_ACCOUNT_ID',
 ]);
 
+// Fetch the token and its expiration to be stored with your application for future use
+$transport->requestToken();
+$accessToken  = $transport->getToken();
+$tokenExpires = $transport->getTokenExpires();
+
 $mailer = new Mailer($transport);
 ```
+
+When calling the Office 365 transport object at a later time, you can reuse the token (if it hasn't expired):
+
+```php
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Office365;
+
+$transport = new Office365();
+$transport->createClient([
+    'client_id'     => 'O365_CLIENT_ID',
+    'client_secret' => 'O365_CLIENT_SECRET',
+    'scope'         => 'O365_SCOPE',
+    'tenant_id'     => 'O365_TENANT_ID',
+    'account_id'    => 'O365_ACCOUNT_ID',
+]);
+
+// Get the access token and its expiration from your application store
+$transport->setToken($accessToken)
+$transport->setTokenExpires($tokenExpires);
+
+$mailer = new Mailer($transport);
+```
+
+If the token has expired, the transport object will automatically refresh it. At this point, you can fetch the
+new token and its expiration from the transport object and store them.
 
 ### AWS SES
 
@@ -253,7 +290,8 @@ the appropriate credentials and data for your application:
 }
 ```
 
-From there, you pass the `JSON` file directly into Google transport object, along with the user email being used:
+You can pass the `JSON` file directly into Google transport object, along with the user email being used.
+From there, you can request and store the required token for future requests:
 
 ```php
 use Pop\Mail\Mailer;
@@ -262,8 +300,32 @@ use Pop\Mail\Transport\Google;
 $transport = new Google();
 $transport->createClient('my-google-app-config.json', 'me@domain.com');
 
+// Fetch the token and its expiration to be stored with your application for future use
+$transport->requestToken();
+$accessToken  = $transport->getToken();
+$tokenExpires = $transport->getTokenExpires();
+
 $mailer = new Mailer($transport);
 ```
+
+When calling the Google transport object at a later time, you can reuse the token (if it hasn't expired):
+
+```php
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Google;
+
+$transport = new Google();
+$transport->createClient('my-google-app-config.json', 'me@domain.com');
+
+// Get the access token and its expiration from your application store
+$transport->setToken($accessToken)
+$transport->setTokenExpires($tokenExpires);
+
+$mailer = new Mailer($transport);
+```
+
+If the token has expired, the transport object will automatically refresh it. At this point, you can fetch
+the new token and its expiration from the transport object and store them.
 
 ### SMTP
 
@@ -304,15 +366,275 @@ $mailer    = new Mailer($transport);
 Clients
 -------
 
+The available mail clients can be used for monitoring mailboxes and their message content from within an application.
+
 ### Office 365 Client
+
+Like the Office 365 transport, the Office 365 clients requires a few more configuration options that are obtained
+from the approved application within the Office 365 administration portal. You will need the following:
+
+- Client ID
+- Client Secret
+- Scope (This is typically something like `https://graph.microsoft.com/.default`)
+- Tenant ID
+- Account ID (This is typically the `object_id` of the user mailbox that is being used)
+
+You can create an Office 365 client object and then request and store the required token for future requests:
+
+```php
+use Pop\Mail\Client\Office365;
+
+$office365 = new Office365();
+$office365->createClient([
+    'client_id'     => 'O365_CLIENT_ID',
+    'client_secret' => 'O365_CLIENT_SECRET',
+    'scope'         => 'O365_SCOPE',
+    'tenant_id'     => 'O365_TENANT_ID',
+    'account_id'    => 'O365_ACCOUNT_ID',
+]);
+
+// Fetch the token and its expiration to be stored with your application for future use
+$office365->requestToken();
+$accessToken  = $office365->getToken();
+$tokenExpires = $office365->getTokenExpires();
+```
+
+When calling the Office 365 client object at a later time, you can reuse the token (if it hasn't expired):
+
+```php
+use Pop\Mail\Client\Office365;
+
+$office365 = new Office365();
+$office365->createClient([
+    'client_id'     => 'O365_CLIENT_ID',
+    'client_secret' => 'O365_CLIENT_SECRET',
+    'scope'         => 'O365_SCOPE',
+    'tenant_id'     => 'O365_TENANT_ID',
+    'account_id'    => 'O365_ACCOUNT_ID',
+]);
+
+// Get the access token and its expiration from your application store
+$office365->setToken($accessToken)
+$office365->setTokenExpires($tokenExpires);
+```
+
+If the token has expired, the client object will automatically refresh it. At this point, you can fetch
+the new token and its expiration from the client object and store them.
+
+From there you can interact with the client to fetch messages and their content.
+
+##### Get messages
+
+```php
+// Defaults to the Inbox and a limit of 10 messages. Returns an array of messages
+$messages = $office365->getMessages();
+```
+
+Search for unread messages only, limit 5:
+
+```php
+$messages = $office365->getMessages('Inbox', ['unread' => true], 5);
+```
+
+##### Get a message
+
+When the messages are returned, they will have any ID associated with them. Use that to get an individual message:
+
+```php
+// Returns an array of message data
+$message = $office365->getMessage($messageId);
+```
+
+You can get the raw message as well:
+
+```php
+// Returns a string of the full message content
+$message = $office365->getMessage($messageId, true);
+```
+
+##### Get a message's attachments
+
+```php
+// Returns an array of attachments
+$attachments = $office365->getAttachments($messageId);
+```
+
+##### Get an attachment
+
+WHen the message's attachments are returned, they will have any ID associated with them.
+Use that to get an individual message attachment:
+
+```php
+// Returns an array of attachment data, including the attachment data contents
+$attachment = $office365->getAttachment($messageId, $attachmentId);
+```
 
 ### Google Client
 
+Like the Google transport, the Google client requires a number of configuration steps to be performed in
+the Google administration portal and cloud console. This includes setting up the approved application as
+a `service account` and its necessary requirements. When that is complete, you should be prompted to
+download a `JSON` file with the appropriate credentials and data for your application:
+
+```json
+{
+  "type": "service_account",
+  "project_id": "PROJECT_ID",
+  "private_key_id": "PRIVATE_KEY_ID",
+  "private_key": "PRIVATE_KEY",
+  "client_email": "CLIENT_EMAIL",
+  "client_id": "CLIENT_ID",
+  "auth_uri": "AUTH_URI",
+  "token_uri": "TOKEN_URI",
+  "auth_provider_x509_cert_url": "AUTH_PROVIDER",
+  "client_x509_cert_url": "CLIENT_CERT_URL",
+  "universe_domain": "UNIVERSE_DOMAIN"
+}
+```
+
+You can pass the `JSON` file directly into Google client object, along with the user email being used.
+
+From there you can interact with the client to fetch messages and their content.
+
+##### Get messages
+
+```php
+// Defaults to the Inbox and a limit of 10 messages. Returns an array of messages
+$messages = $google->getMessages();
+```
+
+Search for unread messages only, limit 5:
+
+```php
+$messages = $google->getMessages('Inbox', ['unread' => true], 5);
+```
+
+##### Get a message
+
+When the messages are returned, they will have any ID associated with them. Use that to get an individual message:
+
+```php
+// Returns an array of message data
+$message = $google->getMessage($messageId);
+```
+
+You can get the raw message as well:
+
+```php
+// Returns a string of the full message content
+$message = $google->getMessage($messageId, true);
+```
+
+##### Get a message's attachments
+
+```php
+// Returns an array of attachments
+$attachments = $google->getAttachments($messageId);
+```
+
+##### Get an attachment
+
+WHen the message's attachments are returned, they will have any ID associated with them.
+Use that to get an individual message attachment:
+
+```php
+// Returns the attachment data contents
+$attachment = $google->getAttachment($messageId, $attachmentId);
+```
+
 ### IMAP/POP3
+
+IMAP & POP3 clients are available, but are becoming less supported. Their usage has been deprecated in some
+popular enterprise mail platforms. Use with caution.
+
+```php
+use Pop\Mail\Client\Imap;
+
+$imap = new Client\Imap('imap.gmail.com', 993);
+$imap->setUsername('me@domain.com')
+     ->setPassword('password');
+
+$imap->setFolder('INBOX');
+$imap->open('/ssl');
+
+// Sorted by date, reverse order (newest first)
+$ids     = $imap->getMessageIdsBy(SORTDATE, true);
+$headers = $imap->getMessageHeadersById($ids[0]);
+$parts   = $imap->getMessageParts($ids[0]);
+
+// Assuming the first part is an image attachment, display image
+header('Content-Type: image/jpeg');
+header('Content-Length: ' . strlen($parts[0]->content));
+echo $parts[0]->content;
+```
 
 Mail Queues
 -----------
 
+You can create a mail queue to manage and send a message to multiple recipients at the same time.
+The benefit is that the body of the message can contain placeholders that can be swapped for
+individual user data for customization and a better user experience.
+
+```php
+use Pop\Mail\Message;
+use Pop\Mail\Queue;
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Sendmail;
+
+$queue = new Queue();
+$queue->addRecipient([
+    'email'   => 'me@domain.com',
+    'name'    => 'My Name',
+    'company' => 'My Company',
+    'url'     => 'http://www.domain1.com/'
+]);
+$queue->addRecipient([
+    'email'   => 'another@domain.com',
+    'name'    => 'Another Name',
+    'company' => 'Another Company',
+    'url'     => 'http://www.domain2.com/'
+]);
+
+$message = new Message('Hello [{name}]!');
+$message->setFrom('noreply@domain.com');
+$message->setBody(
+<<<TEXT
+How are you doing? Your [{company}] is great!
+I checked it out at [{url}]
+TEXT
+);
+
+$queue->addMessage($message);
+
+$mailer = new Mailer(new Sendmail());
+$mailer->sendFromQueue($queue);
+```
+
 Saving Mail
 -----------
 
+By saving mail messages to a storage location within your application, you can call them up at a later
+date and time to send them from that location.
+
+```php
+use Pop\Mail\Message;
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Sendmail;
+
+$message1 = new Mail\Message('Hello World');
+$message1->setTo('user1@domain.com');
+$message1->setFrom('me@domain.com');
+$message1->addText('Hello World! This is a test!');
+$message1->addHtml('<html><body><h1>Hello World!</h1><p>This is a test!</p></body></html>');
+$message1->save(__DIR__ . '/mail-queue/message1.msg'); 
+
+$message2 = new Mail\Message('Hello World');
+$message2->setTo('user2@domain.com');
+$message2->setFrom('me@domain.com');
+$message2->addText('Hello World! This is a test!');
+$message2->addHtml('<html><body><h1>Hello World!</h1><p>This is a test!</p></body></html>');
+$message2->save(__DIR__ . '/mail-queue/message2.msg'); 
+
+$mailer = new Mailer(new Sendmail());
+$mailer->sendFromDir(__DIR__ . '/mail-queue');
+```
