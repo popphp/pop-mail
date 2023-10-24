@@ -177,7 +177,7 @@ use Pop\Mail\Transport\Mailgun;
 $mailgunOptions = [
     'api_url' => 'MAILGUN_API_URL',
     'api_key' => 'MAILGUN_API_KEY',
-]
+];
 $transport = new Mailgun($mailgunOptions);
 $mailer    = new Mailer($transport);
 ```
@@ -194,7 +194,7 @@ use Pop\Mail\Transport\Sendgrid;
 $sendgridOptions = [
     'api_url' => 'SENDGRID_API_URL',
     'api_key' => 'SENDGRID_API_KEY',
-]
+];
 $transport = new Sendgrid($sendgridOptions);
 $mailer    = new Mailer($transport);
 ```
@@ -269,7 +269,7 @@ use Pop\Mail\Transport\Ses;
 $sesOptions = [
     'key'    => 'AWS_SES_KEY',
     'secret' => 'AWS_SES_SECRET',
-]
+];
 $transport = new Ses($sesOptions);
 $mailer    = new Mailer($transport);
 ```
@@ -635,14 +635,14 @@ $queue->addRecipient([
     'url'     => 'http://www.domain2.com/'
 ]);
 
-$message = new Message('Hello [{name}]!');
-$message->setFrom('noreply@domain.com');
-$message->setBody(
-<<<TEXT
+$messageBody = <<<TEXT
 How are you doing? Your [{company}] is great!
 I checked it out at [{url}]
-TEXT
-);
+TEXT;
+
+$message = new Message('Hello [{name}]!');
+$message->setFrom('noreply@domain.com');
+$message->setBody($messageBody);
 
 $queue->addMessage($message);
 
