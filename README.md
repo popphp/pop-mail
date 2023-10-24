@@ -19,7 +19,7 @@ pop-mail
 * [Clients](#clients)
   - [Office 365 Client](#office-365-client)
   - [Google Client](#google-client)
-  - [IMAP/POP3](#imap-pop3)
+  - [IMAP/POP3](#imappop3)
 * [Mail Queues](#mail-queues)
 * [Saving Mail](#saving-mail)
 
