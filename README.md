@@ -288,8 +288,8 @@ $mailer    = new Mailer($transport);
 ### Sendmail
 
 Sendmail is the most basic transport. It is not used very often and is not recommended, but could be utilized
-within testing and dev environments. It leverages the basic `sendmail` application running on the server, so
-it is required that it be set up and configured properly on the server and within PHP for use with PHP's `mail`
+within testing and dev environments. It leverages the `sendmail` application running on the server, so it is
+required that it be set up and configured properly on the server and within PHP for use with PHP's `mail`
 function. If needed, you can pass a string of `$params` into the constructor that will be passed on to the
 `mail` function call.
 
