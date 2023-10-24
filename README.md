@@ -47,7 +47,8 @@ many aspects of sending and receiving mail over the internet. It provides functi
     - **Office 365 Client**: utilizes the Office 365 Mail API
     - **Google Client**: utilizes the Gmail API
     - **IMAP/POP3 Client**: utilizes a standard IMAP or POP3 connection
-      *(for security purposes, IMAP/POP3 are not as widely supported anymore and their usage has been deprecated in some popular enterprise mail platforms)*
+      *(for security purposes, IMAP & POP3 are not as widely supported anymore and their usage
+      has been deprecated in some popular enterprise mail platforms)*
 
 \* **NOTE:** - The main use-case for this component is that of a server-to-server application connection. This means
 that the component would be used with an application that has been granted the appropriate access and permissions to
