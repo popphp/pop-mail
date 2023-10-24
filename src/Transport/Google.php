@@ -13,6 +13,7 @@
  */
 namespace Pop\Mail\Transport;
 
+use Google\Service\Gmail;
 use Pop\Http\Client;
 use Pop\Mail\Api\AbstractGoogle;
 use Pop\Mail\Message;
@@ -38,7 +39,16 @@ class Google extends AbstractGoogle implements TransportInterface
      */
     public function send(Message $message): mixed
     {
-        return '';
+        $messageObject = new Gmail\Message();
+        $messageObject->setRaw(base64_encode($message->render()));
+
+        $this->verifyToken();
+        $this->client->setAccessToken($this->token);
+
+        $gmail      = new Gmail($this->client);
+        $gmail->users_messages->send($this->username, $messageObject);
+
+        return null;
     }
 
 }

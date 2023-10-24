@@ -163,6 +163,8 @@ class Office365 extends AbstractOffice365 implements TransportInterface
             }
         }
 
+        $this->verifyToken();
+
         $this->client->setAuth(Http\Auth::createBearer($this->token));
         $this->client->addOption('method', 'POST');
         $this->client->addOption('type', Http\Client\Request::JSON);
