@@ -122,7 +122,7 @@ class Ses extends AbstractHttp implements TransportInterface
                 $messageData['ReplyToAddresses'] = [array_key_first($replyToAddress)];
             }
             if (!empty($returnPathAddress)) {
-                $messageData['ReturnPath'] = [array_key_first($returnPathAddress)];
+                $messageData['ReturnPath'] = array_key_first($returnPathAddress);
             }
 
             foreach ($parts as $part) {

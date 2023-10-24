@@ -147,6 +147,7 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->addHtml('<h1>Hello World</h1>');
+        $this->assertFalse($message->hasAttachments());
         $this->assertEquals('<h1>Hello World</h1>', $message->getPart(0)->getContent());
     }
 
@@ -154,6 +155,7 @@ class MessageTest extends TestCase
     {
         $message = new Message('Hello World');
         $message->attachFile(__DIR__ . '/tmp/test.txt');
+        $this->assertTrue($message->hasAttachments());
         $this->assertEquals('test.txt', $message->getPart(0)->getBasename());
     }
 

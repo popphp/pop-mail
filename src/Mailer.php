@@ -145,14 +145,14 @@ class Mailer
         }
 
         $sent  = 0;
-        $files = scandir($dir);
+        $files = array_filter(scandir($dir), function($value) {
+            return (($value != '.') && ($value != '..') && ($value != '.empty'));
+        });
 
         foreach ($files as $file) {
-            if (($file != '.') && ($file != '..')) {
-                $message = Message::load($dir . DIRECTORY_SEPARATOR . $file);
-                $this->transport->send($message);
-                $sent++;
-            }
+            $message = Message::load($dir . DIRECTORY_SEPARATOR . $file);
+            $this->transport->send($message);
+            $sent++;
         }
 
         return $sent;
