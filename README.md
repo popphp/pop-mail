@@ -135,7 +135,7 @@ use Pop\Mail\Message;
 use Pop\Mail\Mailer;
 use Pop\Mail\Transport\Sendmail;
 
-$transport = new Sendmail()
+$transport = new Sendmail();
 $mailer    = new Mailer($transport);
 $message   = new Message('My Message Subject');
 $message->setTo('you@domain.com');
@@ -150,7 +150,40 @@ Transports
 
 ### Mailgun
 
+The Mailgun transport requires an API URL and API key. The Mailgun API URL is typically a string comprised of
+your approved mail domain, for example:
+
+```text
+https://api.mailgun.net/v3/YOUR_MAIL_DOMAIN/messages
+```
+
+```php
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Mailgun;
+
+$mailgunOptions = [
+    'api_url' => 'MAILGUN_API_URL',
+    'api_key' => 'MAILGUN_API_KEY',
+]
+$transport = new Mailgun($mailgunOptions);
+$mailer    = new Mailer($transport);
+```
+
 ### Sendgrid
+
+The Sendgrid transport requires an API URL and API key.
+
+```php
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Sendgrid;
+
+$sendgridOptions = [
+    'api_url' => 'SENDGRID_API_URL',
+    'api_key' => 'SENDGRID_API_KEY',
+]
+$transport = new Sendgrid($sendgridOptions);
+$mailer    = new Mailer($transport);
+```
 
 ### Office 365
 
