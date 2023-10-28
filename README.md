@@ -182,6 +182,8 @@ $transport = new Mailgun($mailgunOptions);
 $mailer    = new Mailer($transport);
 ```
 
+[Top](#pop-mail)
+
 ### Sendgrid
 
 The Sendgrid transport requires an `api_url` and `api_key`. These values are obtained from the
@@ -198,6 +200,8 @@ $sendgridOptions = [
 $transport = new Sendgrid($sendgridOptions);
 $mailer    = new Mailer($transport);
 ```
+
+[Top](#pop-mail)
 
 ### Office 365
 
@@ -258,6 +262,8 @@ $mailer = new Mailer($transport);
 If the token has expired, the transport object will automatically refresh it. At this point, you can fetch the
 new token and its expiration from the transport object and store them.
 
+[Top](#pop-mail)
+
 ### AWS SES
 
 The AWS SES transport requires a `key` and `secret` that are obtained from the AWS SES admin console.
@@ -273,6 +279,8 @@ $sesOptions = [
 $transport = new Ses($sesOptions);
 $mailer    = new Mailer($transport);
 ```
+
+[Top](#pop-mail)
 
 ### Google
 
@@ -333,6 +341,8 @@ $mailer = new Mailer($transport);
 
 If the token has expired, the transport object will automatically refresh it. At this point, you can fetch
 the new token and its expiration from the transport object and store them.
+
+[Top](#pop-mail)
 
 ### SMTP
 
@@ -478,6 +488,8 @@ Use that to get an individual message attachment:
 $attachment = $office365->getAttachment($messageId, $attachmentId);
 ```
 
+[Top](#pop-mail)
+
 ### Google Client
 
 Like the Google transport, the Google client requires a number of configuration steps to be performed in
@@ -579,6 +591,8 @@ Use that to get an individual message attachment:
 // Returns the attachment data contents
 $attachment = $google->getAttachment($messageId, $attachmentId);
 ```
+
+[Top](#pop-mail)
 
 ### IMAP/POP3
 
