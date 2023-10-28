@@ -6,6 +6,7 @@ pop-mail
 
 * [Overview](#overview)
 * [Install](#install)
+* [Quickstart](#quickstart)
 * [Messages](#messages)
 * [Mailer](#mailer)
 * [Transports](#transports)
@@ -73,6 +74,64 @@ Or, require it in your composer.json file
     "require": {
         "popphp/pop-mail" : "^4.0.0"
     }
+
+[Top](#pop-mail)
+
+Quickstart
+----------
+
+**Example 1:** Sending a message via the Mailgun API
+
+```php
+use Pop\Mail\Message;
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Mailgun;
+
+// Create the transport and mailer objects
+$transport = new Mailgun([
+    'api_url' => 'MAILGUN_API_URL',
+    'api_key' => 'MAILGUN_API_KEY',
+]);
+$mailer = new Mailer($transport);
+
+// Create the message object
+$message = new Message('My Message Subject');
+$message->setTo('you@domain.com');
+$message->setFrom('me@domain.com');
+$message->setBody('Hello World! This is a text body!');
+
+// Send the message
+$mailer->send($message);
+```
+
+**Example 2:** Sending a message via an SMTP connection
+
+```php
+use Pop\Mail\Message;
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Smtp;
+
+$smtpOptions = [
+    'host'       => 'SMTP_HOST_DOMAIN',
+    'port'       => 'SMTP_PORT',
+    'username'   => 'SMTP_USERNAME',
+    'password'   => 'SMTP_PASSWORD',
+    'encryption' => 'SMTP_ENCRYPTION'
+];
+
+// Create the transport and mailer objects
+$transport = new Smtp($smtpOptions);
+$mailer    = new Mailer($transport);
+
+// Create the message object
+$message   = new Message('My Message Subject');
+$message->setTo('you@domain.com');
+$message->setFrom('me@domain.com');
+$message->setBody('Hello World! This is a text body!');
+
+// Send the message
+$mailer->send($message);
+```
 
 [Top](#pop-mail)
 
