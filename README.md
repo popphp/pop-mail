@@ -448,7 +448,7 @@ The available mail clients can be used for monitoring mailboxes and their messag
 
 ### Office 365 Client
 
-Like the Office 365 transport, the Office 365 clients requires a few more configuration options that are obtained
+Like the Office 365 transport, the Office 365 clients requires a few configuration options that are obtained
 for the approved application from within the Office 365 administration portal. You will need the following:
 
 - Client ID
