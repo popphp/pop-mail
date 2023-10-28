@@ -51,7 +51,7 @@ many aspects of sending and receiving mail over the internet. It provides functi
       *(for security purposes, IMAP & POP3 are not as widely supported anymore and their usage
       has been deprecated in some popular enterprise mail platforms)*
 
-\* **NOTE:** - The main use-case for this component is that of a server-to-server application connection. This means
+\* - **NOTE:** The main use-case for this component is that of a server-to-server application connection. This means
 that the component would be used with an application that has been granted the appropriate access and permissions to
 act on behalf of the user or users whose emails are being managed by the application. This component is not geared
 towards an individual user mail application use-case. Please refer to the online documentation, guidelines and polices
