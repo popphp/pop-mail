@@ -108,7 +108,7 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
 
         $this->client->setAuth(Http\Auth::createBearer($this->token));
         $this->client->addOption('method', 'GET');
-        $this->client->addOption('type', Http\Client\Request::URLFORM);
+        $this->client->addOption('type', Http\Client\Request::URLENCODED);
         $this->client->addOption('auto', true);
 
         $uri = "/" . $this->accountId . "/mailfolders('" . $folder . "')/messages";
@@ -137,7 +137,7 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
 
         $this->client->setAuth(Http\Auth::createBearer($this->token));
         $this->client->addOption('method', 'GET');
-        $this->client->addOption('type', Http\Client\Request::URLFORM);
+        $this->client->addOption('type', Http\Client\Request::URLENCODED);
         $this->client->addOption('auto', true);
 
         $uri = "/" . $this->accountId . "/messages/" . $messageId;
@@ -166,7 +166,7 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
 
         $this->client->setAuth(Http\Auth::createBearer($this->token));
         $this->client->addOption('method', 'GET');
-        $this->client->addOption('type', Http\Client\Request::URLFORM);
+        $this->client->addOption('type', Http\Client\Request::URLENCODED);
         $this->client->addOption('auto', true);
 
         return $this->client->send(
@@ -193,7 +193,7 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
 
         $this->client->setAuth(Http\Auth::createBearer($this->token));
         $this->client->addOption('method', 'GET');
-        $this->client->addOption('type', Http\Client\Request::URLFORM);
+        $this->client->addOption('type', Http\Client\Request::URLENCODED);
         $this->client->addOption('auto', true);
 
         return $this->client->send(
