@@ -21,7 +21,7 @@ use Pop\Mail\Transport\Smtp\Stream\FileInterface;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
- * @version    4.0.0
+ * @version    4.0.3
  */
 class FileByteStream extends AbstractFilterableInputStream implements FileInterface
 {
