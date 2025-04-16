@@ -124,6 +124,10 @@ class Mailer
         $messages = $queue->prepare();
 
         foreach ($messages as $message) {
+            if ((!$message->hasFrom()) && ($this->hasDefaultFrom())) {
+                $message->setFrom($this->defaultFrom);
+            }
+
             $this->transport->send($message);
             $sent++;
         }
@@ -151,6 +155,11 @@ class Mailer
 
         foreach ($files as $file) {
             $message = Message::load($dir . DIRECTORY_SEPARATOR . $file);
+
+            if ((!$message->hasFrom()) && ($this->hasDefaultFrom())) {
+                $message->setFrom($this->defaultFrom);
+            }
+
             $this->transport->send($message);
             $sent++;
         }
