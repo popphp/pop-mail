@@ -53,10 +53,7 @@ class Sendgrid extends AbstractHttp implements TransportInterface
 
         $request = new Client\Request($options['api_url'], 'POST');
         $request->createAsJson();
-        $this->client = new Client($request, Auth::createBearer($options['api_key']), new Client\Handler\Stream(), [
-            'no_content_length' => true,
-            'raw_data'          => true
-        ]);
+        $this->client = new Client($request, Auth::createBearer($options['api_key']), new Client\Handler\Stream());
 
         return $this;
     }
