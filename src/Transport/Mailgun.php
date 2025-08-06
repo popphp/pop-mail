@@ -50,11 +50,7 @@ class Mailgun extends AbstractHttp implements TransportInterface
         $request = new Client\Request($options['api_url'], 'POST');
         $request->addHeader('Authorization', 'Basic ' . base64_encode('api:' . $options['api_key']));
 
-        $this->client = new Client($request, new Client\Handler\Curl(), [
-            'no_content_length'   => true,
-            'raw_data'            => true,
-            'force_custom_method' => true
-        ]);
+        $this->client = new Client($request, new Client\Handler\Curl(), ['force_custom_method' => true]);
 
         return $this;
     }
@@ -102,6 +98,9 @@ class Mailgun extends AbstractHttp implements TransportInterface
 
         if ($i > 0) {
             $this->client->getRequest()->addHeader('Content-Type', 'multipart/form-data');
+            $this->client->getRequest()
+                ->setNoContentLength(true)
+                ->setRawData(true);
         }
 
         return $this->client->send();
