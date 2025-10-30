@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2025 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -29,9 +29,9 @@ use Pop\Mime\Part\Header\Value;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2025 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.4
+ * @version    4.0.6
  */
 class Message extends AbstractMessage
 {

@@ -74,7 +74,7 @@ Install `pop-mail` using Composer.
 Or, require it in your composer.json file
 
     "require": {
-        "popphp/pop-mail" : "^4.0.4"
+        "popphp/pop-mail" : "^4.0.6"
     }
 
 [Top](#pop-mail)
