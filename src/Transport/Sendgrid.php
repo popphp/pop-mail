@@ -29,7 +29,7 @@ use Pop\Mail\Message\Attachment;
  * @author     Nick Sagona, III <dev@noladev.com>
  * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.6
+ * @version    4.0.7
  */
 class Sendgrid extends AbstractHttp implements TransportInterface
 {
