@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Http;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.7
+ * @version    5.0.0
  */
 abstract class AbstractHttpClient extends AbstractHttp implements HttpClientInterface
 {
@@ -81,6 +81,46 @@ abstract class AbstractHttpClient extends AbstractHttp implements HttpClientInte
      * @var ?string
      */
     protected ?string $baseUri = null;
+
+    /**
+     * Request handler, injectable so callers (tests) can intercept the
+     * internal token-request client requestToken() builds itself - that
+     * client is never exposed via getClient()/setClient()
+     * @var ?Http\Client\Handler\HandlerInterface
+     */
+    protected ?Http\Client\Handler\HandlerInterface $handler = null;
+
+    /**
+     * Set request handler
+     *
+     * @param  Http\Client\Handler\HandlerInterface $handler
+     * @return AbstractHttpClient
+     */
+    public function setHandler(Http\Client\Handler\HandlerInterface $handler): AbstractHttpClient
+    {
+        $this->handler = $handler;
+        return $this;
+    }
+
+    /**
+     * Get request handler
+     *
+     * @return ?Http\Client\Handler\HandlerInterface
+     */
+    public function getHandler(): ?Http\Client\Handler\HandlerInterface
+    {
+        return $this->handler;
+    }
+
+    /**
+     * Has request handler
+     *
+     * @return bool
+     */
+    public function hasHandler(): bool
+    {
+        return ($this->handler !== null);
+    }
 
     /**
      * Set client ID

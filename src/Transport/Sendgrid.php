@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -27,9 +27,9 @@ use Pop\Mail\Message\Attachment;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.7
+ * @version    5.0.0
  */
 class Sendgrid extends AbstractHttp implements TransportInterface
 {
@@ -163,12 +163,12 @@ class Sendgrid extends AbstractHttp implements TransportInterface
             if ($part instanceof Text) {
                 $fields['content'][] = [
                     'type'  => 'text/plain',
-                    'value' => $part->getBody()
+                    'value' => $part->getContent()
                 ];
             } else if ($part instanceof Html) {
                 $fields['content'][] = [
                     'type'  => 'text/html',
-                    'value' => $part->getBody()
+                    'value' => $part->getContent()
                 ];
             } else if ($part instanceof Attachment) {
                 if (!isset($fields['attachments'])) {

@@ -21,6 +21,7 @@ class ClientTest extends TestCase
         $office365->setUsername('USERNAME');
         $office365->setToken('TOKEN');
         $office365->setTokenExpires($time);
+        $office365->setTenantId('TENANT_ID');
 
         $this->assertInstanceOf('Pop\Http\Client', $office365->getClient());
         $this->assertTrue($office365->hasClient());
@@ -38,6 +39,8 @@ class ClientTest extends TestCase
         $this->assertTrue($office365->hasToken());
         $this->assertEquals($time, $office365->getTokenExpires());
         $this->assertTrue($office365->hasTokenExpires());
+        $this->assertEquals('TENANT_ID', $office365->getTenantId());
+        $this->assertTrue($office365->hasTenantId());
     }
 
     public function testClient2()

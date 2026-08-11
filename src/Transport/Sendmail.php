@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -21,9 +21,9 @@ use Pop\Mail\Message;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.7
+ * @version    5.0.0
  */
 class Sendmail extends AbstractTransport
 {
@@ -73,19 +73,32 @@ class Sendmail extends AbstractTransport
     /**
      * Send the message
      *
+     * Body must be computed (and, when the message has parts, the boundary
+     * triggered) BEFORE the headers are stringified: getBodyContent() ->
+     * Part::renderParts() is what lazily synthesizes the Content-Type:
+     * multipart/...; boundary=... header, and Message::getBoundary() is what
+     * emits MIME-Version as a side effect. Computing $headers first (the
+     * prior ordering) would stringify the header set before those side
+     * effects fire, silently dropping Content-Type/MIME-Version from every
+     * multipart message sent through this transport. See Message::render()
+     * for the same pattern.
+     *
      * @param  Message $message
      * @return bool
      */
     public function send(Message $message): bool
     {
+        if ($message->hasParts()) {
+            $message->getBoundary();
+        }
+
+        $body    = $message->getBodyContent();
         $headers = $message->getHeadersAsString(['Subject', 'To']);
 
-        if (($headers !== null) && ($this->params !== null)) {
-            return mail($message->getHeader('To'), $message->getSubject(), $message->getBody(), $headers, $this->params);
-        } else if ($headers !== null) {
-            return mail($message->getHeader('To'), $message->getSubject(), $message->getBody(), $headers);
+        if ($this->params !== null) {
+            return mail($message->getHeaderValue('To'), $message->getSubject(), $body, $headers, $this->params);
         } else {
-            return mail($message->getHeader('To'), $message->getSubject(), $message->getBody());
+            return mail($message->getHeaderValue('To'), $message->getSubject(), $body, $headers);
         }
     }
 

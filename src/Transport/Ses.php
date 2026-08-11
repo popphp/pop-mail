@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -27,9 +27,9 @@ use Pop\Mail\Message\Text;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.7
+ * @version    5.0.0
  */
 class Ses extends AbstractHttp implements TransportInterface
 {
@@ -128,11 +128,11 @@ class Ses extends AbstractHttp implements TransportInterface
             foreach ($parts as $part) {
                 if ($part instanceof Text) {
                     $messageData['Message']['Body']['Text'] = [
-                        'Data' => $part->getBody()
+                        'Data' => $part->getContent()
                     ];
                 } else if ($part instanceof Html) {
                     $messageData['Message']['Body']['Html'] = [
-                        'Data' => $part->getBody()
+                        'Data' => $part->getContent()
                     ];
                 }
             }

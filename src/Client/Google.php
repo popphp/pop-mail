@@ -4,7 +4,7 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
@@ -23,12 +23,26 @@ use Google\Service\Gmail;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.7
+ * @version    5.0.0
  */
 class Google extends AbstractGoogle implements HttpClientInterface
 {
+
+    /**
+     * Create the Gmail service object
+     *
+     * Exists as a seam so tests can substitute a mocked Gmail service instead
+     * of one backed by a real Google\Client - none of this class's public
+     * methods construct Gmail directly anymore.
+     *
+     * @return Gmail
+     */
+    protected function gmailService(): Gmail
+    {
+        return new Gmail($this->client);
+    }
 
     /**
      * Get messages
@@ -76,7 +90,7 @@ class Google extends AbstractGoogle implements HttpClientInterface
 
         $options['q'] = implode(' ', $filterStrings);
 
-        $gmail       = new Gmail($this->client);
+        $gmail       = $this->gmailService();
         $messageList = $gmail->users_messages->listUsersMessages($this->username, $options);
         $batch       = $gmail->createBatch();
 
@@ -158,10 +172,10 @@ class Google extends AbstractGoogle implements HttpClientInterface
         $this->verifyToken();
         $this->client->setAccessToken($this->token);
 
-        $gmail   = new Gmail($this->client);
+        $gmail   = $this->gmailService();
         $message = $gmail->users_messages->get($this->username, $messageId, ['format' => (($raw) ? 'raw' : 'full')]);
 
-        return (($raw) && isset($message['raw'])) ? base64_decode(strtr($message['raw'], '._-', '+/=')) : $message;
+        return (($raw) && isset($message['raw'])) ? base64_decode(strtr($message['raw'], '-_.', '+/=')) : $message;
     }
 
     /**
@@ -181,7 +195,7 @@ class Google extends AbstractGoogle implements HttpClientInterface
         $this->verifyToken();
         $this->client->setAccessToken($this->token);
 
-        $gmail   = new Gmail($this->client);
+        $gmail   = $this->gmailService();
         $message = $gmail->users_messages->get($this->username, $messageId, ['format' => 'full']);
 
         $attachments = [];
@@ -231,7 +245,7 @@ class Google extends AbstractGoogle implements HttpClientInterface
         $this->verifyToken();
         $this->client->setAccessToken($this->token);
 
-        $gmail      = new Gmail($this->client);
+        $gmail      = $this->gmailService();
         $attachment =  $gmail->users_messages_attachments->get($this->username, $messageId, $attachmentId);
 
         return base64_decode(strtr($attachment->getData(), '-_', '+/'));
@@ -262,7 +276,7 @@ class Google extends AbstractGoogle implements HttpClientInterface
             $messageRequest->setAddLabelIds('UNREAD');
         }
 
-        $gmail      = new Gmail($this->client);
+        $gmail      = $this->gmailService();
         $gmail->users_messages->modify($this->username, $messageId, $messageRequest);
 
         return $this;

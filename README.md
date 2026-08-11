@@ -74,7 +74,7 @@ Install `pop-mail` using Composer.
 Or, require it in your composer.json file
 
     "require": {
-        "popphp/pop-mail" : "^4.0.7"
+        "popphp/pop-mail" : "^5.0.0"
     }
 
 [Top](#pop-mail)
@@ -187,6 +187,24 @@ $message->setTo('you@domain.com');
 $message->setFrom('me@domain.com');
 $message->setBody('Hello World! This is a text body!');
 $message->attachFileFromStream($fileContents, 'filename.pdf');
+```
+
+Create a mail message using the full set of address fields (`To`, `CC`, `BCC`, `Reply-To`, `Sender` and
+`Return-Path` are all supported). Each one accepts a single address string, an `email => name` array for
+a single address with a display name, or an array of multiple addresses:
+
+```php
+use Pop\Mail\Message;
+
+$message = new Message('My Message Subject');
+$message->setTo(['you@domain.com' => 'Recipient Name']);
+$message->setCc('cc@domain.com');
+$message->setBcc(['bcc1@domain.com', 'bcc2@domain.com']);
+$message->setFrom(['me@domain.com' => 'My Name']);
+$message->setReplyTo('replies@domain.com');
+$message->setSender('sender@domain.com');
+$message->setReturnPath('bounces@domain.com');
+$message->setBody('Hello World! This is a text body!');
 ```
 
 [Top](#pop-mail)
@@ -738,14 +756,14 @@ use Pop\Mail\Message;
 use Pop\Mail\Mailer;
 use Pop\Mail\Transport\Sendmail;
 
-$message1 = new Mail\Message('Hello World');
+$message1 = new Message('Hello World');
 $message1->setTo('user1@domain.com');
 $message1->setFrom('me@domain.com');
 $message1->addText('Hello World! This is a test!');
 $message1->addHtml('<html><body><h1>Hello World!</h1><p>This is a test!</p></body></html>');
 $message1->save(__DIR__ . '/mail-queue/message1.msg'); 
 
-$message2 = new Mail\Message('Hello World');
+$message2 = new Message('Hello World');
 $message2->setTo('user2@domain.com');
 $message2->setFrom('me@domain.com');
 $message2->addText('Hello World! This is a test!');
@@ -754,6 +772,29 @@ $message2->save(__DIR__ . '/mail-queue/message2.msg');
 
 $mailer = new Mailer(new Sendmail());
 $mailer->sendFromDir(__DIR__ . '/mail-queue');
+```
+
+You can also load a single saved message back into a `Message` object, either to inspect it or to send it
+yourself instead of using `sendFromDir()`:
+
+```php
+use Pop\Mail\Message;
+use Pop\Mail\Mailer;
+use Pop\Mail\Transport\Sendmail;
+
+$message = Message::load(__DIR__ . '/mail-queue/message1.msg');
+
+$mailer = new Mailer(new Sendmail());
+$mailer->send($message);
+```
+
+If you have a raw mail message as a string (for example, one you've received from another system rather
+than saved to disk with `save()`), you can parse it into a `Message` object the same way:
+
+```php
+use Pop\Mail\Message;
+
+$message = Message::parse($rawMessageString);
 ```
 
 [Top](#pop-mail)

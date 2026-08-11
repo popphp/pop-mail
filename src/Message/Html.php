@@ -4,14 +4,13 @@
  *
  * @link       https://github.com/popphp/popphp-framework
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  */
 
-/**
- * @namespace
- */
 namespace Pop\Mail\Message;
+
+use Pop\Mime\Part;
 
 /**
  * HTML message part class
@@ -19,26 +18,18 @@ namespace Pop\Mail\Message;
  * @category   Pop
  * @package    Pop\Mail
  * @author     Nick Sagona, III <dev@noladev.com>
- * @copyright  Copyright (c) 2009-2026 NOLA Interactive, LLC.
+ * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
- * @version    4.0.7
+ * @version    5.0.0
  */
-class Html extends AbstractPart
+class Html extends Part
 {
+    use CharsetAwareTrait;
+    use PartContentTrait;
 
-    /**
-     * Constructor
-     *
-     * Instantiate the message part object
-     *
-     * @param string  $content
-     * @param string  $contentType
-     * @param ?string $encoding
-     * @param bool    $chunk
-     */
-    public function __construct(string $content, string $contentType = 'text/html', ?string $encoding = null, bool $chunk = false)
+    public static function create(string $content): static
     {
-        parent::__construct($content, $contentType, $encoding, $chunk);
+        return parent::html($content);
     }
 
 }

@@ -3,94 +3,40 @@
 namespace Pop\Mail\Test;
 
 use Pop\Mail\Message;
+use Pop\Mime\Part;
 use PHPUnit\Framework\TestCase;
 
 class MessagePartTest extends TestCase
 {
 
-    public function testQuotedPrintable()
+    public function testAttachmentQuotedPrintableEncoding()
     {
-        $part = new Message\Simple('Hello World', 'text/plain', Message\Simple::QUOTED_PRINTABLE);
-        $this->assertTrue($part->isQuotedPrintable());
-        $this->assertEquals(Message\Simple::QUOTED_PRINTABLE, $part->getEncoding());
-        $this->assertFalse($part->isBase64());
+        $attachment = Message\Attachment::create(__DIR__ . '/tmp/test.txt', null, 'attachment', Part\Body\Encoding::QUOTED_PRINTABLE);
+        $this->assertEquals(Part\Body\Encoding::QUOTED_PRINTABLE, $attachment->getBody()->getEncoding());
     }
 
-    public function testBinary()
+    public function testAttachmentBinaryEncoding()
     {
-        $part = new Message\Simple('Hello World', 'text/plain', Message\Simple::BINARY);
-        $this->assertEquals(Message\Simple::BINARY, $part->getEncoding());
+        $attachment = Message\Attachment::create(__DIR__ . '/tmp/test.txt', null, 'attachment', Part\Body\Encoding::BINARY);
+        $this->assertEquals(Part\Body\Encoding::BINARY, $attachment->getBody()->getEncoding());
     }
 
-    public function test7Bit()
+    public function testAttachment7BitEncoding()
     {
-        $part = new Message\Simple('Hello World', 'text/plain', Message\Simple::_7BIT);
-        $this->assertTrue($part->is7Bit());
-        $this->assertEquals(Message\Simple::_7BIT, $part->getEncoding());
+        $attachment = Message\Attachment::create(__DIR__ . '/tmp/test.txt', null, 'attachment', Part\Body\Encoding::_7BIT);
+        $this->assertEquals(Part\Body\Encoding::_7BIT, $attachment->getBody()->getEncoding());
     }
 
-    public function test8Bit()
+    public function testAttachment8BitEncoding()
     {
-        $part = new Message\Simple('Hello World', 'text/plain', Message\Simple::_8BIT);
-        $this->assertTrue($part->is8Bit());
-        $this->assertEquals(Message\Simple::_8BIT, $part->getEncoding());
+        $attachment = Message\Attachment::create(__DIR__ . '/tmp/test.txt', null, 'attachment', Part\Body\Encoding::_8BIT);
+        $this->assertEquals(Part\Body\Encoding::_8BIT, $attachment->getBody()->getEncoding());
     }
 
-    public function testQuotedPrintableAttachment()
+    public function testAttachmentFileNotFoundThrows()
     {
-        $options = [
-            'basename'    => 'test.txt',
-            'contentType' => 'text/plain',
-            'encoding'    => Message\Attachment::QUOTED_PRINTABLE
-        ];
-        $part = new Message\Attachment(null, 'Hello World', $options);
-        $this->assertEquals(Message\Attachment::QUOTED_PRINTABLE, $part->getEncoding());
-    }
-
-    public function testBinaryAttachment()
-    {
-        $options = [
-            'basename'    => 'test.txt',
-            'contentType' => 'text/plain',
-            'encoding'    => Message\Attachment::BINARY
-        ];
-        $part = new Message\Attachment(null, 'Hello World', $options);
-        $this->assertEquals(Message\Attachment::BINARY, $part->getEncoding());
-    }
-
-    public function test7BitAttachment()
-    {
-        $options = [
-            'basename'    => 'test.txt',
-            'contentType' => 'text/plain',
-            'encoding'    => Message\Attachment::_7BIT
-        ];
-        $part = new Message\Attachment(null, 'Hello World', $options);
-        $this->assertEquals(Message\Attachment::_7BIT, $part->getEncoding());
-    }
-
-    public function test8BitAttachment()
-    {
-        $options = [
-            'basename'    => 'test.txt',
-            'contentType' => 'text/plain',
-            'encoding'    => Message\Attachment::_8BIT
-        ];
-        $part = new Message\Attachment(null, 'Hello World', $options);
-        $this->assertEquals(Message\Attachment::_8BIT, $part->getEncoding());
-    }
-
-    public function testFileException()
-    {
-        $this->expectException('Pop\Mail\Message\Exception');
-        $part = new Message\Attachment('bad-file.txt');
-    }
-
-    public function testFileGetStream()
-    {
-        $part = new Message\Attachment(__DIR__ . '/tmp/test.txt');
-        $this->assertStringContainsString('Hello World', $part->getStream());
-
+        $this->expectException(Message\Exception::class);
+        Message\Attachment::create('bad-file.txt');
     }
 
     public function testPartObject()

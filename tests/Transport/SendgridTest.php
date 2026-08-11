@@ -2,75 +2,92 @@
 
 namespace Pop\Mail\Test\Transport;
 
-use Pop\Mail;
+use Pop\Http\Client\Handler\Mock;
+use Pop\Http\Client\Response;
+use Pop\Mail\Message;
 use Pop\Mail\Transport;
 use PHPUnit\Framework\TestCase;
 
 class SendgridTest extends TestCase
 {
 
-    public function testSendgrid1()
+    public function testSendgridSendPostsExpectedFieldsAndReturnsParsedResponse()
     {
-        $transport = new Transport\Sendgrid(json_encode(['api_url' => 'http://localhost', 'api_key' => 'MY_API_KEY']));
-        $mailer    = new Mail\Mailer($transport, 'root@localhost');
-        $message   = new Mail\Message('Test Subject!');
+        $transport = new Transport\Sendgrid(json_encode(['api_url' => 'https://api.sendgrid.com/v3/mail/send', 'api_key' => 'MY_API_KEY']));
+
+        $mock = new Mock();
+        $mock->queue(new Response(['code' => 202, 'headers' => [], 'body' => '']));
+        $transport->getClient()->setHandler($mock);
+
+        $message = new Message('Test Subject!');
+        $message->setTo(['root@localhost' => 'Root User'])
+            ->setCc(['root@localhost' => 'CC User'])
+            ->setBcc(['root@localhost' => 'BCC User'])
+            ->setFrom(['root@localhost' => 'From User'])
+            ->setReplyTo(['root@localhost' => 'Reply User'])
+            ->addHeader('X-Custom-Header', 'CustomValue')
+            ->addText('Hey, this is a test!')
+            ->addHtml('<html><body><h3>Hey!</h3><p>This is a test!</p></body></html>')
+            ->attachFile(__DIR__ . '/../tmp/test.pdf');
+
+        foreach ($message->getParts() as $part) {
+            if ($part instanceof Message\Attachment) {
+                $part->removeHeader('Content-Type');
+                $part->addHeader('Content-Type', 'application/pdf; charset=binary');
+            }
+        }
+
+        $result = $transport->send($message);
+
+        $this->assertInstanceOf('Pop\Http\Client\Response', $result);
+        $this->assertEquals(202, $result->getStatusCode());
+
+        $sentRequest = $mock->getLastRequest();
+        $sentFields  = json_decode($sentRequest->getData()->getDataContent(), true);
+
+        $this->assertEquals('CustomValue', $sentFields['headers']['X-Custom-Header']);
+        $this->assertEquals('application/pdf', $sentFields['attachments'][0]['type']);
+        $this->assertEquals('root@localhost', $sentFields['personalizations'][0]['to'][0]['email']);
+        $this->assertEquals('Root User', $sentFields['personalizations'][0]['to'][0]['name']);
+        $this->assertEquals('CC User', $sentFields['personalizations'][1]['cc'][0]['name']);
+        $this->assertEquals('BCC User', $sentFields['personalizations'][2]['bcc'][0]['name']);
+        $this->assertEquals('From User', $sentFields['from']['name']);
+        $this->assertEquals('Reply User', $sentFields['reply_to']['name']);
+    }
+
+    public function testSendgridMissingOptionsThrows()
+    {
+        $this->expectException('Pop\Mail\Transport\Exception');
+        $transport = new Transport\Sendgrid([]);
+    }
+
+    public function testSendgridSendWithBareAddressesOmitsNameAndDefaultsReplyToFrom()
+    {
+        $transport = new Transport\Sendgrid(json_encode(['api_url' => 'https://api.sendgrid.com/v3/mail/send', 'api_key' => 'MY_API_KEY']));
+
+        $mock = new Mock();
+        $mock->queue(new Response(['code' => 202, 'headers' => [], 'body' => '']));
+        $transport->getClient()->setHandler($mock);
+
+        $message = new Message('Test Subject!');
         $message->setTo('root@localhost')
             ->setCc('root@localhost')
             ->setBcc('root@localhost')
             ->setFrom('root@localhost')
-            ->setReplyTo('root@localhost')
-            ->addText('Hey, this is a test!')
-            ->addHtml('<html><body><h3>Hey!</h3><p>This is a test!</p></body></html>')
-            ->attachFile(__DIR__ . '/../tmp/test.pdf');
+            ->addText('Hey, this is a test!');
 
-        $mailer->send($message);
+        $transport->send($message);
 
-        $this->assertInstanceOf('Pop\Mail\Transport\Sendgrid', $transport);
-        $this->assertInstanceOf('Pop\Http\Client', $transport->getClient());
-    }
+        $sentRequest = $mock->getLastRequest();
+        $sentFields  = json_decode($sentRequest->getData()->getDataContent(), true);
 
-    public function testSendgrid2()
-    {
-        $transport = new Transport\Sendgrid(['api_url' => 'http://localhost', 'api_key' => 'MY_API_KEY']);
-        $mailer    = new Mail\Mailer($transport, 'root@localhost');
-        $message   = new Mail\Message('Test Subject!');
-        $message->setTo(['root@localhost' => 'root'])
-            ->setCc(['root@localhost' => 'root'])
-            ->setBcc(['root@localhost' => 'root'])
-            ->setFrom(['root@localhost' => 'root'])
-            ->addText('Hey, this is a test!')
-            ->addHtml('<html><body><h3>Hey!</h3><p>This is a test!</p></body></html>')
-            ->attachFile(__DIR__ . '/../tmp/test.pdf');
-
-        $mailer->send($message);
-
-        $this->assertInstanceOf('Pop\Mail\Transport\Sendgrid', $transport);
-        $this->assertInstanceOf('Pop\Http\Client', $transport->getClient());
-    }
-
-    public function testSendgrid3()
-    {
-        $transport = new Transport\Sendgrid(['api_url' => 'http://localhost', 'api_key' => 'MY_API_KEY']);
-        $mailer    = new Mail\Mailer($transport, 'root@localhost');
-        $message   = new Mail\Message('Test Subject!');
-        $message->setTo(['root@localhost' => 'root'])
-            ->setCc(['root@localhost' => 'root'])
-            ->setBcc(['root@localhost' => 'root'])
-            ->setReplyTo(['root@localhost' => 'root'])
-            ->addText('Hey, this is a test!')
-            ->addHtml('<html><body><h3>Hey!</h3><p>This is a test!</p></body></html>')
-            ->attachFile(__DIR__ . '/../tmp/test.pdf');
-
-        $mailer->send($message);
-
-        $this->assertInstanceOf('Pop\Mail\Transport\Sendgrid', $transport);
-        $this->assertInstanceOf('Pop\Http\Client', $transport->getClient());
-    }
-
-    public function testSendgrid4()
-    {
-        $this->expectException('Pop\Mail\Transport\Exception');
-        $transport = new Transport\Sendgrid([]);
+        $this->assertEquals(['email' => 'root@localhost'], $sentFields['personalizations'][0]['to'][0]);
+        $this->assertArrayNotHasKey('name', $sentFields['personalizations'][0]['to'][0]);
+        $this->assertEquals(['email' => 'root@localhost'], $sentFields['personalizations'][1]['cc'][0]);
+        $this->assertArrayNotHasKey('name', $sentFields['personalizations'][1]['cc'][0]);
+        $this->assertEquals(['email' => 'root@localhost'], $sentFields['personalizations'][2]['bcc'][0]);
+        $this->assertArrayNotHasKey('name', $sentFields['personalizations'][2]['bcc'][0]);
+        $this->assertEquals($sentFields['from'], $sentFields['reply_to']);
     }
 
 }
