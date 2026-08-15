@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -366,18 +367,18 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Get an entire multi-line response using its sequence number
      *
-     * @param  string $seq
+     * @param  int|string $seq
      * @throws Exception
      * @return string
      */
-    protected function getFullResponse(string $seq): string
+    protected function getFullResponse(int|string $seq): string
     {
         $response = '';
         try {
             do {
                 $line = $this->buffer->readLine($seq);
                 $response .= $line;
-            } while (($line !== null) && ($line !== false) && ($line[3] != ' '));
+            } while ($line[3] != ' ');
         } catch (Exception $e) {
             $this->throwException($e);
         }

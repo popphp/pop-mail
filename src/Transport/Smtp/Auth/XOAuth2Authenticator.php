@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -38,11 +39,11 @@ class XOAuth2Authenticator implements AuthInterface
     }
 
     /**
-     * Try to authenticate the user with $email and $token
+     * Try to authenticate the user with $username and $password
      *
      * @param  AgentInterface $agent
-     * @param  string         $email
-     * @param  string         $token
+     * @param  string         $username
+     * @param  string         $password
      * @return bool
      */
     public function authenticate(AgentInterface $agent, string $username, string $password): bool

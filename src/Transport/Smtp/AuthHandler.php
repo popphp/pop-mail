@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -214,9 +215,11 @@ class AuthHandler implements HandlerInterface
      * @param string         $command
      * @param array          $codes
      * @param bool           $stop
+     * @return ?string
      */
-    public function onCommand(AgentInterface $agent, string $command, array $codes = [], bool &$stop = false): void
+    public function onCommand(AgentInterface $agent, string $command, array $codes = [], bool &$stop = false): ?string
     {
+        return null;
     }
 
     /**

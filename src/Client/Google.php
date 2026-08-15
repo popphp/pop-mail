@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -271,9 +272,9 @@ class Google extends AbstractGoogle implements HttpClientInterface
         $messageRequest = new Gmail\ModifyMessageRequest();
 
         if ($isRead) {
-            $messageRequest->setRemoveLabelIds('UNREAD');
+            $messageRequest->setRemoveLabelIds(['UNREAD']);
         } else {
-            $messageRequest->setAddLabelIds('UNREAD');
+            $messageRequest->setAddLabelIds(['UNREAD']);
         }
 
         $gmail      = $this->gmailService();

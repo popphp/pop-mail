@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -77,7 +78,7 @@ abstract class AbstractGoogle extends AbstractHttpClient
 
         if (is_array($response) && isset($response['access_token']) && isset($response['expires_in'])) {
             $this->setToken($response['access_token'])
-                ->setTokenExpires(time() + $response['expires_in']);
+                ->setTokenExpires((string)(time() + $response['expires_in']));
         }
 
         return $this;

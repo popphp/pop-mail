@@ -233,7 +233,7 @@ class GoogleTest extends TestCase
         $usersMessages = $this->createMock(Gmail\Resource\UsersMessages::class);
         $usersMessages->expects($this->once())->method('modify')
             ->with('test@gmail.com', 'MSG1', $this->callback(function ($request) {
-                return $request->getRemoveLabelIds() === 'UNREAD' && $request->getAddLabelIds() === null;
+                return $request->getRemoveLabelIds() === ['UNREAD'] && $request->getAddLabelIds() === null;
             }));
         $gmail->users_messages = $usersMessages;
 
@@ -249,7 +249,7 @@ class GoogleTest extends TestCase
         $usersMessages = $this->createMock(Gmail\Resource\UsersMessages::class);
         $usersMessages->expects($this->once())->method('modify')
             ->with('test@gmail.com', 'MSG1', $this->callback(function ($request) {
-                return $request->getAddLabelIds() === 'UNREAD' && $request->getRemoveLabelIds() === null;
+                return $request->getAddLabelIds() === ['UNREAD'] && $request->getRemoveLabelIds() === null;
             }));
         $gmail->users_messages = $usersMessages;
 

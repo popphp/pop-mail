@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -260,7 +261,7 @@ class Message extends MimeMessage
      */
     public static function load(string $message): Message
     {
-        if (is_string($message) && (str_contains($message, 'Subject:'))) {
+        if (str_contains($message, 'Subject:')) {
             return self::parse($message);
         } else if (file_exists($message)) {
             return self::parseFromFile($message);
@@ -797,7 +798,7 @@ class Message extends MimeMessage
                 if (count($value->getValues()) == 1) {
                     switch (strtolower($header)) {
                         case 'subject':
-                            $message->setSubject($value->getValue(0));
+                            $message->setSubject($value->getValueAsString(0));
                             break;
                         case 'to':
                             $message->setTo($value->getValue(0));
@@ -821,7 +822,7 @@ class Message extends MimeMessage
                             $message->setReturnPath($value->getValue(0));
                             break;
                         default:
-                            $message->addHeader($header, $value->getValue(0));
+                            $message->addHeader($header, $value->getValueAsString(0));
                     }
                 }
             }
@@ -876,7 +877,7 @@ class Message extends MimeMessage
      */
     public function __clone(): void
     {
-        foreach($this as $key => $val) {
+        foreach (get_object_vars($this) as $key => $val) {
             if (is_object($val) || (is_array($val))) {
                 $this->{$key} = unserialize(serialize($val));
             }

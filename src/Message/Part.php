@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -61,10 +62,10 @@ class Part extends Utils\ArrayObject
             if (is_array($part)) {
                 $flattenedParts = array_merge($flattenedParts, self::parseParts($part));
             } else {
-                $flattenedParts[] = new static([
+                $flattenedParts[] = new self([
                     'headers'    => $part->getHeadersAsArray(),
                     'type'       => (($part->hasHeader('Content-Type')) && (count($part->getHeader('Content-Type')->getValues()) == 1)) ?
-                        $part->getHeader('Content-Type')->getValue(0) : null,
+                        $part->getHeader('Content-Type')->getValueAsString(0) : null,
                     'attachment' => (($part->hasBody()) && ($part->getBody()->isFile())),
                     'basename'   => $part->getFilename(),
                     'content'    => $part->getContents()

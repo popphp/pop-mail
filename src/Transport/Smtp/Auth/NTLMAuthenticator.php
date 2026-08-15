@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -67,7 +68,7 @@ class NTLMAuthenticator implements AuthInterface
             $response = base64_decode(substr(trim($this->sendMessage1($agent)), 4));
 
             // extra parameters for our unit cases
-            $timestamp = func_num_args() > 3 ? func_get_arg(3) : $this->getCorrectTimestamp(bcmul(microtime(true), '1000'));
+            $timestamp = func_num_args() > 3 ? func_get_arg(3) : $this->getCorrectTimestamp(bcmul((string)microtime(true), '1000'));
             $client    = func_num_args() > 4 ? func_get_arg(4) : $this->getRandomBytes(8);
 
             // Message 3 response
@@ -103,7 +104,7 @@ class NTLMAuthenticator implements AuthInterface
             } else {
                 // negative
                 $si  = -$si - pow(2, $bits);
-                $bin = base_convert($si, 10, 2);
+                $bin = base_convert((string)$si, 10, 2);
                 $bin_length = strlen($bin);
                 if ($bin_length > $bits) {
                     $bin = str_repeat('1', $bits - $bin_length) . $bin;
@@ -135,13 +136,13 @@ class NTLMAuthenticator implements AuthInterface
     protected function parseMessage2(string $response): array
     {
         $responseHex     = bin2hex($response);
-        $length          = floor(hexdec(substr($responseHex, 28, 4)) / 256) * 2;
-        $offset          = floor(hexdec(substr($responseHex, 32, 4)) / 256) * 2;
+        $length          = (int)(floor(hexdec(substr($responseHex, 28, 4)) / 256) * 2);
+        $offset          = (int)(floor(hexdec(substr($responseHex, 32, 4)) / 256) * 2);
         $challenge       = $this->hex2bin(substr($responseHex, 48, 16));
         $context         = $this->hex2bin(substr($responseHex, 64, 16));
         $targetInfoH     = $this->hex2bin(substr($responseHex, 80, 16));
         $targetName      = $this->hex2bin(substr($responseHex, $offset, $length));
-        $offset          = floor(hexdec(substr($responseHex, 88, 4)) / 256) * 2;
+        $offset          = (int)(floor(hexdec(substr($responseHex, 88, 4)) / 256) * 2);
         $targetInfoBlock = substr($responseHex, $offset);
 
         list($domainName, $serverName, $DNSDomainName, $DNSServerName, $terminatorByte) = $this->readSubBlock($targetInfoBlock);
@@ -386,9 +387,9 @@ class NTLMAuthenticator implements AuthInterface
         // Get our timestamp (tricky!)
         bcscale(0);
 
-        $time = number_format($time, 0, '.', ''); // save microtime to string
-        $time = bcadd($time, '11644473600000');   // add epoch time
-        $time = bcmul($time, 10000);              // tenths of a microsecond.
+        $time = number_format((float)$time, 0, '.', ''); // save microtime to string
+        $time = bcadd($time, '11644473600000');          // add epoch time
+        $time = bcmul($time, '10000');                   // tenths of a microsecond.
 
         $binary    = $this->si2bin($time, 64); // create 64 bit binary string
         $timestamp = '';
@@ -577,7 +578,7 @@ class NTLMAuthenticator implements AuthInterface
     {
         $bytes = openssl_random_pseudo_bytes($length, $strong);
 
-        if (false !== $bytes && true === $strong) {
+        if (true === $strong) {
             return $bytes;
         }
 

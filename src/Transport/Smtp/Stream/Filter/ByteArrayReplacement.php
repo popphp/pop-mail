@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -25,12 +26,6 @@ use Pop\Mail\Transport\Smtp\Stream\FilterInterface;
  */
 class ByteArrayReplacement implements FilterInterface
 {
-    /**
-     * The needle(s) to search for
-     * @var array
-     */
-    private array $search = [];
-
     /**
      * The replacement(s) to make
      * @var array
@@ -69,7 +64,6 @@ class ByteArrayReplacement implements FilterInterface
      */
     public function __construct(array $search, array $replace)
     {
-        $this->search  = $search;
         $tree          = null;
         $i             = null;
         $lastSize      = $size = 0;
@@ -81,6 +75,7 @@ class ByteArrayReplacement implements FilterInterface
             }
             $tree = &$this->tree;
             if (is_array($search_element)) {
+                $k = -1;
                 foreach ($search_element as $k => $char) {
                     $this->index[$char] = true;
                     if (!isset($tree[$char])) {
@@ -147,6 +142,7 @@ class ByteArrayReplacement implements FilterInterface
         for ($i = 0; $i < $buf_size; ++$i) {
             $search_pos = $this->tree;
             $last_found = PHP_INT_MAX;
+            $lastSize   = 0;
             // We try to find if the next byte is part of a search pattern
             for ($j = 0; $j <= $this->treeMaxLen; ++$j) {
                 // We have a new byte for a search pattern

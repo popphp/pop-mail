@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -26,6 +27,7 @@ use Pop\Mail\Message;
  * @copyright  Copyright (c) 2009-2027 NOLA Interactive, LLC.
  * @license    https://www.popphp.org/license     New BSD License
  * @version    5.0.0
+ * @phpstan-consistent-constructor
  */
 class Imap extends AbstractMailClient
 {
@@ -256,7 +258,7 @@ class Imap extends AbstractMailClient
      * @param  bool    $reverse
      * @param  int     $options
      * @param  string  $search
-     * @param  s?tring $charset
+     * @param  ?string $charset
      * @return array
      */
     public function getMessageIdsBy(
@@ -264,8 +266,8 @@ class Imap extends AbstractMailClient
     ): array
     {
         return ($charset !== null) ?
-            imap_sort($this->connection, $criteria, (int)$reverse, $options, $search, $charset) :
-            imap_sort($this->connection, $criteria, (int)$reverse, $options, $search);
+            imap_sort($this->connection, $criteria, $reverse, $options, $search, $charset) :
+            imap_sort($this->connection, $criteria, $reverse, $options, $search);
     }
 
     /**
@@ -472,7 +474,7 @@ class Imap extends AbstractMailClient
      */
     public function hasMessageAttachments(int|string $id, ?string $encoding = null): bool
     {
-        return (count($this->getMessageAttachments($id, $encoding)) > 0);
+        return (count($this->getMessageAttachments($id)) > 0);
     }
 
     /**
@@ -661,7 +663,7 @@ class Imap extends AbstractMailClient
      */
     public function close(): void
     {
-        if (is_resource($this->connection)) {
+        if ($this->connection instanceof \IMAP\Connection) {
             imap_close($this->connection);
         }
     }

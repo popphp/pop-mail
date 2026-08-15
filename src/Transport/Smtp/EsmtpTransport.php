@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -22,13 +23,21 @@ use Pop\Mail\Transport\Smtp\Stream\BufferInterface;
  * @package    Pop\Mail
  * @author     Chris Corbyn, from the SwiftMailer library https://github.com/swiftmailer/swiftmailer
  * @version    5.0.0
+ *
+ * Methods mixed in at runtime via __call() from the active ESMTP handlers (e.g. AuthHandler):
+ * @method $this setUsername(string $username)
+ * @method $this setPassword(string $password)
+ * @method $this setAuthMode(string $mode)
+ * @method ?string getUsername()
+ * @method ?string getPassword()
+ * @method ?string getAuthMode()
  */
 class EsmtpTransport extends AbstractSmtp implements AgentInterface
 {
 
     /**
      * ESMTP extension handlers
-     * @var array
+     * @var HandlerInterface[]
      */
     private array $handlers = [];
 
@@ -224,7 +233,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
     /**
      * Set ESMTP extension handlers
      *
-     * @param  array $handlers
+     * @param  HandlerInterface[] $handlers
      * @return EsmtpTransport
      */
     public function setExtensionHandlers(array $handlers): EsmtpTransport
@@ -321,6 +330,7 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
      */
     protected function doHeloCommand(): void
     {
+        $response = '';
         try {
             $response = $this->executeCommand(sprintf("EHLO %s\r\n", $this->domain), [250]);
         } catch (Exception $e) {
@@ -425,6 +435,8 @@ class EsmtpTransport extends AbstractSmtp implements AgentInterface
 
     /**
      * Get ESMTP handlers which are currently ok to use
+     *
+     * @return HandlerInterface[]
      */
     private function getActiveHandlers(): array
     {

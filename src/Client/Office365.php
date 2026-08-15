@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -85,7 +86,7 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
 
                 switch (strtolower($key)) {
                     case 'unread':
-                        $filterStrings[] = "isRead " . $op . " " . ($value) ? "false" : "true";
+                        $filterStrings[] = "isRead " . $op . " " . ($value ? "false" : "true");
                         break;
                     case 'sent':
                         $filterStrings[] = "sentDateTime " . $op . " " . date('c', strtotime($value));
@@ -101,9 +102,7 @@ class Office365 extends AbstractOffice365 implements HttpClientInterface
                 }
             }
 
-            if (!empty($filterStrings)) {
-                $data['filter'] = implode(' and ', $filterStrings);
-            }
+            $data['filter'] = implode(' and ', $filterStrings);
         }
 
         $this->client->setAuth(Http\Auth::createBearer($this->token));

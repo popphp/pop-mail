@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -66,8 +67,9 @@ interface HandlerInterface
      * @param string         $command          to send
      * @param array          $codes            expected in response
      * @param bool           $stop             to be set true  by-reference if the command is now sent
+     * @return ?string the response, if this handler sent the command itself
      */
-    public function onCommand(AgentInterface $agent, string $command, array $codes = [], bool &$stop = false): void;
+    public function onCommand(AgentInterface $agent, string $command, array $codes = [], bool &$stop = false): ?string;
 
     /**
      * Returns +1, -1 or 0 according to the rules for usort().

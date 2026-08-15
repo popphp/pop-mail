@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Pop PHP Framework (https://www.popphp.org/)
  *
@@ -109,7 +110,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
 
                 case 'blocking':
                     if ($this->stream) {
-                        stream_set_blocking($this->stream, 1);
+                        stream_set_blocking($this->stream, true);
                     }
 
             }
@@ -192,10 +193,11 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
         $line = '';
 
         if (isset($this->out) && !feof($this->out)) {
-            $line = fgets($this->out);
+            $bytes = fgets($this->out);
+            $line  = ($bytes === false) ? '' : $bytes;
             if (strlen($line) == 0) {
                 $metas = stream_get_meta_data($this->out);
-                if (isset($metas['timedout']) && ($metas['timedout'])) {
+                if ($metas['timed_out']) {
                     throw new Exception('Connection to ' . $this->getReadConnectionDescription() . ' Timed Out');
                 }
             }
@@ -220,10 +222,11 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
         $ret = '';
 
         if (isset($this->out) && !feof($this->out)) {
-            $ret = fread($this->out, $length);
+            $bytes = fread($this->out, (int)$length);
+            $ret   = ($bytes === false) ? '' : $bytes;
             if (strlen($ret) == 0) {
                 $metas = stream_get_meta_data($this->out);
-                if ($metas['timedout']) {
+                if ($metas['timed_out']) {
                     throw new Exception('Connection to ' . $this->getReadConnectionDescription() . ' Timed Out');
                 }
             }
@@ -277,6 +280,8 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
                 return ++$this->sequence;
             }
         }
+
+        return 0;
     }
 
     /**
@@ -305,9 +310,9 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
             throw new Exception('Connection could not be established with host '.$this->params['host'] . ' [' . $errstr . ' #' . $errno . ']');
         }
         if (!empty($this->params['blocking'])) {
-            stream_set_blocking($this->stream, 1);
+            stream_set_blocking($this->stream, true);
         } else {
-            stream_set_blocking($this->stream, 0);
+            stream_set_blocking($this->stream, false);
         }
         stream_set_timeout($this->stream, $timeout);
         $this->in  = &$this->stream;
@@ -326,7 +331,7 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
             2 => ['pipe', 'w'],
         ];
         $this->stream = proc_open($command, $descriptorSpec, $pipes);
-        stream_set_blocking($pipes[2], 0);
+        stream_set_blocking($pipes[2], false);
         if ($err = stream_get_contents($pipes[2])) {
             throw new Exception(
                 'Process could not be started ['.$err.']'
@@ -346,7 +351,6 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
         switch ($this->params['type']) {
             case self::TYPE_PROCESS:
                 return 'Process ' . $this->params['command'];
-                break;
 
             case self::TYPE_SOCKET:
             default:
@@ -357,7 +361,6 @@ class Buffer extends Byte\AbstractFilterableInputStream implements BufferInterfa
                 $host .= ':' . $this->params['port'];
 
                 return $host;
-                break;
         }
     }
 

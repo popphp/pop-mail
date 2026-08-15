@@ -84,6 +84,7 @@ class Office365Test extends TestCase
         $uri = urldecode($mock->getLastRequest()->getUriAsString());
         $this->assertStringContainsString("subject eq 'Test'", $uri);
         $this->assertStringContainsString("to ne 'me@outlook.com'", $uri);
+        $this->assertStringContainsString("isRead eq false", $uri);
     }
 
     public function testGetMessage()
