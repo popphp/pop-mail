@@ -37,6 +37,17 @@ class Attachment extends Part
      */
     protected ?string $sourcePath = null;
 
+    /**
+     * Create an attachment from a file on disk
+     *
+     * @param  string             $file
+     * @param  ?string            $contentType
+     * @param  string             $disposition
+     * @param  Part\Body\Encoding $encoding
+     * @param  int|bool           $split
+     * @throws Exception
+     * @return static
+     */
     public static function create(
         string $file, ?string $contentType = null, string $disposition = 'attachment',
         Part\Body\Encoding $encoding = Part\Body\Encoding::BASE64, int|bool $split = true
@@ -51,6 +62,17 @@ class Attachment extends Part
         return $attachment;
     }
 
+    /**
+     * Create an attachment from in-memory content
+     *
+     * @param  string             $content
+     * @param  string             $filename
+     * @param  ?string            $contentType
+     * @param  string             $disposition
+     * @param  Part\Body\Encoding $encoding
+     * @param  int|bool           $split
+     * @return static
+     */
     public static function createFromContent(
         string $content, string $filename, ?string $contentType = null, string $disposition = 'attachment',
         Part\Body\Encoding $encoding = Part\Body\Encoding::BASE64, int|bool $split = true
@@ -78,6 +100,11 @@ class Attachment extends Part
         return $this->sourcePath;
     }
 
+    /**
+     * Get the basename decoded from headers (the parent's original getFilename() behavior)
+     *
+     * @return ?string
+     */
     public function getBasename(): ?string
     {
         return parent::getFilename();

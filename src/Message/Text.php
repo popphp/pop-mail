@@ -28,6 +28,12 @@ class Text extends Part
     use CharsetAwareTrait;
     use PartContentTrait;
 
+    /**
+     * Create a text message part
+     *
+     * @param  string $content
+     * @return static
+     */
     public static function create(string $content): static
     {
         return parent::text($content);

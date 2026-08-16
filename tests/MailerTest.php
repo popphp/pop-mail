@@ -21,12 +21,36 @@ class SpyTransport implements TransportInterface
     }
 }
 
+/**
+ * Test double transport that also implements BatchTransportInterface, so
+ * tests can assert Mailer prefers sendBatch() over per-message send()
+ */
 class SpyBatchTransport implements TransportInterface, BatchTransportInterface
 {
+    /**
+     * Messages passed to send() or sendBatch()
+     * @var array
+     */
     public array $sent      = [];
+
+    /**
+     * Number of times send() was called
+     * @var int
+     */
     public int   $sendCalls = 0;
+
+    /**
+     * Number of times sendBatch() was called
+     * @var int
+     */
     public int   $batchCalls = 0;
 
+    /**
+     * Record a single sent message
+     *
+     * @param  Message $message
+     * @return mixed
+     */
     public function send(Message $message): mixed
     {
         $this->sendCalls++;
@@ -34,6 +58,12 @@ class SpyBatchTransport implements TransportInterface, BatchTransportInterface
         return true;
     }
 
+    /**
+     * Record a batch of sent messages
+     *
+     * @param  Message[] $messages
+     * @return int
+     */
     public function sendBatch(array $messages): int
     {
         $this->batchCalls++;
