@@ -60,7 +60,7 @@ class Part extends Utils\ArrayObject
 
         foreach ($parts as $part) {
             if (is_array($part)) {
-                $flattenedParts = array_merge($flattenedParts, self::parseParts($part));
+                array_push($flattenedParts, ...self::parseParts($part));
             } else {
                 $flattenedParts[] = new self([
                     'headers'    => $part->getHeadersAsArray(),

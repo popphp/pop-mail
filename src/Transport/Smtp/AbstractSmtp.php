@@ -294,12 +294,13 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * Stream the contents of the message over the buffer
      *
      * @param Message $message
+     * @param ?string $body pre-rendered body to reuse across repeated streams of the same message (see Message::render())
      */
-    protected function streamMessage(Message $message): void
+    protected function streamMessage(Message $message, ?string $body = null): void
     {
         $this->buffer->setWriteTranslations(["\r\n." => "\r\n.."]);
         try {
-            $message->toByteStream($this->buffer);
+            $message->toByteStream($this->buffer, $body);
             $this->buffer->flushBuffers();
         } catch (Exception $e) {
             $this->throwException($e);
@@ -392,9 +393,10 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
      * @param  Message $message
      * @param  string  $reversePath
      * @param  array   $recipients
+     * @param  ?string $body pre-rendered body to reuse (see streamMessage())
      * @return int
      */
-    private function doMailTransaction(Message $message, string $reversePath, array $recipients): int
+    private function doMailTransaction(Message $message, string $reversePath, array $recipients, ?string $body = null): int
     {
         $sent = 0;
         $this->doMailFromCommand($reversePath);
@@ -408,7 +410,7 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
 
         if ($sent != 0) {
             $this->doDataCommand();
-            $this->streamMessage($message);
+            $this->streamMessage($message, $body);
         } else {
             $this->reset();
         }
@@ -436,6 +438,10 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     /**
      * Send a message to all Bcc: recipients
      *
+     * Only the Bcc: header differs between recipients here - the body (and any
+     * attachments) is rendered once up front and reused for every transaction
+     * instead of being re-rendered (and attachments re-encoded) per recipient.
+     *
      * @param  Message $message
      * @param  string  $reversePath
      * @param  array   $bcc
@@ -444,9 +450,11 @@ abstract class AbstractSmtp implements SmtpInterface, TransportInterface
     private function sendBcc(Message $message, string $reversePath, array $bcc): int
     {
         $sent = 0;
+        $body = !empty($bcc) ? $message->getBodyContent() : null;
+
         foreach ($bcc as $forwardPath => $name) {
             $message->setBcc([$forwardPath => $name]);
-            $sent += $this->doMailTransaction($message, $reversePath, [$forwardPath]);
+            $sent += $this->doMailTransaction($message, $reversePath, [$forwardPath], $body);
         }
 
         return $sent;

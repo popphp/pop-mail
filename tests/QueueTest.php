@@ -45,6 +45,28 @@ class QueueTest extends TestCase
         $this->assertEquals(2, count($queue->getRecipients()));
     }
 
+    public function testAddRecipientDeduplicates()
+    {
+        $queue = new Queue();
+        $recipient = [
+            'email'   => 'me@domain.com',
+            'name'    => 'My Name',
+            'company' => 'My Company'
+        ];
+        $queue->addRecipient($recipient);
+        $queue->addRecipient($recipient);
+        $this->assertEquals(1, count($queue->getRecipients()));
+    }
+
+    public function testAddMessageDeduplicates()
+    {
+        $queue   = new Queue();
+        $message = new Message('Hello World');
+        $queue->addMessage($message);
+        $queue->addMessage($message);
+        $this->assertEquals(1, count($queue->getMessages()));
+    }
+
     public function testAddMessages()
     {
         $queue = new Queue();
@@ -118,6 +140,11 @@ TEXT
         );
 
         $queue->addMessage($message);
-        $this->assertEquals(2, count($queue->prepare()));
+        $prepared = $queue->prepare();
+        $this->assertEquals(2, count($prepared));
+        $this->assertEquals('Hello My Name!', $prepared[0]->getSubject());
+        $this->assertEquals('Hello Another Name!', $prepared[1]->getSubject());
+        $this->assertStringContainsString('Your My Company is great!', $prepared[0]->getPart(0)->getContent());
+        $this->assertStringContainsString('Your Another Company is great!', $prepared[1]->getPart(0)->getContent());
     }
 }

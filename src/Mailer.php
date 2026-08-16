@@ -116,28 +116,33 @@ class Mailer
     /**
      * Send messages from mail queue
      *
+     * If the transport implements BatchTransportInterface, all prepared
+     * messages are handed to it in one call instead of being sent one at a
+     * time, so batch-capable transports can use their provider's native
+     * bulk-send endpoint.
+     *
      * @param  Queue $queue
      * @return int
      */
     public function sendFromQueue(Queue $queue): int
     {
-        $sent     = 0;
         $messages = $queue->prepare();
 
         foreach ($messages as $message) {
             if ((!$message->hasFrom()) && ($this->hasDefaultFrom())) {
                 $message->setFrom($this->defaultFrom);
             }
-
-            $this->transport->send($message);
-            $sent++;
         }
 
-        return $sent;
+        return $this->dispatch($messages);
     }
 
     /**
      * Send messages from email messages saved to disk in a directory
+     *
+     * If the transport implements BatchTransportInterface, all loaded
+     * messages are handed to it in one call instead of being sent one at a
+     * time (see sendFromQueue()).
      *
      * @param  string $dir
      * @throws Exception
@@ -149,11 +154,11 @@ class Mailer
             throw new Exception('Error: That directory does not exist');
         }
 
-        $sent  = 0;
         $files = array_filter(scandir($dir), function($value) {
             return (($value != '.') && ($value != '..') && ($value != '.empty'));
         });
 
+        $messages = [];
         foreach ($files as $file) {
             $message = Message::load($dir . DIRECTORY_SEPARATOR . $file);
 
@@ -161,6 +166,27 @@ class Mailer
                 $message->setFrom($this->defaultFrom);
             }
 
+            $messages[] = $message;
+        }
+
+        return $this->dispatch($messages);
+    }
+
+    /**
+     * Send a batch of already-prepared messages, preferring the transport's
+     * native batch API when it supports one
+     *
+     * @param  Message[] $messages
+     * @return int
+     */
+    private function dispatch(array $messages): int
+    {
+        if ($this->transport instanceof Transport\BatchTransportInterface) {
+            return $this->transport->sendBatch($messages);
+        }
+
+        $sent = 0;
+        foreach ($messages as $message) {
             $this->transport->send($message);
             $sent++;
         }

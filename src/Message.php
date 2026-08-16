@@ -198,15 +198,21 @@ class Message extends MimeMessage
      * stringify the header set before that side effect fires, silently
      * dropping Content-Type from the rendered output.
      *
-     * @param  bool $preamble
+     * $body may be passed in to reuse an already-rendered body (e.g. when
+     * only the headers differ across repeated renders of the same message,
+     * such as looping Bcc transactions) instead of re-running renderParts()
+     * (and re-encoding any attachments) on every call.
+     *
+     * @param  bool    $preamble
+     * @param  ?string $body
      * @return string
      */
-    public function render(bool $preamble = true): string
+    public function render(bool $preamble = true, ?string $body = null): string
     {
         if ($this->hasParts()) {
             $this->getBoundary();
         }
-        $body = $this->getBodyContent();
+        $body ??= $this->getBodyContent();
         return $this->getHeadersAsString() . self::CRLF . $body;
     }
 
@@ -244,11 +250,12 @@ class Message extends MimeMessage
     /**
      * Render as an array of lines
      *
+     * @param  ?string $body pre-rendered body to reuse (see render())
      * @return array
      */
-    public function renderAsLines(): array
+    public function renderAsLines(?string $body = null): array
     {
-        $lines = explode(self::CRLF, $this->render());
+        $lines = explode(self::CRLF, $this->render(true, $body));
         return array_map('trim', $lines);
     }
 
@@ -753,11 +760,12 @@ class Message extends MimeMessage
      * Write this entire entity to a buffer
      *
      * @param  Transport\Smtp\Stream\BufferInterface $is
+     * @param  ?string                                $body pre-rendered body to reuse (see render())
      * @return void
      */
-    public function toByteStream(Transport\Smtp\Stream\BufferInterface $is): void
+    public function toByteStream(Transport\Smtp\Stream\BufferInterface $is, ?string $body = null): void
     {
-        $lines = $this->renderAsLines();
+        $lines = $this->renderAsLines($body);
         foreach ($lines as $line) {
             $is->write($line . self::CRLF);
         }

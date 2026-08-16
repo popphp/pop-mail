@@ -46,6 +46,18 @@ class Queue
     protected array $prepared = [];
 
     /**
+     * Hashes of recipients currently in the queue, for O(1) dedup lookups
+     * @var array
+     */
+    protected array $recipientHashes = [];
+
+    /**
+     * Object IDs of messages currently in the queue, for O(1) dedup lookups
+     * @var array
+     */
+    protected array $messageIds = [];
+
+    /**
      * Constructor
      *
      * Instantiate the mail queue object
@@ -76,7 +88,8 @@ class Queue
      */
     public function setRecipients(array $recipients): Queue
     {
-        $this->recipients = [];
+        $this->recipients      = [];
+        $this->recipientHashes = [];
         foreach ($recipients as $recipient) {
             $this->addRecipient($recipient);
         }
@@ -115,8 +128,11 @@ class Queue
         if (!isset($recipient['email'])) {
             throw new Exception("Error: The recipient's array must contain at least an 'email' key.");
         }
-        if (!in_array($recipient, $this->recipients, true)) {
-            $this->recipients[] = $recipient;
+
+        $hash = md5(serialize($recipient));
+        if (!isset($this->recipientHashes[$hash])) {
+            $this->recipientHashes[$hash] = true;
+            $this->recipients[]           = $recipient;
         }
 
         return $this;
@@ -130,7 +146,8 @@ class Queue
      */
     public function setMessages(array $messages): Queue
     {
-        $this->messages = [];
+        $this->messages   = [];
+        $this->messageIds = [];
         foreach ($messages as $message) {
             $this->addMessage($message);
         }
@@ -159,8 +176,10 @@ class Queue
      */
     public function addMessage(Message $message): Queue
     {
-        if (!in_array($message, $this->messages, true)) {
-            $this->messages[] = $message;
+        $id = spl_object_id($message);
+        if (!isset($this->messageIds[$id])) {
+            $this->messageIds[$id] = true;
+            $this->messages[]      = $message;
         }
         return $this;
     }
@@ -209,15 +228,18 @@ class Queue
                 $msg = clone $message;
                 $msg->setTo($to);
 
+                $subject = (string)$msg->getSubject();
+                foreach ($recipient as $key => $value) {
+                    $subject = str_replace('[{' . $key . '}]', $value, $subject);
+                }
+                $msg->setSubject($subject);
+
                 foreach ($msg->getParts() as $i => $part) {
                     if (!($part instanceof Message\Attachment)) {
-                        $subject = $msg->getSubject();
                         $content = $part->getContent();
                         foreach ($recipient as $key => $value) {
-                            $subject = str_replace('[{' . $key . '}]', $value, $subject);
                             $content = str_replace('[{' . $key . '}]', $value, $content);
                         }
-                        $msg->setSubject($subject);
                         $msg->getPart($i)->setContent($content);
                     }
                 }
