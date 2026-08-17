@@ -20,10 +20,9 @@
     ],
     "require": {
         "php": ">=8.4.0",
-        "popphp/pop-http": "^6.0.0-beta.6",
-        "popphp/pop-mime": "^3.0.0-beta.1",
-        "popphp/pop-utils": "^3.0.0-beta.4",
-        "popphp/popphp": "^5.0.0-beta.20",
+        "popphp/pop-http": "^6.0.0",
+        "popphp/pop-mime": "^3.0.0",
+        "popphp/pop-utils": "^3.0.0",
         "google/apiclient": "^v2.17.0",
         "aws/aws-sdk-php": "^3.316.10"
     },
