@@ -797,6 +797,10 @@ class Message extends MimeMessage
      */
     public static function parse(string $stream): Message
     {
+        if (!str_contains($stream, "\r\n\r\n")) {
+            throw new Exception('Error: The message contents are malformed and contain no header/body delimiter');
+        }
+
         $parsedMessage = \Pop\Mime\Message::parseMessage($stream);
         $message       = new self();
 

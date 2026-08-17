@@ -214,16 +214,22 @@ class MessageTest extends TestCase
         $this->assertEquals('<abcdef@example.com>', $message->getHeaderValue('Message-ID'));
     }
 
-    public function testParseStreamNoSubjectException()
+    public function testParseStreamMalformedException()
     {
         $this->expectException('Pop\Mail\Exception');
         $message = Message::parse('some bad content');
     }
 
+    public function testParseStreamNoSubjectException()
+    {
+        $this->expectException('Pop\Mail\Exception');
+        $message = Message::parse("To: to@test.com\r\n\r\nHello World");
+    }
+
     public function testParseStreamNoToException()
     {
         $this->expectException('Pop\Mail\Exception');
-        $message = Message::parse("Subject: This is a subject\nsome other bad content.");
+        $message = Message::parse("Subject: This is a subject\r\n\r\nHello World");
     }
 
     public function testParseFromFileException()
