@@ -798,5 +798,3 @@ $message = Message::parse($rawMessageString);
 ```
 
 [Top](#pop-mail)
-
-
